@@ -39,6 +39,7 @@ import {
   FileText as FileTextIcon,
   Heading1,
   Video,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -50,12 +51,17 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, ReactNode } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
+
 
 type ComponentType = {
   name: string;
   icon: ReactNode;
   isNew?: boolean;
 };
+
+type CanvasComponentData = ComponentType & { id: number };
 
 const components: ComponentType[] = [
   { name: 'Alerta', icon: <AlertTriangle /> },
@@ -85,13 +91,83 @@ const components: ComponentType[] = [
   { name: 'Video', icon: <Video /> },
 ];
 
-// A simple component to represent any item on the canvas
-const CanvasComponent = ({ component }: { component: ComponentType & { id: number } }) => {
+const GenericCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  return (
+    <Card className="p-4 flex items-center gap-4 bg-muted/20">
+      {component.icon}
+      <p className="font-semibold">{component.name}</p>
+    </Card>
+  );
+};
+
+const AlertCanvasComponent = () => {
     return (
-        <Card className="p-4 flex items-center gap-4">
-            {component.icon}
-            <p className="font-semibold">{component.name}</p>
-        </Card>
+        <Alert className="border-green-500 text-green-500 [&>svg]:text-green-500">
+            <Check className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+                Test alert element 1
+            </AlertDescription>
+        </Alert>
+    )
+}
+
+const CanvasComponent = ({ component, isSelected, onClick }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void }) => {
+  const renderComponent = () => {
+    switch (component.name) {
+      case 'Alerta':
+        return <AlertCanvasComponent />;
+      default:
+        return <GenericCanvasComponent component={component} />;
+    }
+  };
+    
+  return (
+      <div 
+        className={cn("p-1 rounded-lg cursor-pointer", isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background")}
+        onClick={onClick}
+      >
+          {renderComponent()}
+      </div>
+  );
+};
+
+const StepSettings = () => (
+    <>
+        <div>
+            <h3 className="text-sm font-medium text-muted-foreground">Título da Etapa</h3>
+            <Input defaultValue="Etapa 1" className="mt-2 text-base" />
+        </div>
+        <Separator />
+        <div>
+            <h3 className="text-sm font-medium text-muted-foreground">Header</h3>
+            <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="show-logo">Mostrar Logo</Label>
+                    <Switch id="show-logo" defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="show-progress">Mostrar Progresso</Label>
+                    <Switch id="show-progress" defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="allow-back">Permitir Voltar</Label>
+                    <Switch id="allow-back" defaultChecked />
+                </div>
+            </div>
+        </div>
+    </>
+);
+
+const ComponentSettings = ({ component }: { component: CanvasComponentData }) => {
+    if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
+
+    return (
+        <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Editando: {component.name}</h3>
+            {/* Placeholder for actual component settings */}
+            <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>
+        </div>
     );
 };
 
@@ -99,12 +175,15 @@ const CanvasComponent = ({ component }: { component: ComponentType & { id: numbe
 function FunnelEditorContent() {
   const searchParams = useSearchParams();
   const funnelName = searchParams.get('name') || 'Novo Funil';
-  const [canvasComponents, setCanvasComponents] = useState<(ComponentType & { id: number })[]>([]);
+  const [canvasComponents, setCanvasComponents] = useState<CanvasComponentData[]>([]);
+  const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
 
   const addComponentToCanvas = (component: ComponentType) => {
     const newComponent = { ...component, id: Date.now() };
     setCanvasComponents(prev => [...prev, newComponent]);
   };
+
+  const selectedComponent = canvasComponents.find(c => c.id === selectedComponentId) || null;
 
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
@@ -172,8 +251,8 @@ function FunnelEditorContent() {
         </aside>
 
         {/* Center Canvas */}
-        <main className="flex-1 overflow-y-auto bg-muted/20 p-4">
-            <div className="mx-auto w-full max-w-2xl">
+        <main className="flex-1 overflow-y-auto bg-muted/20 p-4" onClick={() => setSelectedComponentId(null)}>
+            <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4 text-muted-foreground">
                     <ArrowLeft className="h-5 w-5 cursor-pointer hover:text-foreground" />
                     <Separator className="flex-1" />
@@ -190,7 +269,12 @@ function FunnelEditorContent() {
                         </div>
                     ) : (
                         canvasComponents.map((comp) => (
-                            <CanvasComponent key={comp.id} component={comp} />
+                            <CanvasComponent 
+                                key={comp.id} 
+                                component={comp} 
+                                isSelected={selectedComponentId === comp.id}
+                                onClick={() => setSelectedComponentId(comp.id)}
+                            />
                         ))
                     )}
                 </div>
@@ -200,28 +284,11 @@ function FunnelEditorContent() {
         {/* Right Sidebar */}
         <aside className="w-80 border-l border-border p-6">
           <div className="space-y-6">
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Título da Etapa</h3>
-              <Input defaultValue="Etapa 1" className="mt-2 text-base" />
-            </div>
-            <Separator />
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Header</h3>
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-logo">Mostrar Logo</Label>
-                  <Switch id="show-logo" defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-progress">Mostrar Progresso</Label>
-                  <Switch id="show-progress" defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="allow-back">Permitir Voltar</Label>
-                  <Switch id="allow-back" defaultChecked />
-                </div>
-              </div>
-            </div>
+            {selectedComponent ? (
+                <ComponentSettings component={selectedComponent} />
+            ) : (
+                <StepSettings />
+            )}
           </div>
         </aside>
       </div>
