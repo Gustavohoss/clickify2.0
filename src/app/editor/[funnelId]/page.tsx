@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { Suspense, useState, ReactNode } from 'react';
@@ -356,6 +355,49 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
   )
 }
 
+const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+       <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Layout</h3>
+        <div className="space-y-4">
+            <div>
+              <Label htmlFor="layout" className='text-xs'>Layout</Label>
+              <Select
+                value={component.props.layout || 'list'}
+                onValueChange={(value) => onUpdate({ ...component.props, layout: value })}
+              >
+                <SelectTrigger id="layout" className="mt-1">
+                  <SelectValue placeholder="Selecione o layout" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="list">Em Lista</SelectItem>
+                  <SelectItem value="carousel">Carrossel</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="disposition" className='text-xs'>Disposição</Label>
+              <Select
+                value={component.props.disposition || 'image-text'}
+                onValueChange={(value) => onUpdate({ ...component.props, disposition: value })}
+              >
+                <SelectTrigger id="disposition" className="mt-1">
+                  <SelectValue placeholder="Selecione a disposição" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="image-text">Imagem | Texto</SelectItem>
+                  <SelectItem value="text-image">Texto | Imagem</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
 
@@ -367,6 +409,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
       switch (component.name) {
         case 'Alerta':
           return <AlertSettings component={component} onUpdate={handleUpdate} />;
+        case 'Argumentos':
+          return <ArgumentosSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -389,6 +433,7 @@ function FunnelEditorContent() {
 
   const addComponentToCanvas = (component: ComponentType) => {
     let defaultProps: ComponentProps = {};
+    
     if (component.name === 'Alerta') {
       const model: AlertModel = 'success';
       defaultProps = {
@@ -399,6 +444,14 @@ function FunnelEditorContent() {
         icon: modelIcons[model],
       };
     }
+
+    if (component.name === 'Argumentos') {
+      defaultProps = {
+        layout: 'list',
+        disposition: 'image-text',
+      };
+    }
+
     const newComponent: CanvasComponentData = { 
         ...component, 
         id: Date.now(),
@@ -558,5 +611,3 @@ export default function EditorPage() {
         </Suspense>
     )
 }
-
-    
