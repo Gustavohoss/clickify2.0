@@ -147,8 +147,10 @@ type CarouselItemData = {
 };
 
 type CartesianChartDataPoint = {
+    id: number;
     name: string;
     value: number;
+    indicatorLabel: string;
 };
 
 
@@ -198,11 +200,8 @@ type ComponentProps = {
   arrowTextColor?: string;
   arrowBorderColor?: string;
   // Specific properties for Cartesiano
+  chartTitle?: string;
   chartData?: CartesianChartDataPoint[];
-  userPosition?: CartesianChartDataPoint;
-  goalPosition?: CartesianChartDataPoint;
-  userLabel?: string;
-  goalLabel?: string;
   gradientStartColor?: string;
   gradientEndColor?: string;
 };
@@ -550,11 +549,8 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
 
 const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const {
+    chartTitle = "Cartesiano",
     chartData = [],
-    userPosition,
-    goalPosition,
-    userLabel = 'Você',
-    goalLabel = 'Objetivo',
     gradientStartColor = '#16A34A',
     gradientEndColor = '#EF4444',
   } = component.props;
@@ -570,15 +566,17 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
       </Card>
     );
   }
+  
+  const indicators = chartData.filter(d => d.indicatorLabel);
 
   return (
     <Card className="p-4">
-        <h3 className="font-bold text-lg mb-4">Cartesiano</h3>
+        <h3 className="font-bold text-lg mb-4">{chartTitle}</h3>
         <ResponsiveContainer width="100%" height={200}>
             <AreaChart
                 data={chartData}
                 margin={{
-                    top: 5,
+                    top: 20,
                     right: 20,
                     left: -20,
                     bottom: 5,
@@ -601,26 +599,10 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
                 />
                 <Area type="monotone" dataKey="value" stroke="#8884d8" fill="url(#colorUv)" strokeWidth={2} />
                 
-                {userPosition && (
-                    <ReferenceDot x={userPosition.name} y={userPosition.value} r={5} fill="hsl(var(--background))" stroke="hsl(var(--foreground))" strokeWidth={2}>
-                        <Label
-                            value={userLabel}
-                            position="top"
-                            offset={-15}
-                            style={{
-                                fill: 'hsl(var(--background))',
-                                backgroundColor: 'hsl(var(--foreground))',
-                                padding: '4px 8px',
-                                borderRadius: 'var(--radius)',
-                                fontSize: 12,
-                            }}
-                        />
-                    </ReferenceDot>
-                )}
-                 {goalPosition && (
-                    <ReferenceDot x={goalPosition.name} y={goalPosition.value} r={6} fill="white" stroke="transparent" strokeWidth={2}>
+                {indicators.map((indicator, index) => (
+                    <ReferenceDot key={index} x={indicator.name} y={indicator.value} r={6} fill="hsl(var(--primary))" stroke="hsl(var(--primary-foreground))" strokeWidth={2}>
                        <Label
-                            value={goalLabel}
+                            value={indicator.indicatorLabel}
                             position="top"
                             offset={-15}
                             style={{
@@ -633,7 +615,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
                             }}
                         />
                     </ReferenceDot>
-                )}
+                ))}
             </AreaChart>
         </ResponsiveContainer>
     </Card>
@@ -1466,49 +1448,73 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
 const CartesianoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
     const data = component.props.chartData || [];
 
-    const handleUpdateDataPoint = (index: number, key: 'name' | 'value', value: string | number) => {
-        const newData = [...data];
-        newData[index] = { ...newData[index], [key]: value };
+    const handleUpdateDataPoint = (id: number, key: 'name' | 'value' | 'indicatorLabel', value: string | number) => {
+        const newData = data.map(item =>
+          item.id === id ? { ...item, [key]: value } : item
+        );
         onUpdate({ ...component.props, chartData: newData });
     };
 
     const handleAddDataPoint = () => {
-        const newPoint = { name: `Ponto ${data.length + 1}`, value: Math.floor(Math.random() * 100) };
+        const newPoint = { id: Date.now(), name: `Ponto ${data.length + 1}`, value: Math.floor(Math.random() * 100), indicatorLabel: '' };
         onUpdate({ ...component.props, chartData: [...data, newPoint] });
     };
 
-    const handleDeleteDataPoint = (index: number) => {
-        const newData = data.filter((_, i) => i !== index);
+    const handleDeleteDataPoint = (id: number) => {
+        const newData = data.filter((item) => item.id !== id);
         onUpdate({ ...component.props, chartData: newData });
     };
     
     return (
         <div className='space-y-6'>
-             <Card className="p-4 bg-muted/20 border-border/50">
-                <h3 className="text-sm font-medium text-muted-foreground mb-4">Pontos de Dados</h3>
-                <ScrollArea className="h-[20rem]">
-                    <div className="space-y-4 pr-4">
-                        {data.map((point, index) => (
-                            <Card key={index} className="p-3 bg-card space-y-3 relative">
-                                <div className="flex items-center gap-2">
+             <div>
+                <UILabel htmlFor="chartTitle" className='text-xs'>Título</UILabel>
+                <Input
+                    id="chartTitle"
+                    value={component.props.chartTitle || 'Cartesiano'}
+                    onChange={(e) => onUpdate({ ...component.props, chartTitle: e.target.value })}
+                    className="mt-1"
+                />
+             </div>
+             
+             <div className="space-y-4">
+                <ScrollArea className="h-[25rem]">
+                    <div className="space-y-3 pr-4">
+                        {data.map((point) => (
+                            <Card key={point.id} className="p-3 bg-card/80 space-y-3 relative">
+                                <div className="flex items-center justify-center text-muted-foreground">
+                                    <Grip className="h-4 w-4 cursor-grab" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
                                     <Input
                                         value={point.name}
-                                        onChange={(e) => handleUpdateDataPoint(index, 'name', e.target.value)}
-                                        className="h-8"
-                                        placeholder="Rótulo (e.g., A)"
+                                        onChange={(e) => handleUpdateDataPoint(point.id, 'name', e.target.value)}
+                                        className="h-9"
+                                        placeholder="Rótulo"
                                     />
                                     <Input
                                         type="number"
                                         value={point.value}
-                                        onChange={(e) => handleUpdateDataPoint(index, 'value', Number(e.target.value))}
-                                        className="h-8"
+                                        onChange={(e) => handleUpdateDataPoint(point.id, 'value', Number(e.target.value))}
+                                        className="h-9"
                                         placeholder="Valor"
                                     />
-                                     <Button
+                                </div>
+                                <div className="relative">
+                                    <Star className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        value={point.indicatorLabel}
+                                        onChange={(e) => handleUpdateDataPoint(point.id, 'indicatorLabel', e.target.value)}
+                                        className="h-9 pl-8"
+                                        placeholder="Texto do indicador..."
+                                    />
+                                </div>
+                                <div className="flex justify-center">
+                                      <Button
                                         variant="ghost"
                                         size="icon"
                                         className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                                        onClick={() => handleDeleteDataPoint(index)}
+                                        onClick={() => handleDeleteDataPoint(point.id)}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -1517,51 +1523,11 @@ const CartesianoSettings = ({ component, onUpdate }: { component: CanvasComponen
                         ))}
                     </div>
                 </ScrollArea>
-                 <Button variant="outline" className="w-full mt-4" onClick={handleAddDataPoint}>
+                 <Button variant="outline" className="w-full" onClick={handleAddDataPoint}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Adicionar Ponto
+                    Adicionar Item
                 </Button>
-            </Card>
-
-             <Card className="p-4 bg-muted/20 border-border/50">
-                <h3 className="text-sm font-medium text-muted-foreground mb-4">Marcadores</h3>
-                <div className="space-y-3">
-                    <div>
-                      <UILabel className='text-xs'>Posição do Usuário (Eixo X)</UILabel>
-                      <Select
-                        value={component.props.userPosition?.name}
-                        onValueChange={(name) => {
-                           const point = data.find(p => p.name === name);
-                           if (point) onUpdate({ ...component.props, userPosition: point })
-                        }}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Selecione um ponto"/>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {data.map(p => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <UILabel className='text-xs'>Posição do Objetivo (Eixo X)</UILabel>
-                      <Select
-                         value={component.props.goalPosition?.name}
-                         onValueChange={(name) => {
-                           const point = data.find(p => p.name === name);
-                           if (point) onUpdate({ ...component.props, goalPosition: point })
-                        }}
-                      >
-                        <SelectTrigger className="mt-1">
-                           <SelectValue placeholder="Selecione um ponto"/>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {data.map(p => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                </div>
-            </Card>
+            </div>
         </div>
     )
 };
@@ -1686,17 +1652,13 @@ function FunnelEditorContent() {
     }
 
     if (component.name === 'Cartesiano') {
-        const data = [
-            { name: 'A', value: 20 },
-            { name: 'B', value: 50 },
-            { name: 'C', value: 80 },
-        ];
       defaultProps = {
-        chartData: data,
-        userPosition: data[1], // 'B'
-        goalPosition: data[2], // 'C'
-        userLabel: 'Você',
-        goalLabel: 'Objetivo',
+        chartTitle: 'Cartesiano',
+        chartData: [
+            { id: 1, name: 'A', value: 20, indicatorLabel: '' },
+            { id: 2, name: 'B', value: 50, indicatorLabel: 'Você' },
+            { id: 3, name: 'C', value: 80, indicatorLabel: 'Objetivo' },
+        ],
         gradientStartColor: '#16A34A',
         gradientEndColor: '#EF4444',
       };
@@ -1868,6 +1830,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
