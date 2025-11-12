@@ -34,6 +34,11 @@ import {
   TextCursorInput,
   SlidersHorizontal,
   Rows,
+  DollarSign,
+  FileCode,
+  FileText as FileTextIcon,
+  Heading1,
+  Video,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -66,6 +71,12 @@ const components = [
   { name: 'Marquise', icon: <ChevronsRight />, isNew: true },
   { name: 'Nível', icon: <SlidersHorizontal /> },
   { name: 'Opções', icon: <CheckSquare /> },
+  { name: 'Preço', icon: <DollarSign /> },
+  { name: 'Script', icon: <FileCode /> },
+  { name: 'Termos', icon: <FileTextIcon /> },
+  { name: 'Texto', icon: <Text /> },
+  { name: 'Título', icon: <Heading1 /> },
+  { name: 'Video', icon: <Video /> },
 ];
 
 function FunnelEditorContent() {
