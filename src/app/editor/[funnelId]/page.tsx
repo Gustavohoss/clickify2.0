@@ -95,6 +95,7 @@ import {
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Slider } from '@/components/ui/slider';
+import { Progress } from '@/components/ui/progress';
 
 
 type ComponentType = {
@@ -155,6 +156,11 @@ type ComponentProps = {
   url?: string;
   fullWidth?: boolean;
   variant?: 'default' | 'outline' | 'ghost' | 'secondary' | 'link' | 'destructive';
+  // Specific properties for Carregando
+  loadingText?: string;
+  progress?: number;
+  loadingDescription?: string;
+  progressBarColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -396,6 +402,30 @@ const BotaoCanvasComponent = ({ component }: { component: CanvasComponentData })
   );
 };
 
+const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    loadingText = 'Carregando...',
+    progress = 60,
+    loadingDescription = 'Lorem ipsum dollor sit amet.',
+    progressBarColor,
+  } = component.props;
+
+  return (
+    <div className="w-full space-y-2">
+      <div className="flex justify-between items-center text-sm font-medium">
+        <span>{loadingText}</span>
+        <span className="text-muted-foreground">{progress}%</span>
+      </div>
+      <Progress 
+        value={progress} 
+        className="w-full h-2 [&>div]:bg-foreground" 
+        style={{ '--progress-bar-color': progressBarColor } as React.CSSProperties}
+      />
+      <p className="text-sm text-muted-foreground text-center pt-1">{loadingDescription}</p>
+    </div>
+  );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -408,6 +438,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <AudioCanvasComponent component={component} />;
       case 'Botão':
         return <BotaoCanvasComponent component={component} />;
+      case 'Carregando':
+        return <CarregandoCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -994,6 +1026,64 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
   );
 };
 
+const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="loadingText" className='text-xs'>Texto de Carregamento</Label>
+            <Input
+              id="loadingText"
+              value={component.props.loadingText || ''}
+              onChange={(e) => onUpdate({ ...component.props, loadingText: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="loadingDescription" className='text-xs'>Descrição</Label>
+            <Input
+              id="loadingDescription"
+              value={component.props.loadingDescription || ''}
+              onChange={(e) => onUpdate({ ...component.props, loadingDescription: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Progresso</h3>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="progress" className='text-xs'>Porcentagem ({component.props.progress || 0}%)</Label>
+            <Slider
+              id="progress"
+              min={0}
+              max={100}
+              step={1}
+              value={[component.props.progress || 0]}
+              onValueChange={(value) => onUpdate({ ...component.props, progress: value[0] })}
+              className="mt-2"
+            />
+          </div>
+          <div>
+            <Label htmlFor='progressBarColor' className='text-xs'>Cor da Barra</Label>
+            <Input
+              type='color'
+              id='progressBarColor'
+              className='p-1 h-8 w-full mt-1'
+              value={component.props.progressBarColor || '#000000'}
+              onChange={(e) => onUpdate({ ...component.props, progressBarColor: e.target.value })}
+            />
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -1012,6 +1102,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <AudioSettings component={component} onUpdate={handleUpdate} />;
         case 'Botão':
             return <BotaoSettings component={component} onUpdate={handleUpdate} />;
+        case 'Carregando':
+            return <CarregandoSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -1075,6 +1167,15 @@ function FunnelEditorContent() {
         variant: 'default',
         backgroundColor: '#1f2937', // dark grey
         textColor: '#ffffff', // white
+      };
+    }
+    
+    if (component.name === 'Carregando') {
+      defaultProps = {
+        loadingText: 'Carregando...',
+        progress: 60,
+        loadingDescription: 'Lorem ipsum dollor sit amet.',
+        progressBarColor: '#1f2937', // dark grey
       };
     }
 
