@@ -40,6 +40,9 @@ import {
   Heading1,
   Video,
   Check,
+  XCircle,
+  CheckCircle,
+  Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -78,6 +81,13 @@ const modelColors: Record<AlertModel, { backgroundColor: string; textColor: stri
     info: { backgroundColor: '#DBEAFE', textColor: '#1E40AF', borderColor: '#3B82F6' },
 };
 
+const modelIcons: Record<AlertModel, ReactNode> = {
+    success: <CheckCircle />,
+    error: <XCircle />,
+    warning: <AlertTriangle />,
+    info: <Info />,
+};
+
 
 type ComponentProps = {
   // Common properties for all components
@@ -89,6 +99,7 @@ type ComponentProps = {
   backgroundColor?: string;
   textColor?: string;
   borderColor?: string;
+  icon?: ReactNode;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -134,17 +145,17 @@ const GenericCanvasComponent = ({ component }: { component: CanvasComponentData 
 };
 
 const AlertCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
-    const { title, description, backgroundColor, textColor, borderColor } = component.props;
+    const { title, description, backgroundColor, textColor, borderColor, icon } = component.props;
+    const IconComponent = icon || <Check className="h-4 w-4" />;
 
     return (
         <Alert 
             style={{
                 backgroundColor: backgroundColor,
-                color: textColor,
                 borderColor: borderColor
             }}
         >
-            <Check className="h-4 w-4" style={{ color: textColor }} />
+            {React.cloneElement(IconComponent as React.ReactElement, { className: "h-5 w-5", style: { color: textColor } })}
             <AlertTitle style={{ color: textColor }}>{title || 'Título do Alerta'}</AlertTitle>
             <AlertDescription style={{ color: textColor }}>
                 {description || 'Esta é a descrição do alerta.'}
@@ -204,7 +215,8 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
 
   const handleModelChange = (model: AlertModel) => {
     const colors = modelColors[model];
-    onUpdate({ ...component.props, model, ...colors });
+    const icon = modelIcons[model];
+    onUpdate({ ...component.props, model, ...colors, icon });
   };
     
   return (
@@ -333,7 +345,8 @@ function FunnelEditorContent() {
         title: 'Sucesso!',
         description: 'Seu item foi salvo com sucesso.',
         model: model,
-        ...modelColors[model]
+        ...modelColors[model],
+        icon: modelIcons[model],
       };
     }
     const newComponent: CanvasComponentData = { 
