@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode } from 'react';
@@ -12,8 +13,10 @@ import {
   Rocket,
   PanelLeft,
   MoreVertical,
-  GripVertical,
-  AudioWaveform,
+  Grip,
+  Pencil,
+  Copy,
+  Trash2,
   MessageSquareText,
   MousePointerClick,
   Loader,
@@ -164,7 +167,7 @@ const AlertCanvasComponent = ({ component }: { component: CanvasComponentData })
     )
 }
 
-const CanvasComponent = ({ component, isSelected, onClick }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void }) => {
+const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
     switch (component.name) {
       case 'Alerta':
@@ -176,9 +179,26 @@ const CanvasComponent = ({ component, isSelected, onClick }: { component: Canvas
     
   return (
       <div 
-        className={cn("p-1 rounded-lg cursor-pointer", isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background")}
+        className={cn(
+          "p-1 rounded-lg cursor-pointer relative group", 
+          isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+        )}
         onClick={onClick}
       >
+          <div className="absolute top-0 left-2 -translate-y-1/2 z-10 bg-blue-500 rounded-md shadow-lg flex items-center gap-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600 hover:text-white cursor-grab">
+              <Grip className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600 hover:text-white" onClick={onClick}>
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600 hover:text-white" onClick={(e) => { e.stopPropagation(); onDuplicate(); }}>
+              <Copy className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-red-500 hover:text-white" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
           {renderComponent()}
       </div>
   );
@@ -362,6 +382,29 @@ function FunnelEditorContent() {
       prev.map(c => (c.id === id ? { ...c, props } : c))
     );
   };
+  
+  const duplicateComponent = (id: number) => {
+    const componentToDuplicate = canvasComponents.find(c => c.id === id);
+    if (!componentToDuplicate) return;
+
+    const newComponent = {
+      ...componentToDuplicate,
+      id: Date.now(), // new unique id
+    };
+
+    const index = canvasComponents.findIndex(c => c.id === id);
+    const newCanvasComponents = [...canvasComponents];
+    newCanvasComponents.splice(index + 1, 0, newComponent);
+    setCanvasComponents(newCanvasComponents);
+  };
+
+  const deleteComponent = (id: number) => {
+    setCanvasComponents(prev => prev.filter(c => c.id !== id));
+    if (selectedComponentId === id) {
+      setSelectedComponentId(null);
+    }
+  };
+
 
   const selectedComponent = canvasComponents.find(c => c.id === selectedComponentId) || null;
 
@@ -395,7 +438,7 @@ function FunnelEditorContent() {
           <div className="w-60 flex-col border-r border-border">
             <div className="flex h-14 items-center justify-between border-b border-border px-4">
               <div className="flex items-center gap-2">
-                <GripVertical className="h-5 w-5 text-muted-foreground" />
+                <Grip className="h-5 w-5 text-muted-foreground" />
                 <h2 className="font-semibold">Etapa 1</h2>
               </div>
               <MoreVertical className="h-5 w-5 text-muted-foreground" />
@@ -454,6 +497,8 @@ function FunnelEditorContent() {
                                 component={comp} 
                                 isSelected={selectedComponentId === comp.id}
                                 onClick={() => setSelectedComponentId(comp.id)}
+                                onDuplicate={() => duplicateComponent(comp.id)}
+                                onDelete={() => deleteComponent(comp.id)}
                             />
                         ))
                     )}
@@ -483,3 +528,4 @@ export default function EditorPage() {
         </Suspense>
     )
 }
+
