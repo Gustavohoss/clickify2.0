@@ -214,8 +214,8 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
                   <div className="flex justify-center mb-4">
                       <span className="text-4xl">{item.icon}</span>
                   </div>
-                  <h3 className="font-bold text-lg">{item.title}</h3>
-                  <p className="text-muted-foreground mt-1">{item.description}</p>
+                  <h3 className="font-bold text-lg" dangerouslySetInnerHTML={{ __html: item.title }}></h3>
+                  <p className="text-muted-foreground mt-1" dangerouslySetInnerHTML={{ __html: item.description }}></p>
               </Card>
           ))}
       </div>
@@ -814,5 +814,6 @@ export default function EditorPage() {
     
 
     
+
 
 
