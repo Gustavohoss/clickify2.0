@@ -27,7 +27,7 @@ import {
   BarChart2,
   ImageIcon,
   List,
-  Text,
+  Text as TextIcon,
   CheckSquare,
   ChevronsRight,
   Quote,
@@ -53,6 +53,14 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, ReactNode } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from '@/components/ui/textarea';
 
 
 type ComponentType = {
@@ -61,7 +69,21 @@ type ComponentType = {
   isNew?: boolean;
 };
 
-type CanvasComponentData = ComponentType & { id: number };
+type AlertModel = 'success' | 'error' | 'warning' | 'info';
+
+type ComponentProps = {
+  // Common properties for all components
+  [key: string]: any; 
+  // Specific properties for Alert
+  title?: string;
+  description?: string;
+  model?: AlertModel;
+};
+
+type CanvasComponentData = ComponentType & { 
+  id: number;
+  props: ComponentProps;
+};
 
 const components: ComponentType[] = [
   { name: 'Alerta', icon: <AlertTriangle /> },
@@ -86,7 +108,7 @@ const components: ComponentType[] = [
   { name: 'Preço', icon: <DollarSign /> },
   { name: 'Script', icon: <FileCode /> },
   { name: 'Termos', icon: <FileTextIcon /> },
-  { name: 'Texto', icon: <Text /> },
+  { name: 'Texto', icon: <TextIcon /> },
   { name: 'Título', icon: <Heading1 /> },
   { name: 'Video', icon: <Video /> },
 ];
@@ -94,19 +116,28 @@ const components: ComponentType[] = [
 const GenericCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   return (
     <Card className="p-4 flex items-center gap-4 bg-muted/20">
-      {component.icon}
+      <div className='text-primary'>{component.icon}</div>
       <p className="font-semibold">{component.name}</p>
     </Card>
   );
 };
 
-const AlertCanvasComponent = () => {
+const AlertCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+    const { title, description, model } = component.props;
+
+    const modelClasses = {
+        success: 'border-green-500 text-green-500 [&>svg]:text-green-500',
+        error: 'border-red-500 text-red-500 [&>svg]:text-red-500',
+        warning: 'border-yellow-500 text-yellow-500 [&>svg]:text-yellow-500',
+        info: 'border-blue-500 text-blue-500 [&>svg]:text-blue-500',
+    };
+
     return (
-        <Alert className="border-green-500 text-green-500 [&>svg]:text-green-500">
+        <Alert className={cn(modelClasses[model || 'success'])}>
             <Check className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>{title || 'Título do Alerta'}</AlertTitle>
             <AlertDescription>
-                Test alert element 1
+                {description || 'Esta é a descrição do alerta.'}
             </AlertDescription>
         </Alert>
     )
@@ -116,7 +147,7 @@ const CanvasComponent = ({ component, isSelected, onClick }: { component: Canvas
   const renderComponent = () => {
     switch (component.name) {
       case 'Alerta':
-        return <AlertCanvasComponent />;
+        return <AlertCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -159,14 +190,96 @@ const StepSettings = () => (
     </>
 );
 
-const ComponentSettings = ({ component }: { component: CanvasComponentData }) => {
+const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+       <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Informações</h3>
+        <div className="space-y-3">
+            <div>
+              <Label htmlFor="title" className='text-xs'>Título</Label>
+              <Input
+                id="title"
+                value={component.props.title || ''}
+                onChange={(e) => onUpdate({ ...component.props, title: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="description" className='text-xs'>Descrição</Label>
+              <Textarea
+                id="description"
+                value={component.props.description || ''}
+                onChange={(e) => onUpdate({ ...component.props, description: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
+         <div>
+            <Label htmlFor="model" className='text-xs'>Modelo</Label>
+            <Select
+              value={component.props.model || 'success'}
+              onValueChange={(value: AlertModel) => onUpdate({ ...component.props, model: value })}
+            >
+              <SelectTrigger id="model" className="mt-1">
+                <SelectValue placeholder="Selecione o modelo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="success">Sucesso</SelectItem>
+                <SelectItem value="error">Erro</SelectItem>
+                <SelectItem value="warning">Aviso</SelectItem>
+                <SelectItem value="info">Informação</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+      </Card>
+
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+        <div className="grid grid-cols-3 gap-4">
+            <div className='space-y-1'>
+                <Label htmlFor='color' className='text-xs'>Cor</Label>
+                <Input type='color' id='color' className='p-1 h-8'/>
+            </div>
+            <div className='space-y-1'>
+                <Label htmlFor='text-color' className='text-xs'>Texto</Label>
+                <Input type='color' id='text-color' className='p-1 h-8'/>
+            </div>
+            <div className='space-y-1'>
+                <Label htmlFor='border-color' className='text-xs'>Borda</Label>
+                <Input type='color' id='border-color' className='p-1 h-8'/>
+            </div>
+        </div>
+      </Card>
+
+    </div>
+  )
+}
+
+const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
+
+    const handleUpdate = (props: ComponentProps) => {
+      onUpdate(component.id, props);
+    };
+
+    const renderSettings = () => {
+      switch (component.name) {
+        case 'Alerta':
+          return <AlertSettings component={component} onUpdate={handleUpdate} />;
+        default:
+          return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
+      }
+    };
 
     return (
         <div className="space-y-4">
             <h3 className="text-lg font-semibold">Editando: {component.name}</h3>
-            {/* Placeholder for actual component settings */}
-            <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>
+            {renderSettings()}
         </div>
     );
 };
@@ -179,8 +292,26 @@ function FunnelEditorContent() {
   const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
 
   const addComponentToCanvas = (component: ComponentType) => {
-    const newComponent = { ...component, id: Date.now() };
+    let defaultProps: ComponentProps = {};
+    if (component.name === 'Alerta') {
+      defaultProps = {
+        title: 'Error',
+        description: 'Test alert element 1',
+        model: 'success',
+      };
+    }
+    const newComponent: CanvasComponentData = { 
+        ...component, 
+        id: Date.now(),
+        props: defaultProps
+    };
     setCanvasComponents(prev => [...prev, newComponent]);
+  };
+
+  const updateComponentProps = (id: number, props: ComponentProps) => {
+    setCanvasComponents(prev =>
+      prev.map(c => (c.id === id ? { ...c, props } : c))
+    );
   };
 
   const selectedComponent = canvasComponents.find(c => c.id === selectedComponentId) || null;
@@ -238,7 +369,7 @@ function FunnelEditorContent() {
                     className="group flex cursor-pointer flex-col items-center justify-center p-3 text-center transition-colors hover:bg-primary/10 hover:text-primary"
                     onClick={() => addComponentToCanvas(component)}
                     >
-                    <div className="relative">
+                    <div className="relative text-primary">
                       {component.icon}
                       {component.isNew && <Badge className="absolute -top-2 -right-4 scale-75">Novo</Badge>}
                     </div>
@@ -285,7 +416,7 @@ function FunnelEditorContent() {
         <aside className="w-80 border-l border-border p-6">
           <div className="space-y-6">
             {selectedComponent ? (
-                <ComponentSettings component={selectedComponent} />
+                <ComponentSettings component={selectedComponent} onUpdate={updateComponentProps} />
             ) : (
                 <StepSettings />
             )}
