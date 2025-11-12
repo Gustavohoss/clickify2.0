@@ -49,9 +49,15 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useState, ReactNode } from 'react';
 
-const components = [
+type ComponentType = {
+  name: string;
+  icon: ReactNode;
+  isNew?: boolean;
+};
+
+const components: ComponentType[] = [
   { name: 'Alerta', icon: <AlertTriangle /> },
   { name: 'Argumentos', icon: <MessageSquareText /> },
   { name: 'Audio', icon: <AudioWaveform /> },
@@ -79,9 +85,26 @@ const components = [
   { name: 'Video', icon: <Video /> },
 ];
 
+// A simple component to represent any item on the canvas
+const CanvasComponent = ({ component }: { component: ComponentType & { id: number } }) => {
+    return (
+        <Card className="p-4 flex items-center gap-4">
+            {component.icon}
+            <p className="font-semibold">{component.name}</p>
+        </Card>
+    );
+};
+
+
 function FunnelEditorContent() {
   const searchParams = useSearchParams();
   const funnelName = searchParams.get('name') || 'Novo Funil';
+  const [canvasComponents, setCanvasComponents] = useState<(ComponentType & { id: number })[]>([]);
+
+  const addComponentToCanvas = (component: ComponentType) => {
+    const newComponent = { ...component, id: Date.now() };
+    setCanvasComponents(prev => [...prev, newComponent]);
+  };
 
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
@@ -131,7 +154,11 @@ function FunnelEditorContent() {
             <ScrollArea className="h-full">
               <div className="grid grid-cols-2 gap-2 p-4">
                 {components.map((component) => (
-                  <Card key={component.name} className="group flex cursor-grab flex-col items-center justify-center p-3 text-center transition-colors hover:bg-primary/10 hover:text-primary">
+                  <Card 
+                    key={component.name} 
+                    className="group flex cursor-pointer flex-col items-center justify-center p-3 text-center transition-colors hover:bg-primary/10 hover:text-primary"
+                    onClick={() => addComponentToCanvas(component)}
+                    >
                     <div className="relative">
                       {component.icon}
                       {component.isNew && <Badge className="absolute -top-2 -right-4 scale-75">Novo</Badge>}
@@ -145,21 +172,29 @@ function FunnelEditorContent() {
         </aside>
 
         {/* Center Canvas */}
-        <main className="flex flex-1 items-center justify-center bg-muted/20 p-4">
-          <div className="w-full max-w-2xl">
-              <div className="flex items-center gap-4 text-muted-foreground">
-                <ArrowLeft className="h-5 w-5 cursor-pointer hover:text-foreground" />
-                <Separator className="flex-1" />
-                <ImageIcon className="h-8 w-8 text-primary" />
-                <Separator className="flex-1" />
-              </div>
-              <div className="mt-8 flex min-h-[400px] items-center justify-center rounded-lg border-2 border-dashed border-border bg-card/50">
-                  <div className="text-center text-muted-foreground">
-                    <p className="text-lg">Nada por aqui 😔</p>
-                    <p className="text-sm">Adicione um componente para começar.</p>
-                  </div>
-              </div>
-          </div>
+        <main className="flex-1 overflow-y-auto bg-muted/20 p-4">
+            <div className="mx-auto w-full max-w-2xl">
+                <div className="flex items-center gap-4 text-muted-foreground">
+                    <ArrowLeft className="h-5 w-5 cursor-pointer hover:text-foreground" />
+                    <Separator className="flex-1" />
+                    <ImageIcon className="h-8 w-8 text-primary" />
+                    <Separator className="flex-1" />
+                </div>
+                <div className="mt-8 flex min-h-[400px] flex-col gap-4 rounded-lg border-2 border-dashed border-border bg-card/50 p-4">
+                    {canvasComponents.length === 0 ? (
+                        <div className="flex-1 flex items-center justify-center text-center text-muted-foreground">
+                            <div>
+                                <p className="text-lg">Nada por aqui 😔</p>
+                                <p className="text-sm">Clique em um componente para começar.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        canvasComponents.map((comp) => (
+                            <CanvasComponent key={comp.id} component={comp} />
+                        ))
+                    )}
+                </div>
+            </div>
         </main>
 
         {/* Right Sidebar */}
