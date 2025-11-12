@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { Suspense, useState, ReactNode } from 'react';
@@ -564,7 +563,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                               <RichTextToolbarButton icon={<Underline />} command="underline" />
                               <RichTextToolbarButton icon={<Strikethrough />} command="strikeThrough" />
                               <Separator orientation="vertical" className="h-5 bg-white/20" />
-                               <RichTextToolbarButton icon={<Baseline className="text-blue-500" />} command="foreColor" value="#0EA5FF" />
+                               <RichTextToolbarButton icon={<Baseline />} command="foreColor" value="#0EA5FF" />
                                <RichTextToolbarButton icon={<Highlighter />} command="hiliteColor" value="#FEF3C7" />
                               <Separator orientation="vertical" className="h-5 bg-white/20" />
                               <RichTextToolbarButton icon={<AlignLeft />} command="justifyLeft" />
@@ -827,3 +826,5 @@ export default function EditorPage() {
         </Suspense>
     )
 }
+
+    
