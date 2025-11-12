@@ -31,7 +31,7 @@ import {
   HelpCircle,
   BarChart2,
   ImageIcon,
-  List,
+  List as ListIcon,
   Text as TextIcon,
   CheckSquare,
   ChevronsRight,
@@ -177,6 +177,10 @@ type ComponentProps = {
   loop?: boolean;
   autoplayCarousel?: boolean;
   autoplayDelay?: number;
+  showPagination?: boolean;
+  arrowColor?: string;
+  arrowTextColor?: string;
+  arrowBorderColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -200,7 +204,7 @@ const components: ComponentType[] = [
   { name: 'FAQ', icon: <HelpCircle />, isNew: true },
   { name: 'Gráficos', icon: <BarChart2 /> },
   { name: 'Imagem', icon: <ImageIcon /> },
-  { name: 'Lista', icon: <List />, isNew: true },
+  { name: 'Lista', icon: <ListIcon />, isNew: true },
   { name: 'Marquise', icon: <ChevronsRight />, isNew: true },
   { name: 'Nível', icon: <SlidersHorizontal /> },
   { name: 'Opções', icon: <CheckSquare /> },
@@ -495,7 +499,7 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
   }
 
   return (
-    <Carousel className="w-full" opts={{ loop: true }}>
+    <Carousel className="w-full" opts={{ loop: component.props.loop }}>
       <CarouselContent>
         {slides.map((slide) => (
           <CarouselItem key={slide.id}>
@@ -978,7 +982,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
                               <RichTextToolbarButton icon={<AlignJustify />} command="justifyFull" />
                                <Separator orientation="vertical" className="h-5 bg-white/20" />
                               <RichTextToolbarButton icon={<LinkIcon />} command="createLink" />
-                              <RichTextToolbarButton icon={<List />} command="insertUnorderedList" />
+                              <RichTextToolbarButton icon={<ListIcon />} command="insertUnorderedList" />
                               <RichTextToolbarButton icon={<ListOrdered />} command="insertOrderedList" />
                                <Separator orientation="vertical" className="h-5 bg-white/20" />
                               <RichTextToolbarButton icon={<RemoveFormatting />} command="removeFormat" />
@@ -1084,9 +1088,9 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
                   <SelectItem value="default">Padrão</SelectItem>
                   <SelectItem value="destructive">Destrutivo</SelectItem>
                   <SelectItem value="outline">Bordas</SelectItem>
+                  <SelectItem value="secondary">Relevo</SelectItem>
                   <SelectItem value="ghost">Fantasma</SelectItem>
                   <SelectItem value="link">Link</SelectItem>
-                  <SelectItem value="secondary">Relevo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1278,6 +1282,64 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
           Adicionar Slide
         </Button>
       </Card>
+      
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Interação</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="loop">Loop</Label>
+            <Switch
+              id="loop"
+              checked={component.props.loop}
+              onCheckedChange={(checked) => onUpdate({ ...component.props, loop: checked })}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="autoplayCarousel">Autoplay</Label>
+            <Switch
+              id="autoplayCarousel"
+              checked={component.props.autoplayCarousel}
+              onCheckedChange={(checked) => onUpdate({ ...component.props, autoplayCarousel: checked })}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="showPagination">Paginação</Label>
+            <Switch
+              id="showPagination"
+              checked={component.props.showPagination}
+              onCheckedChange={(checked) => onUpdate({ ...component.props, showPagination: checked })}
+            />
+          </div>
+          <div>
+            <Label htmlFor="autoplayDelay" className='text-xs'>Delay do Autoplay</Label>
+            <Input
+              id="autoplayDelay"
+              type="number"
+              value={component.props.autoplayDelay || 2}
+              onChange={(e) => onUpdate({ ...component.props, autoplayDelay: Number(e.target.value) })}
+              className="mt-1"
+            />
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div className='space-y-1'>
+            <Label htmlFor='arrowColor' className='text-xs'>Cor</Label>
+            <Input type='color' id='arrowColor' className='p-1 h-8 w-full' value={component.props.arrowColor || '#000000'} onChange={(e) => onUpdate({ ...component.props, arrowColor: e.target.value })} />
+          </div>
+          <div className='space-y-1'>
+            <Label htmlFor='arrowTextColor' className='text-xs'>Texto</Label>
+            <Input type='color' id='arrowTextColor' className='p-1 h-8 w-full' value={component.props.arrowTextColor || '#ffffff'} onChange={(e) => onUpdate({ ...component.props, arrowTextColor: e.target.value })} />
+          </div>
+          <div className='space-y-1'>
+            <Label htmlFor='arrowBorderColor' className='text-xs'>Borda</Label>
+            <Input type='color' id='arrowBorderColor' className='p-1 h-8 w-full' value={component.props.arrowBorderColor || '#000000'} onChange={(e) => onUpdate({ ...component.props, arrowBorderColor: e.target.value })} />
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };
@@ -1390,6 +1452,12 @@ function FunnelEditorContent() {
           { id: 2, imageUrl: 'https://picsum.photos/seed/carousel2/400/300', caption: 'Legenda 2' }
         ],
         loop: true,
+        autoplayCarousel: false,
+        autoplayDelay: 2,
+        showPagination: true,
+        arrowColor: '#FFFFFF',
+        arrowTextColor: '#000000',
+        arrowBorderColor: '#DDDDDD',
       };
     }
 
@@ -1559,6 +1627,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
