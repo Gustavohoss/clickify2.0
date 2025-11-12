@@ -92,6 +92,12 @@ const modelIcons: Record<AlertModel, ReactNode> = {
     info: <Info />,
 };
 
+type ArgumentItem = {
+    id: number;
+    icon: string;
+    title: string;
+    description: string;
+};
 
 type ComponentProps = {
   // Common properties for all components
@@ -104,6 +110,10 @@ type ComponentProps = {
   textColor?: string;
   borderColor?: string;
   icon?: ReactNode;
+  // Specific properties for Argumentos
+  layout?: 'list' | '2-cols' | '3-cols' | '4-cols';
+  disposition?: string;
+  items?: ArgumentItem[];
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -139,17 +149,8 @@ const components: ComponentType[] = [
   { name: 'Video', icon: <Video /> },
 ];
 
-const WavingHandIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M79.5 56C79.5 50.201 74.799 45.5 69 45.5C63.201 45.5 58.5 50.201 58.5 56V71.5C58.5 77.299 63.201 82 69 82C74.799 82 79.5 77.299 79.5 71.5V56Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
-      <path d="M64 45.5C64 39.701 59.299 35 53.5 35C47.701 35 43 39.701 43 45.5V71.5C43 77.299 47.701 82 53.5 82C59.299 82 64 77.299 64 71.5V45.5Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
-      <path d="M49 45.5C49 39.701 44.299 35 38.5 35C32.701 35 28 39.701 28 45.5V66.5C28 72.299 32.701 77 38.5 77C44.299 77 49 72.299 49 66.5V45.5Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
-      <path d="M33 45.5C33 41.3579 29.6421 38 25.5 38C21.3579 38 18 41.3579 18 45.5V58.5C18 62.6421 21.3579 66 25.5 66C29.6421 66 33 62.6421 33 58.5V45.5Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
-      <path d="M83 45C85.7614 45 88 42.7614 88 40C88 37.2386 85.7614 35 83 35C80.2386 35 78 37.2386 78 40C78 42.7614 80.2386 45 83 45Z" fill="#FFD6A5" stroke="black" strokeWidth="3"/>
-      <path d="M85 32C86.1046 32 87 31.1046 87 30C87 28.8954 86.1046 28 85 28C83.8954 28 83 28.8954 83 30C83 31.1046 83.8954 32 85 32Z" fill="#9DD6F3"/>
-      <path d="M92 40C93.1046 40 94 39.1046 94 38C94 36.8954 93.1046 36 92 36C90.8954 36 90 36.8954 90 38C90 39.1046 90.8954 40 92 40Z" fill="#9DD6F3"/>
-      <path d="M85 48C86.1046 48 87 47.1046 87 46C87 44.8954 86.1046 44 85 44C83.8954 44 83 44.8954 83 46C83 47.1046 83.8954 48 85 48Z" fill="#9DD6F3"/>
-  </svg>
+const WavingHandIcon = ({ className }: { className?: string }) => (
+    <span className={cn("text-3xl", className)}>👋</span>
 );
 
 
@@ -164,6 +165,7 @@ const GenericCanvasComponent = ({ component }: { component: CanvasComponentData 
 
 const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const layout = component.props.layout || 'list';
+  const items = component.props.items || [];
 
   const layoutClasses: { [key: string]: string } = {
     'list': 'grid-cols-1',
@@ -174,24 +176,29 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
 
   const gridClass = layoutClasses[layout] || 'grid-cols-1';
 
-  const numItems: number = {
-    'list': 1,
-    '2-cols': 2,
-    '3-cols': 3,
-    '4-cols': 4,
-  }[layout] || 1;
-
-  const items = Array.from({ length: numItems });
+  if (items.length === 0) {
+      return (
+        <div className={cn('grid gap-4', gridClass)}>
+            <Card className="p-6 text-center border-dashed">
+                <div className="flex justify-center mb-4">
+                    <WavingHandIcon />
+                </div>
+                <h3 className="font-bold text-lg">Argumento</h3>
+                <p className="text-muted-foreground mt-1">Configure seus argumentos</p>
+            </Card>
+        </div>
+      )
+  }
 
   return (
       <div className={cn('grid gap-4', gridClass)}>
-          {items.map((_, index) => (
-              <Card key={index} className="p-6 text-center border-dashed">
+          {items.map((item) => (
+              <Card key={item.id} className="p-6 text-center border-dashed">
                   <div className="flex justify-center mb-4">
-                      <WavingHandIcon />
+                      <span className="text-4xl">{item.icon}</span>
                   </div>
-                  <h3 className="font-bold text-lg">Argumento</h3>
-                  <p className="text-muted-foreground mt-1">Lorem ipsum dollor sit amet</p>
+                  <h3 className="font-bold text-lg">{item.title}</h3>
+                  <p className="text-muted-foreground mt-1">{item.description}</p>
               </Card>
           ))}
       </div>
@@ -381,44 +388,95 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
 }
 
 const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  const items = component.props.items || [];
+
+  const handleUpdateItem = (itemId: number, newValues: Partial<ArgumentItem>) => {
+    const newItems = items.map(item => 
+      item.id === itemId ? { ...item, ...newValues } : item
+    );
+    onUpdate({ ...component.props, items: newItems });
+  };
+
+  const handleAddItem = () => {
+    const newItem: ArgumentItem = {
+      id: Date.now(),
+      icon: '👋',
+      title: 'Novo Argumento',
+      description: 'Descreva seu argumento aqui.'
+    };
+    onUpdate({ ...component.props, items: [...items, newItem] });
+  };
+
+  const handleDeleteItem = (itemId: number) => {
+    const newItems = items.filter(item => item.id !== itemId);
+    onUpdate({ ...component.props, items: newItems });
+  };
+
   return (
     <div className='space-y-6'>
        <Card className="p-4 bg-muted/20 border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Layout</h3>
-        <div className="space-y-4">
-            <div>
-              <Label htmlFor="layout" className='text-xs'>Layout</Label>
-              <Select
-                value={component.props.layout || 'list'}
-                onValueChange={(value) => onUpdate({ ...component.props, layout: value })}
-              >
-                <SelectTrigger id="layout" className="mt-1">
-                  <SelectValue placeholder="Selecione o layout" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="list">Em Lista</SelectItem>
-                  <SelectItem value="2-cols">2 Colunas</SelectItem>
-                  <SelectItem value="3-cols">3 Colunas</SelectItem>
-                  <SelectItem value="4-cols">4 Colunas</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="disposition" className='text-xs'>Disposição</Label>
-              <Select
-                value={component.props.disposition || 'image-text'}
-                onValueChange={(value) => onUpdate({ ...component.props, disposition: value })}
-              >
-                <SelectTrigger id="disposition" className="mt-1">
-                  <SelectValue placeholder="Selecione a disposição" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="image-text">Imagem | Texto</SelectItem>
-                  <SelectItem value="text-image">Texto | Imagem</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div>
+            <Label htmlFor="layout" className='text-xs'>Layout</Label>
+            <Select
+              value={component.props.layout || 'list'}
+              onValueChange={(value) => onUpdate({ ...component.props, layout: value })}
+            >
+              <SelectTrigger id="layout" className="mt-1">
+                <SelectValue placeholder="Selecione o layout" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="list">Em Lista</SelectItem>
+                <SelectItem value="2-cols">2 Colunas</SelectItem>
+                <SelectItem value="3-cols">3 Colunas</SelectItem>
+                <SelectItem value="4-cols">4 Colunas</SelectItem>
+              </SelectContent>
+            </Select>
         </div>
+      </Card>
+
+      <Card className="p-4 bg-muted/20 border-border/50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">Argumentos</h3>
+          <div className="space-y-4">
+              {items.map(item => (
+                  <Card key={item.id} className="p-3 bg-card space-y-2 relative">
+                      <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteItem(item.id)}
+                      >
+                          <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <div className="flex items-center gap-2">
+                          <Input 
+                              value={item.icon}
+                              onChange={(e) => handleUpdateItem(item.id, { icon: e.target.value })}
+                              className="w-12 h-10 text-xl text-center p-0"
+                              maxLength={2}
+                          />
+                          <div className="w-full space-y-1">
+                               <Input 
+                                  value={item.title}
+                                  onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })}
+                                  placeholder="Título"
+                                  className="h-8 font-semibold"
+                              />
+                              <Input 
+                                  value={item.description}
+                                  onChange={(e) => handleUpdateItem(item.id, { description: e.target.value })}
+                                  placeholder="Descrição"
+                                  className="h-8 text-xs"
+                              />
+                          </div>
+                      </div>
+                  </Card>
+              ))}
+              <Button variant="outline" className="w-full" onClick={handleAddItem}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Adicionar Argumento
+              </Button>
+          </div>
       </Card>
     </div>
   );
@@ -475,7 +533,9 @@ function FunnelEditorContent() {
     if (component.name === 'Argumentos') {
       defaultProps = {
         layout: 'list',
-        disposition: 'image-text',
+        items: [
+            { id: 1, icon: '👋', title: 'Argumento 1', description: 'Lorem ipsum dollor sit amet.'}
+        ],
       };
     }
 
@@ -638,5 +698,7 @@ export default function EditorPage() {
         </Suspense>
     )
 }
+
+    
 
     
