@@ -1,0 +1,249 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the LaunchPad AI application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The user's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The user's last name."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the user logged in.",
+          "format": "date-time"
+        },
+        "profilePicture": {
+          "type": "string",
+          "description": "URL of the user's profile picture.",
+          "format": "uri"
+        },
+        "planId": {
+          "type": "string",
+          "description": "Reference to the user's pricing plan. (Relationship: Plan 1:N User)"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "createdAt"
+      ]
+    },
+    "Plan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Plan",
+      "type": "object",
+      "description": "Represents a pricing plan offered by LaunchPad AI.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the plan entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the plan (e.g., Free, Pro, Premium)."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the plan's features and benefits."
+        },
+        "priceMonthly": {
+          "type": "number",
+          "description": "The monthly price of the plan."
+        },
+        "priceYearly": {
+          "type": "number",
+          "description": "The yearly price of the plan."
+        },
+        "features": {
+          "type": "array",
+          "description": "A list of features included in the plan.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "priceMonthly",
+        "priceYearly",
+        "features"
+      ]
+    },
+    "AiModel": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AiModel",
+      "type": "object",
+      "description": "Represents an AI model used in LaunchPad AI, stored in Lovable Cloud.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AI Model."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the AI Model (e.g., 'Funnel Generator', 'TikTok Script Writer')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the AI model's purpose and capabilities."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version number of the AI model for tracking updates."
+        },
+        "modelUri": {
+          "type": "string",
+          "description": "URI pointing to the AI model file in Lovable Cloud storage.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "version",
+        "modelUri"
+      ]
+    },
+    "AiTemplate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AiTemplate",
+      "type": "object",
+      "description": "Represents a template used by AI tools, stored in Lovable Cloud.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AI Template."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the AI template (e.g., 'Landing Page Template', 'TikTok Bio Template')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the AI template's usage."
+        },
+        "templateUri": {
+          "type": "string",
+          "description": "URI pointing to the template file in Lovable Cloud storage.",
+          "format": "uri"
+        },
+        "aiModelId": {
+          "type": "string",
+          "description": "Reference to the AI Model that uses this template. (Relationship: AiModel 1:N AiTemplate)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "templateUri",
+        "aiModelId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Path-based ownership ensures that only the authenticated user can access their own profile data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/plans/{planId}",
+        "definition": {
+          "entityName": "Plan",
+          "schema": {
+            "$ref": "#/backend/entities/Plan"
+          },
+          "description": "Stores pricing plans. All documents in this collection have the same security posture (public read).",
+          "params": [
+            {
+              "name": "planId",
+              "description": "The unique identifier of the pricing plan."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/ai_models/{aiModelId}",
+        "definition": {
+          "entityName": "AiModel",
+          "schema": {
+            "$ref": "#/backend/entities/AiModel"
+          },
+          "description": "Stores AI models. All documents in this collection have the same security posture (public read).",
+          "params": [
+            {
+              "name": "aiModelId",
+              "description": "The unique identifier of the AI Model."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/ai_models/{aiModelId}/ai_templates/{aiTemplateId}",
+        "definition": {
+          "entityName": "AiTemplate",
+          "schema": {
+            "$ref": "#/backend/entities/AiTemplate"
+          },
+          "description": "Stores AI templates associated with AI models.  All documents in this collection have the same security posture (public read).",
+          "params": [
+            {
+              "name": "aiModelId",
+              "description": "The unique identifier of the AI Model."
+            },
+            {
+              "name": "aiTemplateId",
+              "description": "The unique identifier of the AI Template."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the LaunchPad AI application, focusing on user management, AI model and template storage, and plan management. The structure emphasizes authorization independence and data clarity for scalable and secure operations.\n\n*   **Authorization Independence**: Authorization is achieved through path-based ownership (`/users/{userId}`). This eliminates the need for `get()` calls in security rules, thus enabling atomic operations (transactions/batches). \n*   **Structural Segregation**: Each collection is designed to hold documents with similar security requirements.\n*   **Access Modeling**: Path-based ownership is used for user-related data (`/users/{userId}`). This is the simplest and most secure ownership model. This implicitly grants the user full ownership of the data stored under their path. There are no collaborative features that require membership maps.\n*   **QAPs**: Secure `list` operations are supported through structural segregation and path-based ownership. Since all documents under `/users/{userId}` are owned by the user, listing them only requires checking the `request.auth.uid` against the `userId` path parameter.\n*   **Invariants**: The structure facilitates enforcing ownership and data integrity. Timestamps can be enforced in security rules using `request.time`.\n\n**Details:**\n*   `/users/{userId}`: Stores user profiles.  The path itself ensures ownership and simplifies security rules.\n*   `/plans/{planId}`: Stores pricing plans. This is a global collection and readable by everyone.\n*   `/ai_models/{aiModelId}`: Stores AI models. This is a global collection and readable by everyone.\n*   `/ai_models/{aiModelId}/ai_templates/{aiTemplateId}`: Stores AI templates related to AI models. By nesting templates under models, we can define templates to specific models."
+  }
+}
