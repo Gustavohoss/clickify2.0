@@ -214,7 +214,11 @@ const AudioCanvasComponent = ({ component }: { component: CanvasComponentData })
   const [duration, setDuration] = useState(0);
   const [playedSeconds, setPlayedSeconds] = useState(0);
   const [isReady, setIsReady] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
 
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (autoplay && isReady) {
@@ -247,17 +251,19 @@ const AudioCanvasComponent = ({ component }: { component: CanvasComponentData })
         className="w-full max-w-sm p-2 rounded-lg flex items-center gap-2"
         style={{ backgroundColor: bgColor }}
     >
-        <ReactPlayer 
-            ref={playerRef}
-            url={audioUrl}
-            playing={isPlaying}
-            onReady={() => setIsReady(true)}
-            onDuration={setDuration}
-            onProgress={(state) => setPlayedSeconds(state.playedSeconds)}
-            onEnded={() => setIsPlaying(false)}
-            width="0"
-            height="0"
-        />
+        {hasMounted && (
+          <ReactPlayer 
+              ref={playerRef}
+              url={audioUrl}
+              playing={isPlaying}
+              onReady={() => setIsReady(true)}
+              onDuration={setDuration}
+              onProgress={(state) => setPlayedSeconds(state.playedSeconds)}
+              onEnded={() => setIsPlaying(false)}
+              width="0"
+              height="0"
+          />
+        )}
         {showAvatar && (
             <div className="relative">
                 <Avatar className="h-10 w-10">
@@ -624,7 +630,7 @@ const emojiCategories = {
 const colorPalette = [
     '#000000', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3',
     '#ffffff', '#ffb6c1', '#fffacd', '#f0f8ff', '#f5f5f5', '#d3d3d3',
-    '#fa8072', '#ffdead', '#f0e68c', '#90ee90', '#add8e6', '#dda0dd', '#c0c0c0', '#a9a9a9',
+    '#fa8072', '#ffdead', '#f0e68c', '#90ee90', '#dda0dd', '#c0c0c0', '#a9a9a9',
     '#800000', '#a52a2a', '#b8860b', '#006400', '#00008b', '#483d8b', '#808080', '#696969',
     '#400000', '#8b0000', '#808000', '#008000', '#000080', '#2f4f4f'
 ];
@@ -1074,3 +1080,4 @@ export default function EditorPage() {
     
 
     
+
