@@ -78,6 +78,9 @@ type ComponentProps = {
   title?: string;
   description?: string;
   model?: AlertModel;
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -123,7 +126,7 @@ const GenericCanvasComponent = ({ component }: { component: CanvasComponentData 
 };
 
 const AlertCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
-    const { title, description, model } = component.props;
+    const { title, description, model, backgroundColor, textColor, borderColor } = component.props;
 
     const modelClasses = {
         success: 'border-green-500 text-green-500 [&>svg]:text-green-500',
@@ -132,9 +135,18 @@ const AlertCanvasComponent = ({ component }: { component: CanvasComponentData })
         info: 'border-blue-500 text-blue-500 [&>svg]:text-blue-500',
     };
 
+    const hasCustomColors = backgroundColor || textColor || borderColor;
+
     return (
-        <Alert className={cn(modelClasses[model || 'success'])}>
-            <Check className="h-4 w-4" />
+        <Alert 
+            className={cn(!hasCustomColors && model && modelClasses[model])}
+            style={{
+                backgroundColor: backgroundColor,
+                color: textColor,
+                borderColor: borderColor
+            }}
+        >
+            <Check className="h-4 w-4" style={{ color: textColor }} />
             <AlertTitle>{title || 'Título do Alerta'}</AlertTitle>
             <AlertDescription>
                 {description || 'Esta é a descrição do alerta.'}
@@ -243,15 +255,33 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
         <div className="grid grid-cols-3 gap-4">
             <div className='space-y-1'>
                 <Label htmlFor='color' className='text-xs'>Cor</Label>
-                <Input type='color' id='color' className='p-1 h-8'/>
+                <Input 
+                    type='color' 
+                    id='color' 
+                    className='p-1 h-8' 
+                    value={component.props.backgroundColor || '#000000'}
+                    onChange={(e) => onUpdate({ ...component.props, backgroundColor: e.target.value })}
+                />
             </div>
             <div className='space-y-1'>
                 <Label htmlFor='text-color' className='text-xs'>Texto</Label>
-                <Input type='color' id='text-color' className='p-1 h-8'/>
+                <Input 
+                    type='color' 
+                    id='text-color' 
+                    className='p-1 h-8'
+                    value={component.props.textColor || '#ffffff'}
+                    onChange={(e) => onUpdate({ ...component.props, textColor: e.target.value })}
+                />
             </div>
             <div className='space-y-1'>
                 <Label htmlFor='border-color' className='text-xs'>Borda</Label>
-                <Input type='color' id='border-color' className='p-1 h-8'/>
+                <Input 
+                    type='color' 
+                    id='border-color' 
+                    className='p-1 h-8'
+                    value={component.props.borderColor || '#000000'}
+                    onChange={(e) => onUpdate({ ...component.props, borderColor: e.target.value })}
+                />
             </div>
         </div>
       </Card>
@@ -295,9 +325,12 @@ function FunnelEditorContent() {
     let defaultProps: ComponentProps = {};
     if (component.name === 'Alerta') {
       defaultProps = {
-        title: 'Error',
-        description: 'Test alert element 1',
+        title: 'Sucesso!',
+        description: 'Seu item foi salvo com sucesso.',
         model: 'success',
+        backgroundColor: '#D1FAE5',
+        textColor: '#065F46',
+        borderColor: '#10B981'
       };
     }
     const newComponent: CanvasComponentData = { 
