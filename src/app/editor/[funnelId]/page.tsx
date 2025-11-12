@@ -602,7 +602,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
                         borderColor: 'hsl(var(--border))'
                     }}
                 />
-                {showArea && <Area type="monotone" dataKey="value" stroke={gradientStartColor} fill={`url(#colorGradient-${uniqueId})`} strokeWidth={2} />}
+                <Area type="monotone" dataKey="value" stroke={gradientStartColor} fill={showArea ? `url(#colorGradient-${uniqueId})` : 'transparent'} strokeWidth={2} />
                 
                 {indicators.map((indicator, index) => (
                     <ReferenceDot key={index} x={indicator.name} y={indicator.value} r={6} fill={gradientStartColor} stroke="hsl(var(--primary-foreground))" strokeWidth={2}>
@@ -1887,6 +1887,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
