@@ -2,8 +2,10 @@
 
 'use client';
 
-import React, { Suspense, useState, ReactNode, useRef, useEffect } from 'react';
+import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
 import ReactPlayer from 'react-player';
+import confetti from "canvas-confetti";
+
 import {
   AreaChart,
   Area,
@@ -213,6 +215,11 @@ type ComponentProps = {
   sliderColor?: string;
   sliderIconColor?: string;
   sliderPosition?: number;
+  // Specific properties for Confetti
+  particleCount?: number;
+  spread?: number;
+  originX?: number;
+  originY?: number;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -725,6 +732,35 @@ const CompararCanvasComponent = ({ component }: { component: CanvasComponentData
     );
 };
 
+const ConfettiCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    particleCount = 200,
+    spread = 70,
+    originX = 0.5,
+    originY = 0.6
+  } = component.props;
+
+  const fire = useCallback(() => {
+    confetti({
+      particleCount,
+      spread,
+      origin: { x: originX, y: originY }
+    });
+  }, [particleCount, spread, originX, originY]);
+
+  useEffect(() => {
+    fire();
+  }, [fire]);
+
+  return (
+    <Card className="p-4 flex items-center justify-center gap-4 bg-muted/20 border-dashed">
+      <div className='text-primary'><Sparkles /></div>
+      <p className="font-semibold">Efeito Confete</p>
+      <Badge variant="outline">Invisível</Badge>
+    </Card>
+  );
+};
+
 
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
@@ -746,6 +782,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <CartesianoCanvasComponent component={component} />;
       case 'Comparar':
         return <CompararCanvasComponent component={component} />;
+      case 'Confetti':
+        return <ConfettiCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1758,6 +1796,80 @@ const CompararSettings = ({ component, onUpdate }: { component: CanvasComponentD
     );
 };
 
+const ConfettiSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+       <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Configuração do Efeito</h3>
+        <div className="space-y-4">
+            <div>
+              <UILabel htmlFor="particleCount" className='text-xs'>Quantidade de Partículas</UILabel>
+              <Slider
+                id="particleCount"
+                min={10}
+                max={500}
+                step={10}
+                value={[component.props.particleCount || 200]}
+                onValueChange={(value) => onUpdate({ ...component.props, particleCount: value[0] })}
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <UILabel htmlFor="spread" className='text-xs'>Espalhamento (Spread)</UILabel>
+              <Slider
+                id="spread"
+                min={10}
+                max={360}
+                step={1}
+                value={[component.props.spread || 70]}
+                onValueChange={(value) => onUpdate({ ...component.props, spread: value[0] })}
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <UILabel className='text-xs'>Origem da Explosão</UILabel>
+              <div className='grid grid-cols-2 gap-2 mt-2'>
+                <div>
+                    <UILabel htmlFor="originX" className='text-xs'>Eixo X (%)</UILabel>
+                    <Slider
+                        id="originX"
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        value={[component.props.originX || 0.5]}
+                        onValueChange={(value) => onUpdate({ ...component.props, originX: value[0] })}
+                        className="mt-1"
+                    />
+                </div>
+                <div>
+                    <UILabel htmlFor="originY" className='text-xs'>Eixo Y (%)</UILabel>
+                    <Slider
+                        id="originY"
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        value={[component.props.originY || 0.6]}
+                        onValueChange={(value) => onUpdate({ ...component.props, originY: value[0] })}
+                        className="mt-1"
+                    />
+                </div>
+              </div>
+            </div>
+             <Button className="w-full" variant="outline" onClick={() => {
+                confetti({
+                    particleCount: component.props.particleCount,
+                    spread: component.props.spread,
+                    origin: { x: component.props.originX, y: component.props.originY }
+                });
+             }}>
+                Testar Efeito
+             </Button>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -1784,6 +1896,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <CartesianoSettings component={component} onUpdate={handleUpdate} />;
         case 'Comparar':
             return <CompararSettings component={component} onUpdate={handleUpdate} />;
+        case 'Confetti':
+            return <ConfettiSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -1901,6 +2015,15 @@ function FunnelEditorContent() {
             sliderColor: '#FFFFFF',
             sliderIconColor: '#000000',
             sliderPosition: 50,
+        };
+    }
+
+    if (component.name === 'Confetti') {
+        defaultProps = {
+            particleCount: 200,
+            spread: 70,
+            originX: 0.5,
+            originY: 0.6,
         };
     }
 
@@ -2070,6 +2193,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
