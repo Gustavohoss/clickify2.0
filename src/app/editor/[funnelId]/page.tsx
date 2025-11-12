@@ -108,33 +108,40 @@ function FunnelEditorContent() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <aside className="flex w-72 flex-col border-r border-border">
-          <div className="flex h-14 items-center justify-between border-b border-border px-4">
-            <div className="flex items-center gap-2">
-              <GripVertical className="h-5 w-5 text-muted-foreground" />
-              <h2 className="font-semibold">Etapa 1</h2>
+        <aside className="flex border-r border-border">
+          {/* Steps Column */}
+          <div className="w-60 flex-col border-r border-border">
+            <div className="flex h-14 items-center justify-between border-b border-border px-4">
+              <div className="flex items-center gap-2">
+                <GripVertical className="h-5 w-5 text-muted-foreground" />
+                <h2 className="font-semibold">Etapa 1</h2>
+              </div>
+              <MoreVertical className="h-5 w-5 text-muted-foreground" />
             </div>
-            <MoreVertical className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <div className="p-4">
-            <Button variant="outline" className="w-full">
-              <Plus className="mr-2 h-4 w-4" />
-              Adicionar Etapa
-            </Button>
-          </div>
-          <ScrollArea className="flex-1">
-            <div className="grid grid-cols-2 gap-2 p-4">
-              {components.map((component) => (
-                <Card key={component.name} className="group flex cursor-grab flex-col items-center justify-center p-3 text-center transition-colors hover:bg-primary/10 hover:text-primary">
-                   <div className="relative">
-                    {component.icon}
-                    {component.isNew && <Badge className="absolute -top-2 -right-4 scale-75">Novo</Badge>}
-                   </div>
-                  <span className="mt-2 text-xs font-medium">{component.name}</span>
-                </Card>
-              ))}
+            <div className="p-4">
+              <Button variant="outline" className="w-full">
+                <Plus className="mr-2 h-4 w-4" />
+                Adicionar Etapa
+              </Button>
             </div>
-          </ScrollArea>
+          </div>
+          
+          {/* Components Column */}
+          <div className="w-72 flex-col">
+            <ScrollArea className="h-full">
+              <div className="grid grid-cols-2 gap-2 p-4">
+                {components.map((component) => (
+                  <Card key={component.name} className="group flex cursor-grab flex-col items-center justify-center p-3 text-center transition-colors hover:bg-primary/10 hover:text-primary">
+                    <div className="relative">
+                      {component.icon}
+                      {component.isNew && <Badge className="absolute -top-2 -right-4 scale-75">Novo</Badge>}
+                    </div>
+                    <span className="mt-2 text-xs font-medium">{component.name}</span>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         </aside>
 
         {/* Center Canvas */}
