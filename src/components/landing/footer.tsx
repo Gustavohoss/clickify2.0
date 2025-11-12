@@ -11,9 +11,9 @@ const socialLinks = [
 ];
 
 const footerLinks = [
-    { title: "Termos", href: "#" },
-    { title: "Privacidade", href: "#" },
-    { title: "Contato", href: "#" },
+    { title: "Termos", href: "/terms" },
+    { title: "Privacidade", href: "/privacy" },
+    { title: "Contato", href: "/contact" },
 ];
 
 export function Footer() {
@@ -43,7 +43,7 @@ export function Footer() {
             <Logo />
              <div className="flex gap-4">
                 {footerLinks.map(link => (
-                    <Link key={link.href} href={link.href} className="text-sm text-muted-foreground hover:text-foreground">
+                    <Link key={link.title} href={link.href} className="text-sm text-muted-foreground hover:text-foreground">
                         {link.title}
                     </Link>
                 ))}
