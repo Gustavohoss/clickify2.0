@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect } from 'react';
@@ -149,6 +150,12 @@ type ComponentProps = {
   progressColor?: string;
   bgColor?: string;
   iconColor?: string;
+  // Specific properties for Button
+  text?: string;
+  action?: 'next_step' | 'open_url';
+  url?: string;
+  fullWidth?: boolean;
+  variant?: 'default' | 'outline' | 'ghost' | 'secondary' | 'link';
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -367,6 +374,30 @@ const AlertCanvasComponent = ({ component }: { component: CanvasComponentData })
     )
 }
 
+const BotaoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const { 
+    text = 'Continuar',
+    fullWidth = true,
+    variant = 'default',
+    backgroundColor,
+    textColor,
+  } = component.props;
+
+  return (
+    <Button
+      variant={variant}
+      className={cn(fullWidth && 'w-full')}
+      style={{
+        backgroundColor: backgroundColor,
+        color: textColor,
+      }}
+    >
+      {text}
+    </Button>
+  );
+};
+
+
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
     switch (component.name) {
@@ -376,6 +407,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <ArgumentoCanvasComponent component={component} />;
       case 'Audio':
         return <AudioCanvasComponent component={component} />;
+      case 'Botão':
+        return <BotaoCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -640,7 +673,7 @@ const emojiCategories = {
 
 const colorPalette = [
     '#000000', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3',
-    '#ffffff', '#ffb6c1', '#fffacd', '#f0f8ff', '#f5f5f5', '#d3d3d3', '#a9a9a9',
+    '#ffffff', '#ffb6c1', '#fffacd', '#f0f8ff', '#f5f5f5', '#d3d3d3', '#a9a9a9', '#add8e6',
     '#fa8072', '#ffdead', '#f0e68c', '#90ee90', '#dda0dd', '#c0c0c0',
     '#800000', '#a52a2a', '#b8860b', '#006400', '#00008b', '#483d8b', '#808080', '#696969',
     '#400000', '#8b0000', '#808000', '#008000', '#000080', '#2f4f4f'
@@ -855,6 +888,113 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
 };
 
 
+const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+       <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
+        <div className="space-y-3">
+            <div>
+              <Label htmlFor="text" className='text-xs'>Texto do Botão</Label>
+              <Input
+                id="text"
+                value={component.props.text || ''}
+                onChange={(e) => onUpdate({ ...component.props, text: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="action" className='text-xs'>Ação</Label>
+              <Select
+                value={component.props.action || 'next_step'}
+                onValueChange={(value: 'next_step' | 'open_url') => onUpdate({ ...component.props, action: value })}
+              >
+                <SelectTrigger id="action" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="next_step">Ir para próxima etapa</SelectItem>
+                  <SelectItem value="open_url">Abrir URL</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {component.props.action === 'open_url' && (
+              <div>
+                <Label htmlFor="url" className='text-xs'>URL</Label>
+                <Input
+                  id="url"
+                  value={component.props.url || ''}
+                  onChange={(e) => onUpdate({ ...component.props, url: e.target.value })}
+                  className="mt-1"
+                  placeholder="https://..."
+                />
+              </div>
+            )}
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
+         <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                <Label htmlFor="fullWidth">Largura Total</Label>
+                <Switch 
+                    id="fullWidth"
+                    checked={component.props.fullWidth}
+                    onCheckedChange={(checked) => onUpdate({ ...component.props, fullWidth: checked })}
+                />
+            </div>
+            <div>
+              <Label htmlFor="variant" className='text-xs'>Variante</Label>
+              <Select
+                value={component.props.variant || 'default'}
+                onValueChange={(value: 'default' | 'outline' | 'ghost' | 'secondary' | 'link') => onUpdate({ ...component.props, variant: value })}
+              >
+                <SelectTrigger id="variant" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Padrão</SelectItem>
+                  <SelectItem value="secondary">Secundário</SelectItem>
+                  <SelectItem value="outline">Contorno</SelectItem>
+                  <SelectItem value="ghost">Transparente</SelectItem>
+                  <SelectItem value="link">Link</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+        </div>
+      </Card>
+
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+        <div className="grid grid-cols-2 gap-4">
+            <div className='space-y-1'>
+                <Label htmlFor='bg-color' className='text-xs'>Cor do Fundo</Label>
+                <Input 
+                  type='color' 
+                  id='bg-color' 
+                  className='p-1 h-8 w-full' 
+                  value={component.props.backgroundColor || '#000000'} 
+                  onChange={(e) => onUpdate({ ...component.props, backgroundColor: e.target.value })} 
+                />
+            </div>
+            <div className='space-y-1'>
+                <Label htmlFor='text-color' className='text-xs'>Cor do Texto</Label>
+                <Input 
+                  type='color' 
+                  id='text-color' 
+                  className='p-1 h-8 w-full' 
+                  value={component.props.textColor || '#ffffff'} 
+                  onChange={(e) => onUpdate({ ...component.props, textColor: e.target.value })} 
+                />
+            </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
 
@@ -870,6 +1010,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
           return <ArgumentosSettings component={component} onUpdate={handleUpdate} />;
         case 'Audio':
             return <AudioSettings component={component} onUpdate={handleUpdate} />;
+        case 'Botão':
+            return <BotaoSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -923,6 +1065,17 @@ function FunnelEditorContent() {
             bgColor: '#005C4B',
             iconColor: '#8696A0'
         };
+    }
+
+    if (component.name === 'Botão') {
+      defaultProps = {
+        text: 'Continuar',
+        action: 'next_step',
+        fullWidth: true,
+        variant: 'default',
+        backgroundColor: '#1f2937', // dark grey
+        textColor: '#ffffff', // white
+      };
     }
 
 
