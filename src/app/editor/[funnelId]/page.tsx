@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode } from 'react';
@@ -162,14 +163,38 @@ const GenericCanvasComponent = ({ component }: { component: CanvasComponentData 
 };
 
 const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const layout = component.props.layout || 'list';
+
+  const layoutClasses: { [key: string]: string } = {
+    'list': 'grid-cols-1',
+    '2-cols': 'grid-cols-2',
+    '3-cols': 'grid-cols-3',
+    '4-cols': 'grid-cols-4',
+  };
+
+  const gridClass = layoutClasses[layout] || 'grid-cols-1';
+
+  const numItems: number = {
+    'list': 1,
+    '2-cols': 2,
+    '3-cols': 3,
+    '4-cols': 4,
+  }[layout] || 1;
+
+  const items = Array.from({ length: numItems });
+
   return (
-    <Card className="p-6 text-center border-dashed">
-      <div className="flex justify-center mb-4">
-        <WavingHandIcon />
+      <div className={cn('grid gap-4', gridClass)}>
+          {items.map((_, index) => (
+              <Card key={index} className="p-6 text-center border-dashed">
+                  <div className="flex justify-center mb-4">
+                      <WavingHandIcon />
+                  </div>
+                  <h3 className="font-bold text-lg">Argumento</h3>
+                  <p className="text-muted-foreground mt-1">Lorem ipsum dollor sit amet</p>
+              </Card>
+          ))}
       </div>
-      <h3 className="font-bold text-lg">Argumento</h3>
-      <p className="text-muted-foreground mt-1">Lorem ipsum dollor sit amet</p>
-    </Card>
   );
 }
 
