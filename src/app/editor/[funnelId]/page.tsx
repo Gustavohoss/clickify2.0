@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { Suspense, useState, ReactNode } from 'react';
+import React, { Suspense, useState, ReactNode, useRef, useEffect } from 'react';
 import {
   AlertTriangle,
   Plus,
@@ -64,6 +64,7 @@ import {
   Baseline,
   Highlighter,
   Play,
+  Pause,
   Mic,
   CheckCheck,
 } from 'lucide-react';
@@ -176,7 +177,7 @@ const components: ComponentType[] = [
   { name: 'Opções', icon: <CheckSquare /> },
   { name: 'Preço', icon: <DollarSign /> },
   { name: 'Script', icon: <FileCode /> },
-  { name: 'Termos', icon: <FileTextIcon /> },
+  { name: 'Termos', icon: <FileText as FileTextIcon /> },
   { name: 'Texto', icon: <TextIcon /> },
   { name: 'Título', icon: <Heading1 /> },
   { name: 'Video', icon: <Video /> },
@@ -198,18 +199,80 @@ const GenericCanvasComponent = ({ component }: { component: CanvasComponentData 
 
 const AudioCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const { 
+    audioUrl = '',
     avatarUrl = 'https://picsum.photos/seed/audio-avatar/40/40',
     showAvatar = true,
+    autoplay = false,
     bgColor = '#005C4B',
     progressColor = '#00A884',
     iconColor = '#8696A0'
   } = component.props;
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const setAudioData = () => {
+      setDuration(audio.duration);
+      setCurrentTime(audio.currentTime);
+    }
+
+    const setAudioTime = () => setCurrentTime(audio.currentTime);
+
+    audio.addEventListener('loadeddata', setAudioData);
+    audio.addEventListener('timeupdate', setAudioTime);
+    audio.addEventListener('ended', () => setIsPlaying(false));
+
+    if (autoplay) {
+      audio.play().then(() => setIsPlaying(true)).catch(e => console.error("Autoplay failed", e));
+    }
+    
+    return () => {
+      audio.removeEventListener('loadeddata', setAudioData);
+      audio.removeEventListener('timeupdate', setAudioTime);
+      audio.removeEventListener('ended', () => setIsPlaying(false));
+    }
+  }, [audioUrl, autoplay]);
+  
+  const togglePlayPause = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleSliderChange = (value: number[]) => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = value[0];
+      setCurrentTime(value[0]);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    if (isNaN(time) || time === 0) return '00:00';
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
 
   return (
     <div 
         className="w-full max-w-sm p-2 rounded-lg flex items-center gap-2"
         style={{ backgroundColor: bgColor }}
     >
+        <audio ref={audioRef} src={audioUrl} preload="metadata"></audio>
         {showAvatar && (
             <div className="relative">
                 <Avatar className="h-10 w-10">
@@ -224,21 +287,22 @@ const AudioCanvasComponent = ({ component }: { component: CanvasComponentData })
                 </div>
             </div>
         )}
-        <Button variant="ghost" size="icon" className="h-10 w-10 flex-shrink-0">
-            <Play className="h-6 w-6" style={{ color: iconColor }} />
+        <Button variant="ghost" size="icon" className="h-10 w-10 flex-shrink-0" onClick={togglePlayPause} disabled={!audioUrl}>
+            {isPlaying ? <Pause className="h-6 w-6" style={{ color: iconColor }} /> : <Play className="h-6 w-6" style={{ color: iconColor }} />}
         </Button>
         <div className="flex-grow flex flex-col justify-center">
             <Slider 
-              defaultValue={[30]} 
-              max={100} 
+              value={[currentTime]} 
+              max={duration || 100} 
               step={1} 
+              onValueChange={handleSliderChange}
               className="w-full [&>span:first-child]:h-1 [&>span:first-child>span]:bg-transparent"
               style={{ '--slider-track': progressColor, '--slider-thumb': progressColor } as React.CSSProperties}
             />
              <div className="flex justify-between text-xs mt-1" style={{ color: iconColor }}>
-                <span>03:02</span>
+                <span>{formatTime(currentTime)}</span>
                 <div className="flex items-center gap-1">
-                    <span>12:30</span>
+                    <span>{formatTime(duration)}</span>
                     <CheckCheck className="h-4 w-4" style={{color: progressColor }} />
                 </div>
             </div>
@@ -502,7 +566,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
                 value={component.props.audioUrl || ''}
                 onChange={(e) => onUpdate({ ...component.props, audioUrl: e.target.value })}
                 className="mt-1"
-                placeholder="https://..."
+                placeholder="https://example.com/audio.mp3"
               />
             </div>
             <div>
@@ -574,7 +638,7 @@ const emojiCategories = {
 
 const colorPalette = [
     '#000000', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3',
-    '#ffffff', '#ffb6c1', '#fffacd', '#add8e6', '#f0f8ff', '#f5f5f5', '#d3d3d3',
+    '#ffffff', '#ffb6c1', '#fffacd', '#f0f8ff', '#f5f5f5', '#d3d3d3',
     '#fa8072', '#ffdead', '#f0e68c', '#90ee90', '#dda0dd', '#c0c0c0', '#a9a9a9',
     '#800000', '#a52a2a', '#b8860b', '#006400', '#00008b', '#483d8b', '#808080', '#696969',
     '#400000', '#8b0000', '#808000', '#008000', '#000080', '#4b0082', '#2f4f4f'
@@ -1023,4 +1087,3 @@ export default function EditorPage() {
 }
 
     
-
