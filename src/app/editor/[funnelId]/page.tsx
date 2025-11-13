@@ -171,6 +171,12 @@ type FaqItem = {
     answer: string;
 };
 
+type GraficosItem = {
+    id: number;
+    label: string;
+    value: number;
+};
+
 type ComponentProps = {
   // Common properties for all components
   [key: string]: any; 
@@ -254,6 +260,10 @@ type ComponentProps = {
   faqBackgroundColor?: string;
   faqTextColor?: string;
   faqBorderColor?: string;
+  // Specific properties for Gráficos
+  graficosItems?: GraficosItem[];
+  barColor?: string;
+  trackColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -967,6 +977,58 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
     );
 };
 
+const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+    const {
+        graficosItems = [],
+        barColor = '#000000',
+        trackColor = '#F3F4F6',
+        textColor = '#000000',
+    } = component.props;
+
+    if (graficosItems.length === 0) {
+        return (
+            <Card className="p-6 text-center border-dashed">
+                <div className="flex justify-center mb-4">
+                    <WavingHandIcon />
+                </div>
+                <h3 className="font-bold text-lg">Gráficos</h3>
+                <p className="text-muted-foreground mt-1">Adicione itens para começar.</p>
+            </Card>
+        );
+    }
+
+    return (
+        <div className="grid grid-cols-2 gap-4">
+            {graficosItems.map((item) => (
+                <Card key={item.id} className="p-4 flex flex-col items-center gap-4">
+                    <div 
+                        className="w-12 h-32 rounded-lg flex flex-col justify-end overflow-hidden relative" 
+                        style={{ backgroundColor: trackColor }}
+                    >
+                        <div 
+                            className="w-full" 
+                            style={{ 
+                                height: `${item.value}%`, 
+                                backgroundColor: barColor 
+                            }} 
+                        />
+                        <div 
+                            className="absolute top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full text-xs font-semibold"
+                            style={{ 
+                                color: textColor,
+                                backgroundColor: 'rgba(255, 255, 255, 0.7)'
+                            }}
+                        >
+                            {item.value}%
+                        </div>
+                    </div>
+                    <p className="text-sm text-center" style={{ color: textColor }}>{item.label}</p>
+                </Card>
+            ))}
+        </div>
+    );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -997,6 +1059,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <EspacadorCanvasComponent component={component} />;
       case 'FAQ':
         return <FaqCanvasComponent component={component} />;
+      case 'Gráficos':
+          return <GraficosCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -2552,6 +2616,97 @@ const FaqSettings = ({ component, onUpdate }: { component: CanvasComponentData, 
     );
 };
 
+const GraficosSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+    const items = component.props.graficosItems || [];
+
+    const handleUpdateItem = (itemId: number, newValues: Partial<GraficosItem>) => {
+        const newItems = items.map(item =>
+            item.id === itemId ? { ...item, ...newValues } : item
+        );
+        onUpdate({ ...component.props, graficosItems: newItems });
+    };
+
+    const handleAddItem = () => {
+        const newItem: GraficosItem = {
+            id: Date.now(),
+            label: 'Novo Item',
+            value: 50,
+        };
+        onUpdate({ ...component.props, graficosItems: [...items, newItem] });
+    };
+
+    const handleDeleteItem = (itemId: number) => {
+        const newItems = items.filter(item => item.id !== itemId);
+        onUpdate({ ...component.props, graficosItems: newItems });
+    };
+
+    return (
+        <div className='space-y-6'>
+            <Card className="p-4 bg-muted/20 border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Itens do Gráfico</h3>
+                <ScrollArea className="h-[30rem]">
+                    <div className="space-y-4 pr-4">
+                        {items.map(item => (
+                            <Card key={item.id} className="p-3 bg-card space-y-3 relative">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => handleDeleteItem(item.id)}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                                <div>
+                                    <UILabel htmlFor={`label-${item.id}`} className='text-xs'>Rótulo</UILabel>
+                                    <Input
+                                        id={`label-${item.id}`}
+                                        value={item.label}
+                                        onChange={(e) => handleUpdateItem(item.id, { label: e.target.value })}
+                                        className="mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <UILabel htmlFor={`value-${item.id}`} className='text-xs'>Valor ({item.value}%)</UILabel>
+                                    <Slider
+                                        id={`value-${item.id}`}
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                        value={[item.value]}
+                                        onValueChange={(value) => handleUpdateItem(item.id, { value: value[0] })}
+                                        className="mt-2"
+                                    />
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </ScrollArea>
+                <Button variant="outline" className="w-full mt-4" onClick={handleAddItem}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Item
+                </Button>
+            </Card>
+            <Card className="p-4 bg-muted/20 border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+                <div className="grid grid-cols-3 gap-4">
+                    <div className='space-y-1'>
+                        <UILabel htmlFor='barColor' className='text-xs'>Cor da Barra</UILabel>
+                        <Input type='color' id='barColor' className='p-1 h-8 w-full' value={component.props.barColor || '#000000'} onChange={(e) => onUpdate({ ...component.props, barColor: e.target.value })} />
+                    </div>
+                    <div className='space-y-1'>
+                        <UILabel htmlFor='trackColor' className='text-xs'>Fundo</UILabel>
+                        <Input type='color' id='trackColor' className='p-1 h-8 w-full' value={component.props.trackColor || '#F3F4F6'} onChange={(e) => onUpdate({ ...component.props, trackColor: e.target.value })} />
+                    </div>
+                    <div className='space-y-1'>
+                        <UILabel htmlFor='graficosTextColor' className='text-xs'>Texto</UILabel>
+                        <Input type='color' id='graficosTextColor' className='p-1 h-8 w-full' value={component.props.textColor || '#000000'} onChange={(e) => onUpdate({ ...component.props, textColor: e.target.value })} />
+                    </div>
+                </div>
+            </Card>
+        </div>
+    );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -2588,6 +2743,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <EspacadorSettings component={component} onUpdate={handleUpdate} />;
         case 'FAQ':
             return <FaqSettings component={component} onUpdate={handleUpdate} />;
+        case 'Gráficos':
+            return <GraficosSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -2759,6 +2916,18 @@ function FunnelEditorContent() {
         };
     }
 
+    if (component.name === 'Gráficos') {
+      defaultProps = {
+        graficosItems: [
+          { id: 1, label: 'Lorem ipsum dollor', value: 50 },
+          { id: 2, label: 'Lorem ipsum dollor', value: 35 },
+        ],
+        barColor: '#000000',
+        trackColor: '#F3F4F6',
+        textColor: '#000000',
+      };
+    }
+
 
     const newComponent: CanvasComponentData = { 
         ...component, 
@@ -2925,6 +3094,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
