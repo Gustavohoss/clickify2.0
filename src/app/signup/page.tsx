@@ -48,7 +48,6 @@ export default function SignupPage() {
       });
       router.push('/login');
     } catch (error: any) {
-        console.error(error);
         let description = 'Ocorreu um erro ao criar a conta.';
         if (error.code === 'auth/email-already-in-use') {
             description = 'Este e-mail já está em uso.';
