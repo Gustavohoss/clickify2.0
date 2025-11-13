@@ -157,6 +157,14 @@ type CartesianChartDataPoint = {
     indicatorLabel: string;
 };
 
+type TestimonialItem = {
+  id: number;
+  imageUrl: string;
+  name: string;
+  handle: string;
+  rating: number;
+  testimonial: string;
+};
 
 type ComponentProps = {
   // Common properties for all components
@@ -221,6 +229,8 @@ type ComponentProps = {
   spread?: number;
   originX?: number;
   originY?: number;
+  // Specific properties for Depoimentos
+  testimonials?: TestimonialItem[];
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -762,7 +772,61 @@ const ConfettiCanvasComponent = ({ component }: { component: CanvasComponentData
     );
 };
 
+const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const testimonials = component.props.testimonials || [];
 
+  if (testimonials.length === 0) {
+    return (
+      <Card className="p-6 text-center border-dashed">
+        <div className="flex justify-center mb-4">
+          <WavingHandIcon />
+        </div>
+        <h3 className="font-bold text-lg">Depoimentos</h3>
+        <p className="text-muted-foreground mt-1">Adicione depoimentos para começar</p>
+      </Card>
+    );
+  }
+  
+  const StarRating = ({ rating }: { rating: number }) => {
+    return (
+      <div className="flex items-center gap-0.5">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={cn(
+              "h-5 w-5",
+              i < rating ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"
+            )}
+          />
+        ))}
+      </div>
+    );
+  };
+
+
+  return (
+    <div className="space-y-4">
+      {testimonials.map((item) => (
+        <Card key={item.id} className="p-4">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-12 w-12 border">
+              <AvatarImage src={item.imageUrl} alt={item.name} />
+              <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="w-full">
+                <StarRating rating={item.rating} />
+                <div className="mt-2">
+                    <p className="font-bold">{item.name}</p>
+                    <p className="text-sm text-muted-foreground">{item.handle}</p>
+                </div>
+                <p className="text-muted-foreground mt-2">{item.testimonial}</p>
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+};
 
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
@@ -786,6 +850,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
         return <CompararCanvasComponent component={component} />;
       case 'Confetti':
         return <ConfettiCanvasComponent component={component} />;
+      case 'Depoimentos':
+        return <DepoimentosCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1873,6 +1939,123 @@ const ConfettiSettings = ({ component, onUpdate }: { component: CanvasComponentD
 };
 
 
+const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  const testimonials = component.props.testimonials || [];
+
+  const handleUpdateItem = (itemId: number, newValues: Partial<TestimonialItem>) => {
+    const newItems = testimonials.map(item =>
+      item.id === itemId ? { ...item, ...newValues } : item
+    );
+    onUpdate({ ...component.props, testimonials: newItems });
+  };
+
+  const handleAddItem = () => {
+    const newItem: TestimonialItem = {
+      id: Date.now(),
+      imageUrl: `https://picsum.photos/seed/${Date.now()}/100/100`,
+      name: 'Novo Autor',
+      handle: '@usuario',
+      rating: 5,
+      testimonial: 'Este é um depoimento incrível que me ajudou muito.'
+    };
+    onUpdate({ ...component.props, testimonials: [...testimonials, newItem] });
+  };
+
+  const handleDeleteItem = (itemId: number) => {
+    const newItems = testimonials.filter(item => item.id !== itemId);
+    onUpdate({ ...component.props, testimonials: newItems });
+  };
+
+  return (
+    <div className='space-y-6'>
+      <Card className="p-4 bg-muted/20 border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Depoimentos</h3>
+        <ScrollArea className="h-[40rem]">
+          <div className="space-y-4 pr-4">
+            {testimonials.map(item => (
+              <Card key={item.id} className="p-4 bg-card space-y-4 relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => handleDeleteItem(item.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-14 w-14 border">
+                    <AvatarImage src={item.imageUrl} alt={item.name} />
+                    <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className='w-full'>
+                    <UILabel htmlFor={`imageUrl-${item.id}`} className='text-xs'>URL da Imagem</UILabel>
+                    <Input
+                      id={`imageUrl-${item.id}`}
+                      value={item.imageUrl}
+                      onChange={(e) => handleUpdateItem(item.id, { imageUrl: e.target.value })}
+                      className="mt-1 h-9"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <UILabel htmlFor={`name-${item.id}`} className='text-xs'>Nome</UILabel>
+                    <Input
+                      id={`name-${item.id}`}
+                      value={item.name}
+                      onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
+                      className="mt-1 h-9"
+                    />
+                  </div>
+                  <div>
+                    <UILabel htmlFor={`handle-${item.id}`} className='text-xs'>Handle (@)</UILabel>
+                    <Input
+                      id={`handle-${item.id}`}
+                      value={item.handle}
+                      onChange={(e) => handleUpdateItem(item.id, { handle: e.target.value })}
+                      className="mt-1 h-9"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                    <UILabel htmlFor={`rating-${item.id}`} className='text-xs'>Avaliação ({item.rating})</UILabel>
+                    <Slider
+                      id={`rating-${item.id}`}
+                      min={1}
+                      max={5}
+                      step={1}
+                      value={[item.rating]}
+                      onValueChange={(value) => handleUpdateItem(item.id, { rating: value[0] })}
+                      className="mt-3"
+                    />
+                </div>
+
+                <div>
+                    <UILabel htmlFor={`testimonial-${item.id}`} className='text-xs'>Texto do Depoimento</UILabel>
+                    <Textarea
+                      id={`testimonial-${item.id}`}
+                      value={item.testimonial}
+                      onChange={(e) => handleUpdateItem(item.id, { testimonial: e.target.value })}
+                      className="mt-1"
+                      rows={3}
+                    />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
+        <Button variant="outline" className="w-full mt-4" onClick={handleAddItem}>
+          <Plus className="h-4 w-4 mr-2" />
+          Adicionar Depoimento
+        </Button>
+      </Card>
+    </div>
+  );
+};
+
+
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
 
@@ -1900,6 +2083,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <CompararSettings component={component} onUpdate={handleUpdate} />;
         case 'Confetti':
             return <ConfettiSettings component={component} onUpdate={handleUpdate} />;
+        case 'Depoimentos':
+            return <DepoimentosSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -2027,6 +2212,21 @@ function FunnelEditorContent() {
             originX: 0.5,
             originY: 0.6,
         };
+    }
+    
+    if (component.name === 'Depoimentos') {
+      defaultProps = {
+        testimonials: [
+          { 
+            id: 1, 
+            imageUrl: 'https://picsum.photos/seed/user1/100/100',
+            name: 'Caio Martins',
+            handle: '@caiomartins',
+            rating: 5,
+            testimonial: 'Lorem ipsum dollor sit amet, consectetur adipiscing elit.'
+          }
+        ]
+      };
     }
 
 
@@ -2195,6 +2395,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
