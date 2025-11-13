@@ -1953,8 +1953,8 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
     const newItem: TestimonialItem = {
       id: Date.now(),
       imageUrl: `https://picsum.photos/seed/${Date.now()}/100/100`,
-      name: 'Novo Autor',
-      handle: '@usuario',
+      name: 'Gustavo',
+      handle: '@gustavo',
       rating: 5,
       testimonial: 'Este é um depoimento incrível que me ajudou muito.'
     };
@@ -2220,8 +2220,8 @@ function FunnelEditorContent() {
           { 
             id: 1, 
             imageUrl: 'https://picsum.photos/seed/user1/100/100',
-            name: 'Caio Martins',
-            handle: '@caiomartins',
+            name: 'Gustavo',
+            handle: '@gustavo',
             rating: 5,
             testimonial: 'Lorem ipsum dollor sit amet, consectetur adipiscing elit.'
           }
@@ -2395,6 +2395,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
