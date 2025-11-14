@@ -1,6 +1,7 @@
 
 
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -216,6 +217,8 @@ type ComponentProps = {
   limit?: number;
   showTitle?: boolean;
   showProgress?: boolean;
+  titleColor?: string;
+  descriptionColor?: string;
   // Specific properties for Carrosel
   slides?: CarouselItemData[];
   loop?: boolean;
@@ -510,7 +513,9 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
   const {
     loadingText = 'Carregando...',
     loadingDescription = 'Lorem ipsum dollor sit amet.',
-    progressBarColor,
+    progressColor = '#000000',
+    titleColor = '#000000',
+    descriptionColor = '#000000',
     duration = 5,
     limit = 100,
     showTitle = true,
@@ -550,19 +555,19 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
   return (
     <div className="w-full space-y-2">
       {showTitle && (
-        <div className="flex justify-between items-center text-sm font-medium text-black">
-          <span>{loadingText}</span>
-          {showProgress && <span className="text-gray-500">{displayProgress}%</span>}
+        <div className="flex justify-between items-center text-sm font-medium">
+          <span style={{ color: titleColor }}>{loadingText}</span>
+          {showProgress && <span style={{ color: progressColor }}>{displayProgress}%</span>}
         </div>
       )}
       {showProgress && (
          <Progress 
             value={displayProgress} 
             className="w-full h-2 [&>div]:bg-black" 
-            style={{ '--progress-bar-color': progressBarColor } as React.CSSProperties}
+            style={{ '--progress-bar-color': progressColor } as React.CSSProperties}
           />
       )}
-      <p className="text-sm text-gray-500 text-center pt-1">{loadingDescription}</p>
+      <p className="text-sm text-center pt-1" style={{ color: descriptionColor }}>{loadingDescription}</p>
     </div>
   );
 };
@@ -572,13 +577,13 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
   
   if (slides.length === 0) {
     return (
-      <Card className="p-6 text-center bg-transparent border-0 shadow-none">
+      <div className="p-6 text-center bg-transparent border-0 shadow-none">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
         <h3 className="font-bold text-lg text-black">Carrossel</h3>
         <p className="text-gray-500 mt-1">Adicione slides para começar</p>
-      </Card>
+      </div>
     );
   }
 
@@ -588,7 +593,7 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
         {slides.map((slide) => (
           <CarouselItem key={slide.id}>
             <div className="p-1">
-              <Card className='bg-transparent border-0 shadow-none'>
+              <div className='bg-transparent border-0 shadow-none'>
                 <CardContent className="flex aspect-video items-center justify-center p-0 relative bg-gray-100">
                   {slide.imageUrl ? (
                      <Image src={slide.imageUrl} alt={slide.caption || 'Slide image'} layout="fill" objectFit="contain" />
@@ -596,8 +601,8 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
                     <ImageIcon className="h-12 w-12 text-gray-400" />
                   )}
                 </CardContent>
-              </Card>
-              {slide.caption && <p className="text-center text-sm text-gray-600 mt-2">{slide.caption}</p>}
+              </div>
+              {slide.caption && <p className="text-center text-sm text-black mt-2">{slide.caption}</p>}
             </div>
           </CarouselItem>
         ))}
@@ -620,13 +625,13 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
 
   if (chartData.length === 0) {
     return (
-      <Card className="p-6 text-center bg-transparent border-0 shadow-none">
+      <div className="p-6 text-center bg-transparent border-0 shadow-none">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
         <h3 className="font-bold text-lg text-black">Gráfico Cartesiano</h3>
         <p className="text-gray-500 mt-1">Adicione pontos de dados para começar.</p>
-      </Card>
+      </div>
     );
   }
   
@@ -813,13 +818,13 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
 
   if (testimonials.length === 0) {
     return (
-      <Card className="p-6 text-center bg-transparent border-0 shadow-none">
+      <div className="p-6 text-center bg-transparent border-0 shadow-none">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
         <h3 className="font-bold text-lg text-black">Depoimentos</h3>
         <p className="text-gray-500 mt-1">Adicione depoimentos para começar</p>
-      </Card>
+      </div>
     );
   }
   
@@ -943,13 +948,13 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
 
     if (faqItems.length === 0) {
         return (
-            <Card className="p-6 text-center bg-transparent border-0 shadow-none">
+            <div className="p-6 text-center bg-transparent border-0 shadow-none">
                 <div className="flex justify-center mb-4">
                     <WavingHandIcon />
                 </div>
                 <h3 className="font-bold text-lg text-black">FAQ</h3>
                 <p className="text-gray-500 mt-1">Adicione perguntas para começar.</p>
-            </Card>
+            </div>
         );
     }
 
@@ -989,13 +994,13 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
 
     if (graficosItems.length === 0) {
         return (
-            <Card className="p-6 text-center bg-transparent border-0 shadow-none">
+            <div className="p-6 text-center bg-transparent border-0 shadow-none">
                 <div className="flex justify-center mb-4">
                     <WavingHandIcon />
                 </div>
                 <h3 className="font-bold text-lg text-black">Gráficos</h3>
                 <p className="text-gray-500 mt-1">Adicione itens para começar.</p>
-            </Card>
+            </div>
         );
     }
 
@@ -1732,6 +1737,43 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
           </div>
         </div>
       </Card>
+
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div className='space-y-1'>
+            <UILabel htmlFor='titleColor' className='text-xs'>Cor do Título</UILabel>
+            <Input
+              type='color'
+              id='titleColor'
+              className='p-1 h-8 w-full'
+              value={component.props.titleColor || '#000000'}
+              onChange={(e) => onUpdate({ ...component.props, titleColor: e.target.value })}
+            />
+          </div>
+          <div className='space-y-1'>
+            <UILabel htmlFor='descriptionColor' className='text-xs'>Cor da Descrição</UILabel>
+            <Input
+              type='color'
+              id='descriptionColor'
+              className='p-1 h-8 w-full'
+              value={component.props.descriptionColor || '#000000'}
+              onChange={(e) => onUpdate({ ...component.props, descriptionColor: e.target.value })}
+            />
+          </div>
+          <div className='space-y-1'>
+            <UILabel htmlFor='progress-color' className='text-xs'>Cor do Progresso</UILabel>
+            <Input
+              type='color'
+              id='progress-color'
+              className='p-1 h-8 w-full'
+              value={component.props.progressColor || '#000000'}
+              onChange={(e) => onUpdate({ ...component.props, progressColor: e.target.value })}
+            />
+          </div>
+        </div>
+      </Card>
+
     </div>
   );
 };
@@ -2815,7 +2857,9 @@ function FunnelEditorContent() {
       defaultProps = {
         loadingText: 'Carregando...',
         loadingDescription: 'Lorem ipsum dollor sit amet.',
-        progressBarColor: '#1f2937',
+        progressColor: '#000000',
+        titleColor: '#000000',
+        descriptionColor: '#000000',
         duration: 5,
         limit: 100,
         action: 'next_step',
@@ -3053,7 +3097,7 @@ function FunnelEditorContent() {
                         <div className="flex-1 flex items-center justify-center text-center text-black rounded-lg border-2 border-dashed border-gray-300 bg-white p-4">
                             <div>
                                 <p className="text-lg font-semibold">Nada por aqui 😔</p>
-                                <p className="text-sm">Adicione um componente para começar.</p>
+                                <p className="text-sm text-gray-500">Adicione um componente para começar.</p>
                             </div>
                         </div>
                     ) : (
@@ -3098,4 +3142,5 @@ export default function EditorPage() {
 }
 
     
+
 
