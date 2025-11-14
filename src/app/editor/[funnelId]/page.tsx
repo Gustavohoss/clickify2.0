@@ -177,6 +177,15 @@ type GraficosItem = {
     value: number;
 };
 
+type ListItem = {
+    id: number;
+    icon: string;
+    iconBgColor: string;
+    title: string;
+    subtitle: string;
+};
+
+
 type ComponentProps = {
   // Common properties for all components
   [key: string]: any; 
@@ -273,6 +282,8 @@ type ComponentProps = {
   imageUrl?: string;
   altText?: string;
   borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  // Specific properties for Lista
+  listItems?: ListItem[];
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -560,8 +571,8 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
     <div className="w-full space-y-2">
       {showTitle && (
         <div className="flex justify-between items-center text-sm font-medium">
-          <span style={{ color: titleColor }}>{loadingText}</span>
-          {showProgress && <span style={{ color: progressColor }}>{displayProgress}%</span>}
+          <span style={{ color: titleColor }} className="text-black">{loadingText}</span>
+          {showProgress && <span style={{ color: progressColor }} className="text-black">{displayProgress}%</span>}
         </div>
       )}
       {showProgress && (
@@ -1100,6 +1111,44 @@ const ImagemCanvasComponent = ({ component }: { component: CanvasComponentData }
 };
 
 
+const ListaCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const items = component.props.listItems || [];
+
+  if (items.length === 0) {
+    return (
+      <div className="p-6 text-center bg-transparent border-0 shadow-none">
+        <div className="flex justify-center mb-4">
+          <WavingHandIcon />
+        </div>
+        <h3 className="font-bold text-lg text-black">Lista</h3>
+        <p className="text-gray-500 mt-1">Adicione itens para começar</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 w-full max-w-md mx-auto">
+      {items.map((item) => (
+        <Card key={item.id} className="p-3 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-4">
+            <div 
+              className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0" 
+              style={{ backgroundColor: item.iconBgColor }}
+            >
+              <span className="text-white text-xl">{item.icon}</span>
+            </div>
+            <div>
+              <p className="font-semibold text-black">{item.title}</p>
+              <p className="text-sm text-gray-500">{item.subtitle}</p>
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
     switch (component.name) {
@@ -1133,6 +1182,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
           return <GraficosCanvasComponent component={component} />;
       case 'Imagem':
           return <ImagemCanvasComponent component={component} />;
+      case 'Lista':
+          return <ListaCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1389,7 +1440,7 @@ const emojiCategories = {
     'Smileys & People': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🦷', '🦴', '👀', '👁️', '👅', '👄'],
     'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍', '🐈', '🐓', '🦃', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
     'Food & Drink': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '핫도그', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', 'Burrito', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕️', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢', '🧂'],
-    'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '🤹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
+    'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '𤹹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
     'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌'],
     'Objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', 'Joystick', '💽', '💾', '💿', '📀', 'VHS', '📷', '📸', '📹', '🎥', 'Film', '📞', '☎️', '📟', 'Fax', '📺', '📻', '🎙️', '🎚️', 'Mixer', '🧭', '⏱️', 'Timer', '⏰', 'Clock', '⌛️', 'Hourglass', '📡', '🔋', '🔌', '💡', '🔦', 'Candle', '🪔', 'Extinguisher', '🗑️', 'Drum', '💸', '💵', '💴', '💶', '💷', '💰', '💳', 'Receipt', '💎', '⚖️', '🦯', 'Wrench', 'Hammer', 'Tools', 'Pick', 'Screw', 'Gear', '🧱', '⛓️', '🧲', 'Gun', '💣', '🧨', 'Knife', 'Sword', 'Battle', 'Shield', '🚬', 'Coffin', 'Urn', 'Vase', '🔮', 'Bead', 'Amulet', 'Barber', 'Alembic', 'Telescope', 'Microscope', 'Well', 'Pill', 'Injection', 'Blood', 'DNA', 'Germ', 'Plate', 'Thermometer', 'Broom', 'Basket', 'Tissue', 'Toilet', 'Faucet', 'Shower', 'Bath', 'Soap', 'Razor', 'Sponge', 'Lotion', 'Bell', 'Key', 'Lock', 'Door', 'Chair', 'Couch', 'Bed', 'Sleeping', 'Teddy', 'Picture', 'Bag', 'Cart', 'Gift', 'Balloon', 'Cometa', 'Ribbon', 'Confetti', 'Party', 'Doll', 'Lantern', 'Wind', 'Aviso', 'Envelope', 'Enviando', 'Chegou', 'Email', 'Love', 'Postbox', 'Puxar', 'Enfiando', 'Mandou', 'Pacote', 'Listas', 'A4', 'Rolo', 'Folhas', 'Grafico', 'Aumento', 'Caindo', 'Caderno', 'Contatos', 'Calendário', 'Cartão', 'Arquivo', 'Votos', 'Gaveta', 'Organizado', 'Pasta', 'Pressionado', 'Livro', 'Ler', 'Marca', 'Alfinete', 'Clipe', 'Tesoura', 'Caneta', 'Pincel', 'Escrever', 'Lupa', 'Seguro', 'Trancado', 'Desbloqueado'],
     'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', 'ATM', '🚾', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '🔳', '💭', '🗯️', '💬', '🗨️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
@@ -2916,6 +2967,115 @@ const ImagemSettings = ({ component, onUpdate }: { component: CanvasComponentDat
 };
 
 
+const ListaSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  const items = component.props.listItems || [];
+
+  const handleUpdateItem = (itemId: number, newValues: Partial<ListItem>) => {
+    const newItems = items.map(item =>
+      item.id === itemId ? { ...item, ...newValues } : item
+    );
+    onUpdate({ ...component.props, listItems: newItems });
+  };
+
+  const handleAddItem = () => {
+    const newItem: ListItem = {
+      id: Date.now(),
+      icon: '✨',
+      iconBgColor: '#6366F1',
+      title: 'Novo Item',
+      subtitle: 'Subtítulo',
+    };
+    onUpdate({ ...component.props, listItems: [...items, newItem] });
+  };
+
+  const handleDeleteItem = (itemId: number) => {
+    const newItems = items.filter(item => item.id !== itemId);
+    onUpdate({ ...component.props, listItems: newItems });
+  };
+  
+  return (
+    <div className='space-y-6'>
+      <Card className="p-4 bg-card border-border/50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">Itens da Lista</h3>
+          <ScrollArea className="h-[40rem]">
+            <div className="space-y-4 pr-4">
+                {items.map((item, itemIndex) => (
+                    <Card key={item.id} className="p-3 bg-card space-y-3 relative overflow-hidden">
+                       <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteItem(item.id)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className="flex items-center gap-3">
+                            <div className='flex items-center gap-2'>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                      <Button variant="outline" className="w-12 h-10 text-xl text-center p-0 relative" style={{ backgroundColor: item.iconBgColor }}>
+                                        <span className="text-white">{item.icon}</span>
+                                      </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-80 h-96">
+                                    <ScrollArea className="h-full w-full">
+                                        {Object.entries(emojiCategories).map(([category, emojis]) => (
+                                            <div key={category}>
+                                                <h4 className="font-bold text-sm text-muted-foreground mb-2 sticky top-0 bg-popover py-1">{category}</h4>
+                                                <div className="grid grid-cols-8 gap-1 mb-4">
+                                                    {emojis.map((emoji, emojiIndex) => (
+                                                        <Button
+                                                            key={`${emoji}-${itemIndex}-${emojiIndex}`}
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="text-lg"
+                                                            onClick={() => handleUpdateItem(item.id, { icon: emoji })}
+                                                        >
+                                                            {emoji}
+                                                        </Button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </ScrollArea>
+                                  </PopoverContent>
+                                </Popover>
+                                <Input 
+                                  type='color' 
+                                  className='p-1 h-10 w-12' 
+                                  value={item.iconBgColor}
+                                  onChange={(e) => handleUpdateItem(item.id, { iconBgColor: e.target.value })}
+                                />
+                            </div>
+                             <div className='w-full space-y-2'>
+                                <Input
+                                  value={item.title}
+                                  onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })}
+                                  className="h-9"
+                                  placeholder="Título"
+                                />
+                                 <Input
+                                  value={item.subtitle}
+                                  onChange={(e) => handleUpdateItem(item.id, { subtitle: e.target.value })}
+                                  className="h-9"
+                                  placeholder="Subtítulo"
+                                />
+                            </div>
+                        </div>
+
+                    </Card>
+                ))}
+            </div>
+          </ScrollArea>
+           <Button variant="outline" className="w-full mt-4" onClick={handleAddItem}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Item
+            </Button>
+      </Card>
+    </div>
+  );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -2956,6 +3116,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <GraficosSettings component={component} onUpdate={handleUpdate} />;
         case 'Imagem':
             return <ImagemSettings component={component} onUpdate={handleUpdate} />;
+        case 'Lista':
+            return <ListaSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -3151,6 +3313,17 @@ function FunnelEditorContent() {
         borderRadius: 'md',
       };
     }
+    
+    if (component.name === 'Lista') {
+      defaultProps = {
+        listItems: [
+            { id: 1, icon: '💊', iconBgColor: '#3B82F6', title: 'Novo evento', subtitle: 'Cakto' },
+            { id: 2, icon: '💬', iconBgColor: '#EC4899', title: 'Nova mensagem', subtitle: 'Cakto' },
+            { id: 3, icon: '👤', iconBgColor: '#EC4899', title: 'Usuário se cadastrou', subtitle: 'Cakto' },
+            { id: 4, icon: '💰', iconBgColor: '#3B82F6', title: 'Pagamento recebido', subtitle: 'Cakto' },
+        ],
+      };
+    }
 
 
     const newComponent: CanvasComponentData = { 
@@ -3274,9 +3447,9 @@ function FunnelEditorContent() {
                 
                 <div className="mt-8 flex min-h-[400px] flex-col gap-4">
                     {canvasComponents.length === 0 ? (
-                        <div className="flex-1 flex items-center justify-center text-center text-black rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4">
+                        <div className="flex-1 flex items-center justify-center text-center rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4">
                             <div>
-                                <p className="text-lg font-semibold">Nada por aqui 😔</p>
+                                <p className="text-lg font-semibold text-black">Nada por aqui 😔</p>
                                 <p className="text-sm text-gray-500">Adicione um componente para começar.</p>
                             </div>
                         </div>
