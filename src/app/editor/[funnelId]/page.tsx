@@ -349,6 +349,11 @@ type ComponentProps = {
   termosTextAlign?: 'left' | 'center' | 'right';
   // Specific properties for Texto
   content?: string;
+  // Specific properties for Video
+  videoUrl?: string;
+  showControls?: boolean;
+  autoplayVideo?: boolean;
+  loopVideo?: boolean;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -1527,6 +1532,48 @@ const TextoCanvasComponent = ({ component }: { component: CanvasComponentData })
   );
 };
 
+const VideoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const { 
+    videoUrl = '',
+    showControls = true,
+    autoplayVideo = false,
+    loopVideo = false,
+  } = component.props;
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!videoUrl) {
+    return (
+       <div className="flex aspect-video w-full items-center justify-center rounded-md border-2 border-dashed bg-gray-100">
+        <div className="text-center text-gray-500">
+          <Video className="mx-auto h-12 w-12" />
+          <p className="mt-2 text-sm font-semibold text-black">Adicione um vídeo</p>
+          <p className="mt-1 text-xs text-gray-500">Insira uma URL nas configurações.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className='relative aspect-video w-full overflow-hidden rounded-md'>
+      {hasMounted && (
+        <ReactPlayer
+          url={videoUrl}
+          width="100%"
+          height="100%"
+          controls={showControls}
+          playing={autoplayVideo}
+          loop={loopVideo}
+          className="absolute top-0 left-0"
+        />
+      )}
+    </div>
+  );
+};
+
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
   const renderComponent = () => {
@@ -1575,6 +1622,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
           return <TermosCanvasComponent component={component} />;
       case 'Texto':
           return <TextoCanvasComponent component={component} />;
+      case 'Video':
+          return <VideoCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1831,7 +1880,7 @@ const emojiCategories = {
     'Smileys & People': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🦷', '🦴', '👀', '👁️', '👅', '👄'],
     'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍', '🐈', '🐓', '🦃', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
     'Food & Drink': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '핫도그', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', 'Burrito', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕️', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢', '🧂'],
-    'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '𤹹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
+    'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
     'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌'],
     'Objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', 'Joystick', '💽', '💾', '💿', '📀', 'VHS', '📷', '📸', '📹', '🎥', 'Film', '📞', '☎️', '📟', 'Fax', '📺', '📻', '🎙️', '️', 'Mixer', '🧭', '⏱️', 'Timer', '⏰', 'Clock', '⌛️', 'Hourglass', '📡', '🔋', '🔌', '💡', '🔦', 'Candle', '🪔', 'Extinguisher', '🗑️', 'Drum', '💸', '💵', '💴', '💶', '💷', '💰', '💳', 'Receipt', '💎', '⚖️', '🦯', 'Wrench', 'Hammer', 'Tools', 'Pick', 'Screw', 'Gear', '🧱', '⛓️', '🧲', 'Gun', '💣', '🧨', 'Knife', 'Sword', 'Battle', 'Shield', '🚬', 'Coffin', 'Urn', 'Vase', '🔮', 'Bead', 'Amulet', 'Barber', 'Alembic', 'Telescope', 'Microscope', 'Well', 'Pill', 'Injection', 'Blood', 'DNA', 'Germ', 'Plate', 'Thermometer', 'Broom', 'Basket', 'Tissue', 'Toilet', 'Faucet', 'Shower', 'Bath', 'Soap', 'Razor', 'Sponge', 'Lotion', 'Bell', 'Key', 'Lock', 'Door', 'Chair', 'Couch', 'Bed', 'Sleeping', 'Teddy', 'Picture', 'Bag', 'Cart', 'Gift', 'Balloon', 'Cometa', 'Ribbon', 'Confetti', 'Party', 'Doll', 'Lantern', 'Wind', 'Aviso', 'Envelope', 'Enviando', 'Chegou', 'Email', 'Love', 'Postbox', 'Puxar', 'Enfiando', 'Mandou', 'Pacote', 'Listas', 'A4', 'Rolo', 'Folhas', 'Grafico', 'Aumento', 'Caindo', 'Caderno', 'Contatos', 'Calendário', 'Cartão', 'Arquivo', 'Votos', 'Gaveta', 'Organizado', 'Pasta', 'Pressionado', 'Livro', 'Ler', 'Marca', 'Alfinete', 'Clipe', 'Tesoura', 'Caneta', 'Pincel', 'Escrever', 'Lupa', 'Seguro', 'Trancado', 'Desbloqueado'],
     'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', 'ATM', 'ge', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '🔳', '💭', '🗯️', '💬', '🗨️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
@@ -4144,6 +4193,58 @@ const TextoSettings = ({ component, onUpdate }: { component: CanvasComponentData
     );
 };
 
+const VideoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+       <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Configuração do Vídeo</h3>
+        <div className="space-y-3">
+            <div>
+              <UILabel htmlFor="videoUrl" className='text-xs'>URL do Vídeo</UILabel>
+              <Input
+                id="videoUrl"
+                value={component.props.videoUrl || ''}
+                onChange={(e) => onUpdate({ ...component.props, videoUrl: e.target.value })}
+                className="mt-1"
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+            </div>
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Opções de Reprodução</h3>
+        <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                <UILabel htmlFor="showControls">Mostrar Controles</UILabel>
+                <Switch 
+                    id="showControls"
+                    checked={component.props.showControls}
+                    onCheckedChange={(checked) => onUpdate({ ...component.props, showControls: checked })}
+                />
+            </div>
+            <div className="flex items-center justify-between">
+                <UILabel htmlFor="autoplayVideo">Autoplay</UILabel>
+                <Switch 
+                    id="autoplayVideo"
+                    checked={component.props.autoplayVideo}
+                    onCheckedChange={(checked) => onUpdate({ ...component.props, autoplayVideo: checked })}
+                />
+            </div>
+             <div className="flex items-center justify-between">
+                <UILabel htmlFor="loopVideo">Loop</UILabel>
+                <Switch 
+                    id="loopVideo"
+                    checked={component.props.loopVideo}
+                    onCheckedChange={(checked) => onUpdate({ ...component.props, loopVideo: checked })}
+                />
+            </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -4198,6 +4299,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <TermosSettings component={component} onUpdate={handleUpdate} />;
         case 'Texto':
             return <TextoSettings component={component} onUpdate={handleUpdate} />;
+        case 'Video':
+            return <VideoSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -4487,6 +4590,15 @@ function FunnelEditorContent() {
         };
     }
 
+    if (component.name === 'Video') {
+      defaultProps = {
+        videoUrl: 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
+        showControls: true,
+        autoplayVideo: false,
+        loopVideo: false,
+      };
+    }
+
 
 
     const newComponent: CanvasComponentData = { 
@@ -4553,9 +4665,9 @@ function FunnelEditorContent() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <aside className="hidden md:flex border-r border-border">
+        <aside className="hidden w-72 border-r border-border md:flex md:flex-col">
           {/* Steps Column */}
-          <div className="w-60 flex-col border-r border-border">
+          <div className="w-full flex-col border-b border-border">
             <div className="flex h-14 items-center justify-between border-b border-border px-4">
               <div className="flex items-center gap-2">
                 <Grip className="h-5 w-5 text-muted-foreground" />
@@ -4572,7 +4684,7 @@ function FunnelEditorContent() {
           </div>
           
           {/* Components Column */}
-          <div className="w-72 flex-col">
+          <div className="flex-1">
             <ScrollArea className="h-full">
               <div className="grid grid-cols-2 gap-2 p-4">
                 {components.map((component) => (
