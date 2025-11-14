@@ -81,6 +81,7 @@ import {
   Mic,
   CheckCheck,
   MoreHorizontal,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -316,11 +317,11 @@ type ComponentProps = {
   multipleChoice?: boolean;
   opcoesRequired?: boolean;
   autoAdvance?: boolean;
-  borderStyle?: 'pequena' | 'media' | 'grande';
-  shadowStyle?: 'pequena' | 'media' | 'grande';
+  borderStyle?: 'pequena' | 'media' | 'grande' | 'gigante' | 'sem-borda';
+  shadowStyle?: 'nenhuma' | 'pequena' | 'media' | 'grande';
   spacingStyle?: 'pequeno' | 'medio' | 'grande';
-  detailStyle?: 'nenhum' | 'borda_superior' | 'icone';
-  styleType?: 'simples' | 'card';
+  detailStyle?: 'nenhum' | 'seta' | 'confirmacao';
+  styleType?: 'simples' | 'relevo';
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -1057,7 +1058,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     };
 
     const gridClass = layoutClasses[graficosLayout] || 'grid-cols-2';
-    const dispositionClass = disposition === 'top' ? 'flex-col items-center' : 'flex-row items-center';
+    const dispositionClass = disposition === 'top' ? 'flex-col' : 'flex-row items-center';
 
     if (graficosItems.length === 0) {
         return (
@@ -1074,7 +1075,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     return (
         <div className={cn('grid gap-4', gridClass)}>
             {graficosItems.map((item) => (
-                <div key={item.id} className={cn("p-4 flex gap-4", dispositionClass)}>
+                <div key={item.id} className={cn("p-4 flex gap-4", dispositionClass, disposition === 'top' && 'items-center')}>
                     <div 
                         className={cn(
                             "rounded-lg flex justify-end overflow-hidden relative border",
@@ -1166,7 +1167,7 @@ const ListaCanvasComponent = ({ component }: { component: CanvasComponentData })
   return (
     <div className="space-y-3 w-full max-w-md mx-auto">
       {items.map((item) => (
-        <div key={item.id} className="p-3 bg-white border border-black transition-shadow">
+        <div key={item.id} className="p-3 bg-white border border-black">
           <div className="flex items-center gap-4">
             <div 
               className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0" 
@@ -1335,28 +1336,40 @@ const NivelCanvasComponent = ({ component }: { component: CanvasComponentData })
 };
 
 const OpcoesCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
-  const items = component.props.opcoesItems || [];
-  
-  const { borderStyle, shadowStyle, spacingStyle } = component.props;
+  const {
+    opcoesItems = [],
+    borderStyle = 'media',
+    shadowStyle = 'pequena',
+    spacingStyle = 'medio',
+    detailStyle = 'nenhum',
+    styleType = 'simples'
+  } = component.props;
+  const [selected, setSelected] = useState<number | null>(null);
 
   const borderClasses: Record<string, string> = {
-    pequena: 'rounded-md',
-    media: 'rounded-lg',
-    grande: 'rounded-xl',
+    'pequena': 'rounded-md',
+    'media': 'rounded-lg',
+    'grande': 'rounded-xl',
+    'gigante': 'rounded-2xl',
+    'sem-borda': 'rounded-none',
   };
   const shadowClasses: Record<string, string> = {
-    pequena: 'shadow-sm',
-    media: 'shadow-md',
-    grande: 'shadow-lg',
+    'nenhuma': 'shadow-none',
+    'pequena': 'shadow-sm',
+    'media': 'shadow-md',
+    'grande': 'shadow-lg',
   };
   const spacingClasses: Record<string, string> = {
-    pequeno: 'p-2 gap-2',
-    medio: 'p-3 gap-3',
-    grande: 'p-4 gap-4',
+    'pequeno': 'space-y-1',
+    'medio': 'space-y-2',
+    'grande': 'space-y-3',
+  };
+  const styleClasses: Record<string, string> = {
+    'simples': 'bg-white border border-gray-300',
+    'relevo': 'bg-gray-50 border-b-4 border-gray-200 active:border-b-2',
   };
 
-
-  if (items.length === 0) {
+  if (opcoesItems.length === 0) {
       return (
         <div className="p-6 text-center bg-transparent border-0 shadow-none">
             <div className="flex justify-center mb-4">
@@ -1369,19 +1382,26 @@ const OpcoesCanvasComponent = ({ component }: { component: CanvasComponentData }
   }
 
   return (
-      <div className="w-full space-y-2">
-          {items.map((item) => (
+      <div className={cn("w-full", spacingClasses[spacingStyle])}>
+          {opcoesItems.map((item) => (
               <button 
                 key={item.id} 
                 className={cn(
-                  'w-full bg-white border border-gray-300 flex items-center text-left',
-                   borderClasses[borderStyle || 'media'],
-                   shadowClasses[shadowStyle || 'pequena'],
-                   spacingClasses[spacingStyle || 'medio']
+                  'w-full flex items-center text-left p-4 transition-all',
+                   borderClasses[borderStyle],
+                   shadowClasses[shadowStyle],
+                   styleClasses[styleType]
                 )}
+                onClick={() => setSelected(item.id)}
               >
-                  <span className="text-2xl">{item.icon}</span>
-                  <span className="font-medium text-black">{item.text}</span>
+                  <span className="text-2xl mr-3">{item.icon}</span>
+                  <span className="font-medium text-black flex-grow">{item.text}</span>
+                  {detailStyle === 'seta' && <ArrowRight className="h-5 w-5 text-gray-400" />}
+                  {detailStyle === 'confirmacao' && (
+                    <div className="h-5 w-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                        {selected === item.id && <div className="h-3 w-3 rounded-full bg-black" />}
+                    </div>
+                  )}
               </button>
           ))}
       </div>
@@ -3627,7 +3647,7 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilização</h3>
         <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-3">
                 <div>
                   <UILabel htmlFor="borderStyle" className='text-xs'>Bordas</UILabel>
                   <Select value={component.props.borderStyle || 'media'} onValueChange={(value) => onUpdate({...component.props, borderStyle: value})}>
@@ -3636,18 +3656,8 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
                           <SelectItem value="pequena">Pequena</SelectItem>
                           <SelectItem value="media">Média</SelectItem>
                           <SelectItem value="grande">Grande</SelectItem>
-                      </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <UILabel htmlFor="shadowStyle" className='text-xs'>Sombras</UILabel>
-                  <Select value={component.props.shadowStyle || 'pequena'} onValueChange={(value) => onUpdate({...component.props, shadowStyle: value})}>
-                      <SelectTrigger id="shadowStyle" className="mt-1 h-9"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="nenhuma">Nenhuma</SelectItem>
-                          <SelectItem value="pequena">Pequena</SelectItem>
-                          <SelectItem value="media">Média</SelectItem>
-                          <SelectItem value="grande">Grande</SelectItem>
+                          <SelectItem value="gigante">Gigante</SelectItem>
+                          <SelectItem value="sem-borda">Sem Borda</SelectItem>
                       </SelectContent>
                   </Select>
                 </div>
@@ -3669,8 +3679,8 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
                   <SelectTrigger id="detailStyle" className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
                       <SelectItem value="nenhum">Nenhum</SelectItem>
-                      <SelectItem value="borda_superior">Borda Superior</SelectItem>
-                      <SelectItem value="icone">Ícone</SelectItem>
+                      <SelectItem value="seta">Seta</SelectItem>
+                      <SelectItem value="confirmacao">Confirmação</SelectItem>
                   </SelectContent>
               </Select>
             </div>
@@ -3680,7 +3690,7 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
                   <SelectTrigger id="styleType" className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
                       <SelectItem value="simples">Simples</SelectItem>
-                      <SelectItem value="card">Card</SelectItem>
+                      <SelectItem value="relevo">Relevo</SelectItem>
                   </SelectContent>
               </Select>
             </div>
@@ -3984,7 +3994,6 @@ function FunnelEditorContent() {
         opcoesRequired: false,
         autoAdvance: false,
         borderStyle: 'media',
-        shadowStyle: 'pequena',
         spacingStyle: 'medio',
         detailStyle: 'nenhum',
         styleType: 'simples',
