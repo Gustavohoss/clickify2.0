@@ -346,6 +346,8 @@ type ComponentProps = {
   termosTextColor?: string;
   termosFontSize?: 'xs' | 'sm' | 'base' | 'lg';
   termosTextAlign?: 'left' | 'center' | 'right';
+  // Specific properties for Texto
+  content?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -375,7 +377,7 @@ const components: ComponentType[] = [
   { name: 'Opções', icon: <CheckSquare /> },
   { name: 'Preço', icon: <DollarSign />, isNew: true },
   { name: 'Script', icon: <FileCode /> },
-  { name: 'Termos', icon: <FileTextIcon /> },
+  { name: 'Termos', icon: <FileTextIcon />, isNew: true },
   { name: 'Texto', icon: <TextIcon /> },
   { name: 'Título', icon: <Heading1 /> },
   { name: 'Video', icon: <Video /> },
@@ -1513,6 +1515,16 @@ const TermosCanvasComponent = ({ component }: { component: CanvasComponentData }
   );
 };
 
+const TextoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const { content = '' } = component.props;
+
+  return (
+    <div
+      className="prose prose-sm lg:prose-base dark:prose-invert w-full max-w-none text-black"
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+};
 
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
@@ -1560,6 +1572,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
           return <PrecoCanvasComponent component={component} />;
       case 'Termos':
           return <TermosCanvasComponent component={component} />;
+      case 'Texto':
+          return <TextoCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -1829,6 +1843,90 @@ const colorPalette = [
     '#800000', '#a52a2a', '#b8860b', '#006400', '#00008b', '#483d8b', '#808080', '#696969',
     '#400000', '#8b0000', '#808000', '#008000', '#000080', '#2f4f4f'
 ];
+
+
+const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, value?: string) => void }) => {
+    
+    const ToolbarButton = ({ icon, command, value }: { icon: ReactNode, command: string, value?: string }) => (
+        <Button 
+            variant="ghost" 
+            size="icon" 
+            className='h-7 w-7 text-black/60 hover:text-black/80 hover:bg-black/10'
+            onMouseDown={(e) => {
+                e.preventDefault();
+                onFormat(command, value);
+            }}
+        >
+            {icon}
+        </Button>
+    );
+
+    const ColorPickerButton = ({ icon, command }: { icon: ReactNode, command: 'foreColor' | 'hiliteColor' }) => (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className='h-7 w-7 text-black/60 hover:text-black/80 hover:bg-black/10'
+                >
+                    {icon}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-2">
+                <div className="grid grid-cols-8 gap-1">
+                    {colorPalette.map((color, i) => (
+                        <Button
+                            key={`${color}-${i}`}
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 rounded-sm p-0"
+                            style={{ backgroundColor: color }}
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                onFormat(command, color);
+                            }}
+                        />
+                    ))}
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+
+    return (
+        <div className="border border-gray-200 rounded-t-md p-1 flex flex-wrap items-center gap-1 bg-gray-50">
+            <Select defaultValue='p' onValueChange={(value) => onFormat('formatBlock', value)}>
+                <SelectTrigger className="w-[100px] h-7 text-xs bg-transparent border-none text-black/80 focus:ring-0">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="p">Normal</SelectItem>
+                    <SelectItem value="h1">Título 1</SelectItem>
+                    <SelectItem value="h2">Título 2</SelectItem>
+                    <SelectItem value="h3">Título 3</SelectItem>
+                </SelectContent>
+            </Select>
+            <Separator orientation="vertical" className="h-5 bg-black/20" />
+            <ToolbarButton icon={<Bold />} command="bold" />
+            <ToolbarButton icon={<Italic />} command="italic" />
+            <ToolbarButton icon={<Underline />} command="underline" />
+            <ToolbarButton icon={<Strikethrough />} command="strikeThrough" />
+            <Separator orientation="vertical" className="h-5 bg-black/20" />
+            <ColorPickerButton icon={<Baseline />} command="foreColor" />
+            <ColorPickerButton icon={<Highlighter />} command="hiliteColor" />
+            <Separator orientation="vertical" className="h-5 bg-black/20" />
+            <ToolbarButton icon={<AlignLeft />} command="justifyLeft" />
+            <ToolbarButton icon={<AlignCenter />} command="justifyCenter" />
+            <ToolbarButton icon={<AlignRight />} command="justifyRight" />
+            <ToolbarButton icon={<AlignJustify />} command="justifyFull" />
+            <Separator orientation="vertical" className="h-5 bg-black/20" />
+            <ToolbarButton icon={<LinkIcon />} command="createLink" />
+            <ToolbarButton icon={<ListIcon />} command="insertUnorderedList" />
+            <ToolbarButton icon={<ListOrdered />} command="insertOrderedList" />
+            <Separator orientation="vertical" className="h-5 bg-black/20" />
+            <ToolbarButton icon={<RemoveFormatting />} command="removeFormat" />
+        </div>
+    );
+};
 
 
 const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
@@ -4008,6 +4106,43 @@ const TermosSettings = ({ component, onUpdate }: { component: CanvasComponentDat
 };
 
 
+const TextoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+    const editorRef = useRef<HTMLDivElement>(null);
+
+    const handleFormat = (command: string, value?: string) => {
+        document.execCommand(command, false, value);
+        // Focus the editor back after a command
+        if (editorRef.current) {
+            editorRef.current.focus();
+        }
+    };
+    
+    const handleContentChange = () => {
+        if (editorRef.current) {
+            onUpdate({ ...component.props, content: editorRef.current.innerHTML });
+        }
+    };
+
+    return (
+        <div className='space-y-6'>
+            <Card className="p-4 bg-card border-border/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo do Texto</h3>
+                <div className="border border-gray-200 rounded-md">
+                    <RichTextToolbar onFormat={handleFormat} />
+                    <div
+                        ref={editorRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        className="prose prose-sm lg:prose-base dark:prose-invert w-full max-w-none p-4 h-64 overflow-auto outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-b-md"
+                        dangerouslySetInnerHTML={{ __html: component.props.content || '' }}
+                        onInput={handleContentChange}
+                    />
+                </div>
+            </Card>
+        </div>
+    );
+};
+
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
     if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
@@ -4060,6 +4195,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <PrecoSettings component={component} onUpdate={handleUpdate} />;
         case 'Termos':
             return <TermosSettings component={component} onUpdate={handleUpdate} />;
+        case 'Texto':
+            return <TextoSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -4341,6 +4478,12 @@ function FunnelEditorContent() {
         termosFontSize: 'sm',
         termosTextAlign: 'center',
       };
+    }
+    
+    if (component.name === 'Texto') {
+        defaultProps = {
+            content: '<h3>Título</h3><p>Preencha o texto.</p>',
+        };
     }
 
 
