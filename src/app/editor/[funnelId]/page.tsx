@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -4552,7 +4553,7 @@ function FunnelEditorContent() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <aside className="flex border-r border-border">
+        <aside className="hidden md:flex border-r border-border">
           {/* Steps Column */}
           <div className="w-60 flex-col border-r border-border">
             <div className="flex h-14 items-center justify-between border-b border-border px-4">
@@ -4632,7 +4633,7 @@ function FunnelEditorContent() {
         </main>
 
         {/* Right Sidebar */}
-        <aside className="w-80 border-l border-border p-6">
+        <aside className="hidden w-80 border-l border-border p-6 lg:block">
           <ScrollArea className="h-full">
             <div className="space-y-6 pr-4">
               {selectedComponent ? (
