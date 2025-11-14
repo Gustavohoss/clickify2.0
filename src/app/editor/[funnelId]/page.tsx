@@ -981,7 +981,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     const {
         graficosItems = [],
         barColor = '#000000',
-        trackColor = '#F3F4F6',
+        trackColor = '#FFFFFF',
         textColor = '#000000',
     } = component.props;
 
@@ -2181,90 +2181,88 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
 
   return (
     <div className='space-y-6'>
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-muted/20 border-border/50 flex flex-col h-full">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Depoimentos</h3>
-        <div className="flex flex-col h-full">
-            <ScrollArea className="flex-grow max-h-[30rem]">
-                <div className="space-y-4 pr-4">
-                {testimonials.map(item => (
-                    <Card key={item.id} className="p-4 bg-card space-y-4 relative">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteItem(item.id)}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                    <div className="flex items-center gap-3">
-                        <Avatar className="h-14 w-14 border">
-                        <AvatarImage src={item.imageUrl} alt={item.name} />
-                        <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className='w-full'>
-                        <UILabel htmlFor={`imageUrl-${item.id}`} className='text-xs'>URL da Imagem</UILabel>
-                        <Input
-                            id={`imageUrl-${item.id}`}
-                            value={item.imageUrl}
-                            onChange={(e) => handleUpdateItem(item.id, { imageUrl: e.target.value })}
-                            className="mt-1 h-9"
-                        />
-                        </div>
+        <ScrollArea className="flex-grow">
+            <div className="space-y-4 pr-4">
+            {testimonials.map(item => (
+                <Card key={item.id} className="p-4 bg-card space-y-4 relative">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => handleDeleteItem(item.id)}
+                >
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center gap-3">
+                    <Avatar className="h-14 w-14 border">
+                    <AvatarImage src={item.imageUrl} alt={item.name} />
+                    <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className='w-full'>
+                    <UILabel htmlFor={`imageUrl-${item.id}`} className='text-xs'>URL da Imagem</UILabel>
+                    <Input
+                        id={`imageUrl-${item.id}`}
+                        value={item.imageUrl}
+                        onChange={(e) => handleUpdateItem(item.id, { imageUrl: e.target.value })}
+                        className="mt-1 h-9"
+                    />
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                        <UILabel htmlFor={`name-${item.id}`} className='text-xs'>Nome</UILabel>
-                        <Input
-                            id={`name-${item.id}`}
-                            value={item.name}
-                            onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
-                            className="mt-1 h-9"
-                        />
-                        </div>
-                        <div>
-                        <UILabel htmlFor={`handle-${item.id}`} className='text-xs'>Handle (@)</UILabel>
-                        <Input
-                            id={`handle-${item.id}`}
-                            value={item.handle}
-                            onChange={(e) => handleUpdateItem(item.id, { handle: e.target.value })}
-                            className="mt-1 h-9"
-                        />
-                        </div>
-                    </div>
-
-                    <div>
-                        <UILabel htmlFor={`rating-${item.id}`} className='text-xs'>Avaliação ({item.rating})</UILabel>
-                        <Slider
-                            id={`rating-${item.id}`}
-                            min={1}
-                            max={5}
-                            step={1}
-                            value={[item.rating]}
-                            onValueChange={(value) => handleUpdateItem(item.id, { rating: value[0] })}
-                            className="mt-3"
-                        />
-                    </div>
-
-                    <div>
-                        <UILabel htmlFor={`testimonial-${item.id}`} className='text-xs'>Texto do Depoimento</UILabel>
-                        <Textarea
-                            id={`testimonial-${item.id}`}
-                            value={item.testimonial}
-                            onChange={(e) => handleUpdateItem(item.id, { testimonial: e.target.value })}
-                            className="mt-1"
-                            rows={3}
-                        />
-                    </div>
-                    </Card>
-                ))}
                 </div>
-            </ScrollArea>
-            <Button variant="outline" className="w-full mt-4 flex-shrink-0" onClick={handleAddItem}>
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar Depoimento
-            </Button>
-        </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <div>
+                    <UILabel htmlFor={`name-${item.id}`} className='text-xs'>Nome</UILabel>
+                    <Input
+                        id={`name-${item.id}`}
+                        value={item.name}
+                        onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
+                        className="mt-1 h-9"
+                    />
+                    </div>
+                    <div>
+                    <UILabel htmlFor={`handle-${item.id}`} className='text-xs'>Handle (@)</UILabel>
+                    <Input
+                        id={`handle-${item.id}`}
+                        value={item.handle}
+                        onChange={(e) => handleUpdateItem(item.id, { handle: e.target.value })}
+                        className="mt-1 h-9"
+                    />
+                    </div>
+                </div>
+
+                <div>
+                    <UILabel htmlFor={`rating-${item.id}`} className='text-xs'>Avaliação ({item.rating})</UILabel>
+                    <Slider
+                        id={`rating-${item.id}`}
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={[item.rating]}
+                        onValueChange={(value) => handleUpdateItem(item.id, { rating: value[0] })}
+                        className="mt-3"
+                    />
+                </div>
+
+                <div>
+                    <UILabel htmlFor={`testimonial-${item.id}`} className='text-xs'>Texto do Depoimento</UILabel>
+                    <Textarea
+                        id={`testimonial-${item.id}`}
+                        value={item.testimonial}
+                        onChange={(e) => handleUpdateItem(item.id, { testimonial: e.target.value })}
+                        className="mt-1"
+                        rows={3}
+                    />
+                </div>
+                </Card>
+            ))}
+            </div>
+        </ScrollArea>
+        <Button variant="outline" className="w-full mt-4 flex-shrink-0" onClick={handleAddItem}>
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Depoimento
+        </Button>
       </Card>
       
       <Card className="p-4 bg-muted/20 border-border/50">
@@ -2695,7 +2693,7 @@ const GraficosSettings = ({ component, onUpdate }: { component: CanvasComponentD
                     </div>
                     <div className='space-y-1'>
                         <UILabel htmlFor='trackColor' className='text-xs'>Fundo</UILabel>
-                        <Input type='color' id='trackColor' className='p-1 h-8 w-full' value={component.props.trackColor || '#F3F4F6'} onChange={(e) => onUpdate({ ...component.props, trackColor: e.target.value })} />
+                        <Input type='color' id='trackColor' className='p-1 h-8 w-full' value={component.props.trackColor || '#FFFFFF'} onChange={(e) => onUpdate({ ...component.props, trackColor: e.target.value })} />
                     </div>
                     <div className='space-y-1'>
                         <UILabel htmlFor='graficosTextColor' className='text-xs'>Texto</UILabel>
@@ -2923,7 +2921,7 @@ function FunnelEditorContent() {
           { id: 2, label: 'Lorem ipsum dollor', value: 35 },
         ],
         barColor: '#000000',
-        trackColor: '#F3F4F6',
+        trackColor: '#FFFFFF',
         textColor: '#000000',
       };
     }
@@ -3094,6 +3092,7 @@ export default function EditorPage() {
     
 
     
+
 
 
 
