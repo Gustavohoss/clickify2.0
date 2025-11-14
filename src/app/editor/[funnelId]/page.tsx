@@ -307,7 +307,7 @@ const WavingHandIcon = ({ className }: { className?: string }) => (
 
 const GenericCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   return (
-    <Card className="p-4 flex items-center gap-4 bg-card">
+    <Card className="p-4 flex items-center gap-4 bg-card text-card-foreground">
       <div className='text-primary'>{component.icon}</div>
       <p className="font-semibold">{component.name}</p>
     </Card>
@@ -435,22 +435,20 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
 
   if (items.length === 0) {
       return (
-        <div className={cn('grid gap-4 grid-cols-1')}>
-            <Card className="p-6 text-center border-dashed">
-                <div className="flex justify-center mb-4">
-                    <WavingHandIcon />
-                </div>
-                <h3 className="font-bold text-lg">Argumento</h3>
-                <p className="text-muted-foreground mt-1">Configure seus argumentos</p>
-            </Card>
-        </div>
+        <Card className={cn('p-6 text-center text-card-foreground bg-card')}>
+            <div className="flex justify-center mb-4">
+                <WavingHandIcon />
+            </div>
+            <h3 className="font-bold text-lg">Argumento</h3>
+            <p className="text-muted-foreground mt-1">Configure seus argumentos</p>
+        </Card>
       )
   }
 
   return (
       <div className={cn('grid gap-4', gridClass)}>
           {items.map((item) => (
-              <Card key={item.id} className="p-6 text-center">
+              <Card key={item.id} className="p-6 text-center bg-card text-card-foreground">
                   <div className="flex justify-center mb-4">
                       <span className="text-4xl">{item.icon}</span>
                   </div>
@@ -548,7 +546,7 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
   const displayProgress = Math.floor(animatedProgress);
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-2 text-card-foreground">
       {showTitle && (
         <div className="flex justify-between items-center text-sm font-medium">
           <span>{loadingText}</span>
@@ -572,7 +570,7 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
   
   if (slides.length === 0) {
     return (
-      <Card className="p-6 text-center border-dashed">
+      <Card className="p-6 text-center bg-card text-card-foreground">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
@@ -588,7 +586,7 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
         {slides.map((slide) => (
           <CarouselItem key={slide.id}>
             <div className="p-1">
-              <Card>
+              <Card className='bg-card'>
                 <CardContent className="flex aspect-video items-center justify-center p-6 relative bg-muted/30">
                   {slide.imageUrl ? (
                      <Image src={slide.imageUrl} alt={slide.caption || 'Slide image'} layout="fill" objectFit="contain" />
@@ -620,7 +618,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
 
   if (chartData.length === 0) {
     return (
-      <Card className="p-6 text-center border-dashed">
+      <Card className="p-6 text-center bg-card text-card-foreground">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
@@ -634,7 +632,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
   const uniqueId = React.useId();
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 bg-card text-card-foreground">
         <h3 className="font-bold text-lg mb-4">{chartTitle}</h3>
         <ResponsiveContainer width="100%" height={200}>
             <AreaChart
@@ -652,9 +650,9 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
                         <stop offset="95%" stopColor={gradientEndColor} stopOpacity={0.8}/>
                     </linearGradient>
                 </defs>
-                {showGrid && <CartesianGrid strokeDasharray="3 3" vertical={false} />}
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
+                {showGrid && <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />}
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'hsl(var(--card-foreground))' }} />
+                <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--card-foreground))' }} />
                 <Tooltip 
                     contentStyle={{
                         backgroundColor: 'hsl(var(--background))',
@@ -723,7 +721,7 @@ const CompararCanvasComponent = ({ component }: { component: CanvasComponentData
     };
 
     return (
-        <Card className='overflow-hidden'>
+        <Card className='overflow-hidden bg-card'>
             <div
                 ref={containerRef}
                 className="relative w-full aspect-video select-none group"
@@ -813,7 +811,7 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
 
   if (testimonials.length === 0) {
     return (
-      <Card className="p-6 text-center border-dashed">
+      <Card className="p-6 text-center bg-card text-card-foreground">
         <div className="flex justify-center mb-4">
           <WavingHandIcon />
         </div>
@@ -845,7 +843,7 @@ const DepoimentosCanvasComponent = ({ component }: { component: CanvasComponentD
       {testimonials.map((item) => (
         <Card 
           key={item.id} 
-          className="p-4"
+          className="p-4 bg-card text-card-foreground"
           style={{
             backgroundColor: cardBackgroundColor,
             borderColor: cardBorderColor,
@@ -900,7 +898,7 @@ const EntradaCanvasComponent = ({ component }: { component: CanvasComponentData 
 
   return (
     <div className="w-full space-y-2">
-      <UILabel htmlFor={`input-${component.id}`}>
+      <UILabel htmlFor={`input-${component.id}`} className="text-card-foreground">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </UILabel>
@@ -910,6 +908,7 @@ const EntradaCanvasComponent = ({ component }: { component: CanvasComponentData 
         placeholder={placeholder}
         className={cn(
             `text-${textAlign}`,
+            'bg-card text-card-foreground border-border',
             fontSizeClasses[fontSize],
             paddingClasses[padding]
         )}
@@ -942,7 +941,7 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
 
     if (faqItems.length === 0) {
         return (
-            <Card className="p-6 text-center border-dashed">
+            <Card className="p-6 text-center bg-card text-card-foreground">
                 <div className="flex justify-center mb-4">
                     <WavingHandIcon />
                 </div>
@@ -956,7 +955,7 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
         <Accordion 
             type="single" 
             collapsible 
-            className="w-full rounded-lg"
+            className="w-full rounded-lg bg-card text-card-foreground"
             style={{ 
                 backgroundColor: faqBackgroundColor,
                 borderColor: faqBorderColor,
@@ -971,7 +970,7 @@ const FaqCanvasComponent = ({ component }: { component: CanvasComponentData }) =
                     style={{ borderColor: faqBorderColor }}
                 >
                     <AccordionTrigger style={{ color: faqTextColor }}>{item.question}</AccordionTrigger>
-                    <AccordionContent style={{ color: faqTextColor }}>{item.answer}</AccordionContent>
+                    <AccordionContent style={{ color: faqTextColor || 'hsl(var(--muted-foreground))' }}>{item.answer}</AccordionContent>
                 </AccordionItem>
             ))}
         </Accordion>
@@ -988,7 +987,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
 
     if (graficosItems.length === 0) {
         return (
-            <Card className="p-6 text-center border-dashed">
+            <Card className="p-6 text-center bg-card text-card-foreground">
                 <div className="flex justify-center mb-4">
                     <WavingHandIcon />
                 </div>
@@ -1001,7 +1000,7 @@ const GraficosCanvasComponent = ({ component }: { component: CanvasComponentData
     return (
         <div className="grid grid-cols-2 gap-4">
             {graficosItems.map((item) => (
-                <Card key={item.id} className="p-4 flex flex-col items-center gap-4 bg-card">
+                <Card key={item.id} className="p-4 flex flex-col items-center gap-4 bg-card text-card-foreground">
                     <div 
                         className="w-12 h-32 rounded-lg flex flex-col justify-end overflow-hidden relative" 
                         style={{ backgroundColor: trackColor }}
@@ -1137,7 +1136,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
     
   return (
     <div className='space-y-6'>
-       <Card className="p-4 bg-muted/20 border-border/50">
+       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Informações</h3>
         <div className="space-y-3">
             <div>
@@ -1161,7 +1160,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
         </div>
       </Card>
       
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
          <div>
             <UILabel htmlFor="model" className='text-xs'>Modelo</UILabel>
@@ -1182,7 +1181,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
           </div>
       </Card>
 
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-3 gap-4">
             <div className='space-y-1'>
@@ -1234,7 +1233,7 @@ const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData
 const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   return (
     <div className='space-y-6'>
-       <Card className="p-4 bg-muted/20 border-border/50">
+       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
         <div className="space-y-3">
             <div>
@@ -1270,7 +1269,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
         </div>
       </Card>
       
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Configurações</h3>
          <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -1292,7 +1291,7 @@ const AudioSettings = ({ component, onUpdate }: { component: CanvasComponentData
         </div>
       </Card>
 
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-3 gap-4">
             <div className='space-y-1'>
@@ -1409,7 +1408,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
 
   return (
     <div className='space-y-6'>
-       <Card className="p-4 bg-muted/20 border-border/50">
+       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Layout</h3>
         <div>
             <UILabel htmlFor="layout" className='text-xs'>Layout</UILabel>
@@ -1430,7 +1429,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
         </div>
       </Card>
 
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">Argumentos</h3>
           <ScrollArea className="h-[40rem]">
             <div className="space-y-4 pr-4">
@@ -1544,7 +1543,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
 const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   return (
     <div className='space-y-6'>
-       <Card className="p-4 bg-muted/20 border-border/50">
+       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
         <div className="space-y-3">
             <div>
@@ -1586,7 +1585,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
         </div>
       </Card>
       
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
          <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -1619,7 +1618,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
         </div>
       </Card>
 
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-2 gap-4">
             <div className='space-y-1'>
@@ -1651,7 +1650,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
 const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   return (
     <div className='space-y-6'>
-       <Card className="p-4 bg-muted/20 border-border/50">
+       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Progresso</h3>
         <div className="space-y-3">
           <div>
@@ -1692,7 +1691,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
         </div>
       </Card>
 
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
         <div className="space-y-4">
           <div>
@@ -1761,7 +1760,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
 
   return (
     <div className='space-y-6'>
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Slides</h3>
         <ScrollArea className="h-[40rem]">
           <div className="space-y-4 pr-4">
@@ -1805,7 +1804,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
         </Button>
       </Card>
       
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Interação</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -1845,7 +1844,7 @@ const CarroselSettings = ({ component, onUpdate }: { component: CanvasComponentD
         </div>
       </Card>
 
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-3 gap-4">
           <div className='space-y-1'>
@@ -1888,7 +1887,7 @@ const CartesianoSettings = ({ component, onUpdate }: { component: CanvasComponen
     
     return (
         <div className='space-y-6'>
-             <Card className="p-4 bg-muted/20 border-border/50">
+             <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
                 <div>
                     <UILabel htmlFor="chartTitle" className='text-xs'>Título</UILabel>
@@ -1901,7 +1900,7 @@ const CartesianoSettings = ({ component, onUpdate }: { component: CanvasComponen
                 </div>
              </Card>
              
-             <Card className="p-4 bg-muted/20 border-border/50">
+             <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Pontos de Dados</h3>
                 <ScrollArea className="h-[25rem]">
                     <div className="space-y-3 pr-4">
@@ -1954,7 +1953,7 @@ const CartesianoSettings = ({ component, onUpdate }: { component: CanvasComponen
                     Adicionar Item
                 </Button>
             </Card>
-            <Card className="p-4 bg-muted/20 border-border/50">
+            <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
                 <div className="space-y-4">
                     <div>
@@ -2006,7 +2005,7 @@ const CartesianoSettings = ({ component, onUpdate }: { component: CanvasComponen
 const CompararSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
     return (
         <div className='space-y-6'>
-            <Card className="p-4 bg-muted/20 border-border/50">
+            <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo</h3>
                 <div className="space-y-3">
                     <div>
@@ -2031,7 +2030,7 @@ const CompararSettings = ({ component, onUpdate }: { component: CanvasComponentD
                     </div>
                 </div>
             </Card>
-            <Card className="p-4 bg-muted/20 border-border/50">
+            <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
                 <div className="space-y-4">
                     <div>
@@ -2077,7 +2076,7 @@ const CompararSettings = ({ component, onUpdate }: { component: CanvasComponentD
 const ConfettiSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   return (
     <div className='space-y-6'>
-       <Card className="p-4 bg-muted/20 border-border/50">
+       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Configuração do Efeito</h3>
         <div className="space-y-4">
             <div>
@@ -2182,7 +2181,7 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
 
   return (
     <div className='space-y-6'>
-      <Card className="p-4 bg-muted/20 border-border/50 flex flex-col h-full">
+      <Card className="p-4 bg-card border-border/50 flex flex-col h-full">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Depoimentos</h3>
         <ScrollArea className="flex-grow pr-4">
             <div className="space-y-4">
@@ -2266,7 +2265,7 @@ const DepoimentosSettings = ({ component, onUpdate }: { component: CanvasCompone
         </Button>
       </Card>
       
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-3 gap-4">
             <div className='space-y-1'>
@@ -2320,7 +2319,7 @@ const EntradaSettings = ({ component, onUpdate }: { component: CanvasComponentDa
   };
   return (
     <div className='space-y-6'>
-       <Card className="p-4 bg-muted/20 border-border/50">
+       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Configurações do Campo</h3>
         <div className="space-y-3">
             <div>
@@ -2372,7 +2371,7 @@ const EntradaSettings = ({ component, onUpdate }: { component: CanvasComponentDa
         </div>
       </Card>
       
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Estilo</h3>
         <div className="space-y-3">
           <div>
@@ -2426,7 +2425,7 @@ const EntradaSettings = ({ component, onUpdate }: { component: CanvasComponentDa
         </div>
       </Card>
 
-       <Card className="p-4 bg-muted/20 border-border/50">
+       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
         <div className="grid grid-cols-3 gap-4">
             <div className='space-y-1'>
@@ -2477,7 +2476,7 @@ const EntradaSettings = ({ component, onUpdate }: { component: CanvasComponentDa
 const EspacadorSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
   return (
     <div className='space-y-6'>
-      <Card className="p-4 bg-muted/20 border-border/50">
+      <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Ajustes</h3>
         <div className="space-y-2">
           <UILabel htmlFor="height" className='text-xs'>Altura ({component.props.height || 50}px)</UILabel>
@@ -2526,7 +2525,7 @@ const FaqSettings = ({ component, onUpdate }: { component: CanvasComponentData, 
 
     return (
         <div className='space-y-6'>
-            <Card className="p-4 bg-muted/20 border-border/50">
+            <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Perguntas e Respostas</h3>
                 <ScrollArea className="h-[40rem]">
                     <div className="space-y-4 pr-4">
@@ -2567,7 +2566,7 @@ const FaqSettings = ({ component, onUpdate }: { component: CanvasComponentData, 
                     Adicionar Pergunta
                 </Button>
             </Card>
-            <Card className="p-4 bg-muted/20 border-border/50">
+            <Card className="p-4 bg-card border-border/50">
               <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
               <div className="grid grid-cols-3 gap-4">
                   <div className='space-y-1'>
@@ -2641,7 +2640,7 @@ const GraficosSettings = ({ component, onUpdate }: { component: CanvasComponentD
 
     return (
         <div className='space-y-6'>
-            <Card className="p-4 bg-muted/20 border-border/50">
+            <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Itens do Gráfico</h3>
                 <ScrollArea className="h-[30rem]">
                     <div className="space-y-4 pr-4">
@@ -2685,7 +2684,7 @@ const GraficosSettings = ({ component, onUpdate }: { component: CanvasComponentD
                     Adicionar Item
                 </Button>
             </Card>
-            <Card className="p-4 bg-muted/20 border-border/50">
+            <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
                 <div className="grid grid-cols-3 gap-4">
                     <div className='space-y-1'>
