@@ -43,7 +43,7 @@ export function Topbar() {
                   <SheetTitle>Menu</SheetTitle>
                   <SheetDescription>Navegação principal do painel</SheetDescription>
                 </SheetHeader>
-                <Sidebar />
+                <Sidebar className="h-full" />
             </SheetContent>
         </Sheet>
         <h1 className="text-lg font-semibold text-muted-foreground">

@@ -25,7 +25,7 @@ const navLinks = [
   { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const auth = useAuth();
@@ -36,7 +36,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-card border-r">
+    <aside className={cn("hidden md:flex flex-col w-64 bg-card border-r", className)}>
       <div className="p-4 border-b">
         <Logo />
       </div>
