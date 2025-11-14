@@ -2,6 +2,7 @@
 
 
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -212,7 +213,8 @@ type ComponentProps = {
   // Specific properties for Carregando
   loadingText?: string;
   loadingDescription?: string;
-  progressBarColor?: string;
+  progressColor?: string;
+  progressTrackColor?: string;
   duration?: number;
   limit?: number;
   showTitle?: boolean;
@@ -440,13 +442,13 @@ const ArgumentoCanvasComponent = ({ component }: { component: CanvasComponentDat
 
   if (items.length === 0) {
       return (
-        <Card className="p-6 text-center bg-transparent border-0 shadow-none">
+        <div className="p-6 text-center bg-transparent border-0 shadow-none">
             <div className="flex justify-center mb-4">
                 <WavingHandIcon />
             </div>
             <h3 className="font-bold text-lg text-black">Argumento</h3>
             <p className="text-gray-500 mt-1">Configure seus argumentos</p>
-        </Card>
+        </div>
       )
   }
 
@@ -514,6 +516,7 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
     loadingText = 'Carregando...',
     loadingDescription = 'Lorem ipsum dollor sit amet.',
     progressColor = '#000000',
+    progressTrackColor = '#E5E7EB',
     titleColor = '#000000',
     descriptionColor = '#000000',
     duration = 5,
@@ -563,8 +566,11 @@ const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentDa
       {showProgress && (
          <Progress 
             value={displayProgress} 
-            className="w-full h-2 [&>div]:bg-black" 
-            style={{ '--progress-bar-color': progressColor } as React.CSSProperties}
+            className="w-full h-2" 
+            style={{ 
+              backgroundColor: progressTrackColor,
+              '--progress-indicator-color': progressColor 
+            } as React.CSSProperties}
           />
       )}
       <p className="text-sm text-center pt-1" style={{ color: descriptionColor }}>{loadingDescription}</p>
@@ -594,13 +600,13 @@ const CarroselCanvasComponent = ({ component }: { component: CanvasComponentData
           <CarouselItem key={slide.id}>
             <div className="p-1">
               <div className='bg-transparent border-0 shadow-none'>
-                <CardContent className="flex aspect-video items-center justify-center p-0 relative bg-gray-100">
+                <div className="flex aspect-video items-center justify-center p-0 relative bg-gray-100">
                   {slide.imageUrl ? (
                      <Image src={slide.imageUrl} alt={slide.caption || 'Slide image'} layout="fill" objectFit="contain" />
                   ) : (
                     <ImageIcon className="h-12 w-12 text-gray-400" />
                   )}
-                </CardContent>
+                </div>
               </div>
               {slide.caption && <p className="text-center text-sm text-black mt-2">{slide.caption}</p>}
             </div>
@@ -803,11 +809,11 @@ const ConfettiCanvasComponent = ({ component }: { component: CanvasComponentData
     }, [fire]);
 
     return (
-        <Card className="p-4 flex items-center justify-center gap-4 bg-card border-dashed relative">
+        <div className="p-4 flex items-center justify-center gap-4 bg-card border-dashed relative">
             <div className='text-primary'><Sparkles /></div>
             <p className="font-semibold">Efeito Confete</p>
             <Badge variant="outline">Invisível</Badge>
-        </Card>
+        </div>
     );
 };
 
@@ -934,7 +940,7 @@ const EspacadorCanvasComponent = ({ component }: { component: CanvasComponentDat
 
   return (
     <div 
-      className="w-full flex items-center justify-center bg-gray-100/80 border-2 border-dashed border-gray-300 rounded-lg"
+      className="w-full flex items-center justify-center bg-card/80 border-2 border-dashed border-gray-300 rounded-lg"
       style={{ height: `${height}px` }}
     >
       <span className="text-sm text-gray-500">Espaçador ({height}px)</span>
@@ -1740,7 +1746,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
 
       <Card className="p-4 bg-card border-border/50">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className='space-y-1'>
             <UILabel htmlFor='titleColor' className='text-xs'>Cor do Título</UILabel>
             <Input
@@ -1761,7 +1767,7 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
               onChange={(e) => onUpdate({ ...component.props, descriptionColor: e.target.value })}
             />
           </div>
-          <div className='space-y-1'>
+           <div className='space-y-1'>
             <UILabel htmlFor='progress-color' className='text-xs'>Cor do Progresso</UILabel>
             <Input
               type='color'
@@ -1769,6 +1775,16 @@ const CarregandoSettings = ({ component, onUpdate }: { component: CanvasComponen
               className='p-1 h-8 w-full'
               value={component.props.progressColor || '#000000'}
               onChange={(e) => onUpdate({ ...component.props, progressColor: e.target.value })}
+            />
+          </div>
+          <div className='space-y-1'>
+            <UILabel htmlFor='progressTrackColor' className='text-xs'>Fundo da Barra</UILabel>
+            <Input
+              type='color'
+              id='progressTrackColor'
+              className='p-1 h-8 w-full'
+              value={component.props.progressTrackColor || '#E5E7EB'}
+              onChange={(e) => onUpdate({ ...component.props, progressTrackColor: e.target.value })}
             />
           </div>
         </div>
@@ -2858,6 +2874,7 @@ function FunnelEditorContent() {
         loadingText: 'Carregando...',
         loadingDescription: 'Lorem ipsum dollor sit amet.',
         progressColor: '#000000',
+        progressTrackColor: '#E5E7EB',
         titleColor: '#000000',
         descriptionColor: '#000000',
         duration: 5,
@@ -3081,20 +3098,20 @@ function FunnelEditorContent() {
         <main className="flex-1 overflow-y-auto bg-white p-4" onClick={() => setSelectedComponentId(null)}>
             <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="relative mb-4 h-10">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 flex justify-center z-10">
-                      <div className="w-10 h-10 bg-white border-2 border-black rounded-md flex items-center justify-center p-0.5">
+                    <div className="absolute top-1/2 left-0 w-full h-px bg-black" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 flex justify-center z-10 bg-white px-2">
+                      <div className="w-10 h-10 border-2 border-black rounded-md flex items-center justify-center p-0.5">
                         <ImageIcon className="h-6 w-6 text-gray-400" />
                       </div>
                     </div>
                     <div className="absolute top-1/2 left-0 w-full h-0.5">
-                      <div className="h-full w-full bg-gray-200" />
-                      <div className="absolute top-0 left-0 h-full w-1/2 bg-black" />
+                      <div className="h-full w-1/2 bg-black" />
                     </div>
                 </div>
                 
                 <div className="mt-8 flex min-h-[400px] flex-col gap-4">
                     {canvasComponents.length === 0 ? (
-                        <div className="flex-1 flex items-center justify-center text-center text-black rounded-lg border-2 border-dashed border-gray-300 bg-white p-4">
+                        <div className="flex-1 flex items-center justify-center text-center text-black rounded-lg border-2 border-dashed border-gray-300 bg-card/50 p-4">
                             <div>
                                 <p className="text-lg font-semibold">Nada por aqui 😔</p>
                                 <p className="text-sm text-gray-500">Adicione um componente para começar.</p>
@@ -3142,5 +3159,6 @@ export default function EditorPage() {
 }
 
     
+
 
 
