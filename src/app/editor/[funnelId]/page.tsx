@@ -322,6 +322,18 @@ type ComponentProps = {
   spacingStyle?: 'pequeno' | 'medio' | 'grande';
   detailStyle?: 'nenhum' | 'seta' | 'confirmacao';
   styleType?: 'simples' | 'relevo';
+  // Specific properties for Preco
+  planName?: string;
+  price?: string;
+  priceSubtitle?: string;
+  discountText?: string;
+  popularText?: string;
+  showPopularBanner?: boolean;
+  cardBgColor?: string;
+  priceBoxColor?: string;
+  priceTextColor?: string;
+  popularBannerColor?: string;
+  popularTextColor?: string;
 };
 
 type CanvasComponentData = ComponentType & { 
@@ -349,7 +361,7 @@ const components: ComponentType[] = [
   { name: 'Marquise', icon: <ChevronsRight />, isNew: true },
   { name: 'Nível', icon: <SlidersHorizontal />, isNew: true },
   { name: 'Opções', icon: <CheckSquare /> },
-  { name: 'Preço', icon: <DollarSign /> },
+  { name: 'Preço', icon: <DollarSign />, isNew: true },
   { name: 'Script', icon: <FileCode /> },
   { name: 'Termos', icon: <FileTextIcon /> },
   { name: 'Texto', icon: <TextIcon /> },
@@ -1167,7 +1179,7 @@ const ListaCanvasComponent = ({ component }: { component: CanvasComponentData })
   return (
     <div className="space-y-3 w-full max-w-md mx-auto">
       {items.map((item) => (
-        <div key={item.id} className="p-3 bg-white border border-black">
+        <div key={item.id} className="p-3 bg-white border border-black rounded-lg">
           <div className="flex items-center gap-4">
             <div 
               className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0" 
@@ -1406,7 +1418,50 @@ const OpcoesCanvasComponent = ({ component }: { component: CanvasComponentData }
           ))}
       </div>
   );
-}
+};
+
+const PrecoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+  const {
+    planName = 'Plano Premium',
+    price = 'R$ 39,90',
+    priceSubtitle = 'à vista',
+    discountText = '15% Off',
+    popularText = 'Mais Popular',
+    showPopularBanner = true,
+    cardBgColor = '#FFFFFF',
+    priceBoxColor = '#E5E7EB',
+    priceTextColor = '#111827',
+    popularBannerColor = '#1F2937',
+    popularTextColor = '#FFFFFF',
+  } = component.props;
+
+  return (
+    <div className="w-full max-w-sm mx-auto shadow-md rounded-lg overflow-hidden">
+      {showPopularBanner && (
+        <div
+          className="text-center py-2 font-semibold"
+          style={{ backgroundColor: popularBannerColor, color: popularTextColor }}
+        >
+          {popularText}
+        </div>
+      )}
+      <div
+        className="p-6 flex items-center justify-between"
+        style={{ backgroundColor: cardBgColor, color: '#000000' }}
+      >
+        <h4 className="text-2xl font-bold">{planName}</h4>
+        <div
+          className="p-3 rounded-lg text-center"
+          style={{ backgroundColor: priceBoxColor, color: priceTextColor }}
+        >
+          {discountText && <p className="text-xs">{discountText}</p>}
+          <p className="text-2xl font-bold">{price}</p>
+          {priceSubtitle && <p className="text-xs">{priceSubtitle}</p>}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 
 const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete }: { component: CanvasComponentData, isSelected: boolean, onClick: () => void, onDuplicate: () => void, onDelete: () => void }) => {
@@ -1450,6 +1505,8 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
           return <NivelCanvasComponent component={component} />;
       case 'Opções':
           return <OpcoesCanvasComponent component={component} />;
+      case 'Preço':
+          return <PrecoCanvasComponent component={component} />;
       default:
         return <GenericCanvasComponent component={component} />;
     }
@@ -3076,7 +3133,7 @@ const GraficosSettings = ({ component, onUpdate }: { component: CanvasComponentD
 
     return (
         <div className='space-y-6'>
-             <Card className="p-4 bg-card border-border/50">
+            <Card className="p-4 bg-card border-border/50">
                 <h3 className="text-sm font-medium text-muted-foreground mb-4">Layout</h3>
                 <div className="space-y-3">
                     <div>
@@ -3650,7 +3707,7 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
             <div className="grid grid-cols-2 gap-3">
                 <div>
                   <UILabel htmlFor="borderStyle" className='text-xs'>Bordas</UILabel>
-                  <Select value={component.props.borderStyle || 'media'} onValueChange={(value) => onUpdate({...component.props, borderStyle: value})}>
+                  <Select value={component.props.borderStyle || 'media'} onValueChange={(value: 'pequena' | 'media' | 'grande' | 'gigante' | 'sem-borda') => onUpdate({...component.props, borderStyle: value})}>
                       <SelectTrigger id="borderStyle" className="mt-1 h-9"><SelectValue /></SelectTrigger>
                       <SelectContent>
                           <SelectItem value="pequena">Pequena</SelectItem>
@@ -3663,7 +3720,7 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
                 </div>
                 <div>
                   <UILabel htmlFor="spacingStyle" className='text-xs'>Espaçamento</UILabel>
-                  <Select value={component.props.spacingStyle || 'medio'} onValueChange={(value) => onUpdate({...component.props, spacingStyle: value})}>
+                  <Select value={component.props.spacingStyle || 'medio'} onValueChange={(value: 'pequeno' | 'medio' | 'grande') => onUpdate({...component.props, spacingStyle: value})}>
                       <SelectTrigger id="spacingStyle" className="mt-1 h-9"><SelectValue /></SelectTrigger>
                       <SelectContent>
                           <SelectItem value="pequeno">Pequeno</SelectItem>
@@ -3673,26 +3730,28 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
                   </Select>
                 </div>
             </div>
-            <div>
-              <UILabel htmlFor="detailStyle" className='text-xs'>Detalhe</UILabel>
-              <Select value={component.props.detailStyle || 'nenhum'} onValueChange={(value) => onUpdate({...component.props, detailStyle: value})}>
-                  <SelectTrigger id="detailStyle" className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="nenhum">Nenhum</SelectItem>
-                      <SelectItem value="seta">Seta</SelectItem>
-                      <SelectItem value="confirmacao">Confirmação</SelectItem>
-                  </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <UILabel htmlFor="styleType" className='text-xs'>Estilo</UILabel>
-              <Select value={component.props.styleType || 'simples'} onValueChange={(value) => onUpdate({...component.props, styleType: value})}>
-                  <SelectTrigger id="styleType" className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="simples">Simples</SelectItem>
-                      <SelectItem value="relevo">Relevo</SelectItem>
-                  </SelectContent>
-              </Select>
+             <div className="grid grid-cols-2 gap-3">
+              <div>
+                <UILabel htmlFor="detailStyle" className='text-xs'>Detalhe</UILabel>
+                <Select value={component.props.detailStyle || 'nenhum'} onValueChange={(value: 'nenhum' | 'seta' | 'confirmacao') => onUpdate({...component.props, detailStyle: value})}>
+                    <SelectTrigger id="detailStyle" className="mt-1 h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="nenhum">Nenhum</SelectItem>
+                        <SelectItem value="seta">Seta</SelectItem>
+                        <SelectItem value="confirmacao">Confirmação</SelectItem>
+                    </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <UILabel htmlFor="styleType" className='text-xs'>Estilo</UILabel>
+                <Select value={component.props.styleType || 'simples'} onValueChange={(value: 'simples' | 'relevo') => onUpdate({...component.props, styleType: value})}>
+                    <SelectTrigger id="styleType" className="mt-1 h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="simples">Simples</SelectItem>
+                        <SelectItem value="relevo">Relevo</SelectItem>
+                    </SelectContent>
+                </Select>
+              </div>
             </div>
         </div>
       </Card>
@@ -3700,6 +3759,75 @@ const OpcoesSettings = ({ component, onUpdate }: { component: CanvasComponentDat
   );
 };
 
+const PrecoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+  return (
+    <div className='space-y-6'>
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Conteúdo do Preço</h3>
+        <div className="space-y-3">
+          <div>
+            <UILabel htmlFor="planName" className='text-xs'>Nome do Plano</UILabel>
+            <Input id="planName" value={component.props.planName || ''} onChange={(e) => onUpdate({ ...component.props, planName: e.target.value })} className="mt-1" />
+          </div>
+          <div>
+            <UILabel htmlFor="price" className='text-xs'>Preço</UILabel>
+            <Input id="price" value={component.props.price || ''} onChange={(e) => onUpdate({ ...component.props, price: e.target.value })} className="mt-1" />
+          </div>
+          <div>
+            <UILabel htmlFor="priceSubtitle" className='text-xs'>Subtítulo do Preço</UILabel>
+            <Input id="priceSubtitle" value={component.props.priceSubtitle || ''} onChange={(e) => onUpdate({ ...component.props, priceSubtitle: e.target.value })} className="mt-1" />
+          </div>
+          <div>
+            <UILabel htmlFor="discountText" className='text-xs'>Texto do Desconto</UILabel>
+            <Input id="discountText" value={component.props.discountText || ''} onChange={(e) => onUpdate({ ...component.props, discountText: e.target.value })} className="mt-1" />
+          </div>
+        </div>
+      </Card>
+      
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Banner</h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <UILabel htmlFor="showPopularBanner">Mostrar Banner Popular</UILabel>
+            <Switch id="showPopularBanner" checked={component.props.showPopularBanner} onCheckedChange={(checked) => onUpdate({ ...component.props, showPopularBanner: checked })} />
+          </div>
+          {component.props.showPopularBanner && (
+            <div>
+              <UILabel htmlFor="popularText" className='text-xs'>Texto do Banner</UILabel>
+              <Input id="popularText" value={component.props.popularText || ''} onChange={(e) => onUpdate({ ...component.props, popularText: e.target.value })} className="mt-1" />
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Card className="p-4 bg-card border-border/50">
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">Personalização</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className='space-y-1'>
+            <UILabel className='text-xs'>Fundo Card</UILabel>
+            <Input type='color' value={component.props.cardBgColor || '#FFFFFF'} onChange={(e) => onUpdate({ ...component.props, cardBgColor: e.target.value })} className='p-1 h-8 w-full' />
+          </div>
+          <div className='space-y-1'>
+            <UILabel className='text-xs'>Fundo Preço</UILabel>
+            <Input type='color' value={component.props.priceBoxColor || '#E5E7EB'} onChange={(e) => onUpdate({ ...component.props, priceBoxColor: e.target.value })} className='p-1 h-8 w-full' />
+          </div>
+          <div className='space-y-1'>
+            <UILabel className='text-xs'>Texto Preço</UILabel>
+            <Input type='color' value={component.props.priceTextColor || '#111827'} onChange={(e) => onUpdate({ ...component.props, priceTextColor: e.target.value })} className='p-1 h-8 w-full' />
+          </div>
+          <div className='space-y-1'>
+            <UILabel className='text-xs'>Fundo Banner</UILabel>
+            <Input type='color' value={component.props.popularBannerColor || '#1F2937'} onChange={(e) => onUpdate({ ...component.props, popularBannerColor: e.target.value })} className='p-1 h-8 w-full' />
+          </div>
+           <div className='space-y-1 col-span-2'>
+            <UILabel className='text-xs'>Texto Banner</UILabel>
+            <Input type='color' value={component.props.popularTextColor || '#FFFFFF'} onChange={(e) => onUpdate({ ...component.props, popularTextColor: e.target.value })} className='p-1 h-8 w-full' />
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
 
 
 const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
@@ -3749,6 +3877,8 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
             return <NivelSettings component={component} onUpdate={handleUpdate} />;
         case 'Opções':
             return <OpcoesSettings component={component} onUpdate={handleUpdate} />;
+        case 'Preço':
+            return <PrecoSettings component={component} onUpdate={handleUpdate} />;
         default:
           return <p className="text-sm text-muted-foreground">Opções de configuração para o componente {component.name} aparecerão aqui.</p>;
       }
@@ -3994,9 +4124,26 @@ function FunnelEditorContent() {
         opcoesRequired: false,
         autoAdvance: false,
         borderStyle: 'media',
+        shadowStyle: 'pequena',
         spacingStyle: 'medio',
         detailStyle: 'nenhum',
         styleType: 'simples',
+      };
+    }
+
+    if (component.name === 'Preço') {
+      defaultProps = {
+        planName: 'Plano Premium',
+        price: 'R$ 39,90',
+        priceSubtitle: 'à vista',
+        discountText: '15% Off',
+        popularText: 'Mais Popular',
+        showPopularBanner: true,
+        cardBgColor: '#FFFFFF',
+        priceBoxColor: '#E5E7EB',
+        priceTextColor: '#111827',
+        popularBannerColor: '#1F2937',
+        popularTextColor: '#FFFFFF',
       };
     }
 
