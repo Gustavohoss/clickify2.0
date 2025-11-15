@@ -6471,6 +6471,9 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
   const startPanPosition = useRef({ x: 0, y: 0 });
   const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
+  
+  const [draggingBlockId, setDraggingBlockId] = useState<number | null>(null);
+  const dragStartOffset = useRef({ x: 0, y: 0 });
 
 
   const addBlock = (type: string) => {
@@ -6526,29 +6529,63 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLElement>) => {
+    // Only pan if clicking on the canvas background
     if (e.target === e.currentTarget) {
       setIsPanning(true);
       startPanPosition.current = { x: e.clientX, y: e.clientY };
       e.currentTarget.style.cursor = 'grabbing';
     }
   };
-
+  
   const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
     setIsPanning(false);
-    e.currentTarget.style.cursor = 'default';
+    setDraggingBlockId(null);
+    if (canvasRef.current) {
+      canvasRef.current.style.cursor = 'default';
+    }
   };
-
+  
   const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-    setIsPanning(false);
-    e.currentTarget.style.cursor = 'default';
+    // We only stop panning/dragging if the mouse button is not pressed
+    if (e.buttons === 0) {
+      setIsPanning(false);
+      setDraggingBlockId(null);
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = 'default';
+      }
+    }
   };
-
+  
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (isPanning) {
       const dx = (e.clientX - startPanPosition.current.x) / zoom;
       const dy = (e.clientY - startPanPosition.current.y) / zoom;
       setPanOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
       startPanPosition.current = { x: e.clientX, y: e.clientY };
+    } else if (draggingBlockId !== null) {
+      const newX = (e.clientX / zoom) - panOffset.x - dragStartOffset.current.x;
+      const newY = (e.clientY / zoom) - panOffset.y - dragStartOffset.current.y;
+  
+      setCanvasBlocks(prevBlocks =>
+        prevBlocks.map(block =>
+          block.id === draggingBlockId ? { ...block, position: { x: newX, y: newY } } : block
+        )
+      );
+    }
+  };
+  
+  const handleBlockMouseDown = (e: React.MouseEvent, block: CanvasBlock) => {
+    e.stopPropagation();
+    setDraggingBlockId(block.id);
+    // Calculate the offset from the block's top-left corner to the mouse position
+    const startX = (e.clientX / zoom) - panOffset.x;
+    const startY = (e.clientY / zoom) - panOffset.y;
+    dragStartOffset.current = {
+      x: startX - block.position.x,
+      y: startY - block.position.y
+    };
+    if (canvasRef.current) {
+      canvasRef.current.style.cursor = 'grabbing';
     }
   };
 
@@ -6566,10 +6603,11 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
   
   const CanvasTextBlock = ({ block }: { block: CanvasBlock }) => (
     <div
-      className="absolute w-72 rounded-lg bg-[#262626] p-3"
+      className="absolute w-72 rounded-lg bg-[#262626] p-3 cursor-grab"
       style={{
         transform: `translate(${block.position.x}px, ${block.position.y}px)`,
       }}
+      onMouseDown={(e) => handleBlockMouseDown(e, block)}
     >
       <div className="text-sm font-medium">Group #1</div>
       <div className="mt-2 rounded-md border-2 border-orange-500">
