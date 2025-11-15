@@ -84,6 +84,9 @@ import {
   CheckCheck,
   MoreHorizontal,
   ArrowRight,
+  Brush,
+  Combine,
+  Wand2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -368,6 +371,8 @@ type Step = {
   name: string;
   components: CanvasComponentData[];
 };
+
+type EditorView = 'construtor' | 'fluxo' | 'design' | 'leads' | 'configuracoes';
 
 
 const components: ComponentType[] = [
@@ -1914,7 +1919,7 @@ const emojiCategories = {
     'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍', '🐈', '🐓', '🦃', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲', '🌵', '🎄', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🎍', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⭐️', '🌟', '✨', '⚡️', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅️', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄️', '🌬️', '💨', '💧', '💦', '☔️', '☂️', '🌊', '🌫️'],
     'Food & Drink': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '핫도그', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', 'Burrito', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕️', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽️', '🥣', '🥡', '🥢', '🧂'],
     'Activities': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '', '🏏', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️‍♀️', '🏋️‍♂️', '🤸‍♀️', '🤸‍♂️', '🤺', '🏌️‍♀️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘‍♂️', '🏄‍♀️', '🏄‍♂️', '🏊‍♀️', '🏊‍♂️', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣‍♂️', '🧗‍♀️', '🧗‍♂️', '🚵‍♀️', '🚵‍♂️', '🚴‍♀️', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹‍♀️', '‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'],
-    'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌'],
+    'Travel & Places': ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔', '🚍', '🚘', '', '', '🚠', '🚟', '🚃', '🚋', '🚞', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '💺', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓️', '⛽️', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡', '🎢', '🎠', '⛲️', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺️', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩️', '🛤️', '🛣️', '🗾', '🎑', '🏞️', '🌅', '🌄', '🌠', '🎇', '🎆', '🌉', '🌁', '🏙️', '🌃', '🌌'],
     'Objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', 'Joystick', '💽', '💾', '💿', '📀', 'VHS', '📷', '📸', '📹', '🎥', 'Film', '📞', '☎️', '📟', 'Fax', '📺', '📻', '🎙️', '️', 'Mixer', '🧭', '⏱️', 'Timer', '⏰', 'Clock', '⌛️', 'Hourglass', '📡', '🔋', '🔌', '💡', '🔦', 'Candle', '🪔', 'Extinguisher', '🗑️', 'Drum', '💸', '💵', '💴', '💶', '💷', '💰', '💳', 'Receipt', '💎', '⚖️', '🦯', 'Wrench', 'Hammer', 'Tools', 'Pick', 'Screw', 'Gear', '🧱', '⛓️', '🧲', 'Gun', '💣', '🧨', 'Knife', 'Sword', 'Battle', 'Shield', '🚬', 'Coffin', 'Urn', 'Vase', '🔮', 'Bead', 'Amulet', 'Barber', 'Alembic', 'Telescope', 'Microscope', 'Well', 'Pill', 'Injection', 'Blood', 'DNA', 'Germ', 'Plate', 'Thermometer', 'Broom', 'Basket', 'Tissue', 'Toilet', 'Faucet', 'Shower', 'Bath', 'Soap', 'Razor', 'Sponge', 'Lotion', 'Bell', 'Key', 'Lock', 'Door', 'Chair', 'Couch', 'Bed', 'Sleeping', 'Teddy', 'Picture', 'Bag', 'Cart', 'Gift', 'Balloon', 'Cometa', 'Ribbon', 'Confetti', 'Party', 'Doll', 'Lantern', 'Wind', 'Aviso', 'Envelope', 'Enviando', 'Chegou', 'Email', 'Love', 'Postbox', 'Puxar', 'Enfiando', 'Mandou', 'Pacote', 'Listas', 'A4', 'Rolo', 'Folhas', 'Grafico', 'Aumento', 'Caindo', 'Caderno', 'Contatos', 'Calendário', 'Cartão', 'Arquivo', 'Votos', 'Gaveta', 'Organizado', 'Pasta', 'Pressionado', 'Livro', 'Ler', 'Marca', 'Alfinete', 'Clipe', 'Tesoura', 'Caneta', 'Pincel', 'Escrever', 'Lupa', 'Seguro', 'Trancado', 'Desbloqueado'],
     'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', 'ATM', 'ge', '♿️', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '👁️‍🗨️', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔼', '🔽', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔶', '🔷', '🔸', '🔹', '🔳', '💭', '🗯️', '💬', '🗨️', '🀄️', '🃏', '♠️', '♣️', '♥️', '♦️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
 };
@@ -4366,6 +4371,19 @@ const ComponentSettings = ({ component, onUpdate, steps, activeStepId }: { compo
     );
 };
 
+const DesignSettings = () => {
+    const designSections = ["GERAL", "HEADER", "CORES", "TIPOGRAFIA", "ANIMAÇÃO"];
+    return (
+        <div className="space-y-2">
+            {designSections.map(section => (
+                <Button key={section} variant="ghost" className="w-full justify-start font-semibold">
+                    {section}
+                </Button>
+            ))}
+        </div>
+    )
+}
+
 
 function FunnelEditorContent() {
   const searchParams = useSearchParams();
@@ -4374,6 +4392,8 @@ function FunnelEditorContent() {
   const [steps, setSteps] = useState<Step[]>([{ id: 1, name: 'Etapa 1', components: [] }]);
   const [activeStepId, setActiveStepId] = useState<number>(1);
   const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
+  const [activeView, setActiveView] = useState<EditorView>('construtor');
+
 
   const activeStep = steps.find(s => s.id === activeStepId);
   const activeStepComponents = activeStep?.components || [];
@@ -4746,6 +4766,14 @@ function FunnelEditorContent() {
 
   const selectedComponent = activeStepComponents.find(c => c.id === selectedComponentId) || null;
 
+  const editorViews: { id: EditorView; label: string; icon: React.ReactNode }[] = [
+    { id: 'construtor', label: 'Construtor', icon: <Wand2 /> },
+    { id: 'fluxo', label: 'Fluxo', icon: <Combine /> },
+    { id: 'design', label: 'Design', icon: <Brush /> },
+    { id: 'leads', label: 'Leads', icon: <Users /> },
+    { id: 'configuracoes', label: 'Configurações', icon: <Settings /> },
+  ];
+
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
       {/* Header */}
@@ -4755,11 +4783,18 @@ function FunnelEditorContent() {
             <span className="text-lg font-semibold">{funnelName}</span>
         </div>
         <div className="flex items-center gap-2 rounded-lg bg-card p-1">
-            <Button variant="secondary" size="sm">Construtor</Button>
-            <Button variant="ghost" size="sm">Fluxo</Button>
-            <Button variant="ghost" size="sm">Design</Button>
-            <Button variant="ghost" size="sm">Leads</Button>
-            <Button variant="ghost" size="sm">Configurações</Button>
+           {editorViews.map((view) => (
+                <Button 
+                    key={view.id}
+                    variant={activeView === view.id ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    onClick={() => setActiveView(view.id)}
+                    className="gap-2"
+                >
+                    {view.icon}
+                    <span className="hidden sm:inline">{view.label}</span>
+                </Button>
+            ))}
         </div>
         <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon"><Eye className="h-5 w-5" /></Button>
@@ -4771,71 +4806,75 @@ function FunnelEditorContent() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <aside className="hidden w-96 flex-row border-r border-border md:flex">
-          {/* Steps Column */}
-           <div className="flex w-1/2 flex-col border-r border-border">
-                <div className="flex h-14 items-center justify-between border-b border-border px-4">
-                    <h2 className="font-semibold">Etapas</h2>
-                    <Button variant="ghost" size="icon" onClick={addStep}><Plus className="h-4 w-4"/></Button>
-                </div>
-                <ScrollArea className="flex-1">
-                    <div className="p-2 space-y-1">
-                        {steps.map(step => (
-                            <div key={step.id} className="group relative">
-                                <Button
-                                    variant={activeStepId === step.id ? 'secondary' : 'ghost'}
-                                    className="w-full justify-start"
-                                    onClick={() => setActiveStepId(step.id)}
-                                >
-                                    <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
-                                    <span className="truncate flex-1 text-left">{step.name}</span>
-                                </Button>
-                                <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100">
-                                   <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                                                <MoreVertical className="h-4 w-4"/>
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-40 p-1">
-                                            <Button variant="ghost" className="w-full justify-start text-sm font-normal" onClick={() => deleteStep(step.id)} disabled={steps.length <= 1}>
-                                                <Trash2 className="mr-2 h-4 w-4"/> Excluir
-                                            </Button>
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </ScrollArea>
+        {activeView === 'construtor' && (
+          <aside className="hidden lg:w-96 flex-row border-r border-border md:flex">
+            {/* Steps Column */}
+             <div className="flex w-1/2 flex-col border-r border-border">
+                  <div className="flex h-14 items-center justify-between border-b border-border px-4">
+                      <h2 className="font-semibold">Etapas</h2>
+                      <Button variant="ghost" size="icon" onClick={addStep}><Plus className="h-4 w-4"/></Button>
+                  </div>
+                  <ScrollArea className="flex-1">
+                      <div className="p-2 space-y-1">
+                          {steps.map(step => (
+                              <div key={step.id} className="group relative">
+                                  <Button
+                                      variant={activeStepId === step.id ? 'secondary' : 'ghost'}
+                                      className="w-full justify-start"
+                                      onClick={() => setActiveStepId(step.id)}
+                                  >
+                                      <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
+                                      <span className="truncate flex-1 text-left">{step.name}</span>
+                                  </Button>
+                                  <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100">
+                                     <Popover>
+                                          <PopoverTrigger asChild>
+                                              <Button variant="ghost" size="icon" className="h-7 w-7">
+                                                  <MoreVertical className="h-4 w-4"/>
+                                              </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-40 p-1">
+                                              <Button variant="ghost" className="w-full justify-start text-sm font-normal" onClick={() => deleteStep(step.id)} disabled={steps.length <= 1}>
+                                                  <Trash2 className="mr-2 h-4 w-4"/> Excluir
+                                              </Button>
+                                          </PopoverContent>
+                                      </Popover>
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  </ScrollArea>
+              </div>
+            
+            {/* Components Column */}
+            <div className="flex w-1/2 flex-col">
+              <div className="flex h-14 items-center border-b border-border px-4">
+                  <h2 className="font-semibold">Componentes</h2>
+              </div>
+                <div className="flex-1">
+                  <ScrollArea className='h-full'>
+                      <div className="grid grid-cols-1 gap-2 p-2">
+                          {components.map((component) => (
+                          <Card 
+                              key={component.name} 
+                              className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
+                              onClick={() => addComponentToCanvas(component)}
+                              >
+                              <div className="relative text-primary flex-shrink-0">
+                              {component.icon}
+                              </div>
+                              <div className='flex flex-col'>
+                                  <span className="text-xs font-medium flex-grow">{component.name}</span>
+                                  {component.isNew && <Badge className="scale-90 w-fit mt-1">Novo</Badge>}
+                              </div>
+                          </Card>
+                          ))}
+                      </div>
+                  </ScrollArea>
+              </div>
             </div>
-          
-          {/* Components Column */}
-          <div className="flex w-1/2 flex-col">
-            <div className="flex h-14 items-center border-b border-border px-4">
-                <h2 className="font-semibold">Componentes</h2>
-            </div>
-            <ScrollArea className="flex-1">
-                <div className="grid grid-cols-1 gap-2 p-2">
-                    {components.map((component) => (
-                    <Card 
-                        key={component.name} 
-                        className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
-                        onClick={() => addComponentToCanvas(component)}
-                        >
-                        <div className="relative text-primary flex-shrink-0">
-                        {component.icon}
-                        </div>
-                        <div className='flex flex-col'>
-                            <span className="text-xs font-medium flex-grow">{component.name}</span>
-                            {component.isNew && <Badge className="scale-90 w-fit mt-1">Novo</Badge>}
-                        </div>
-                    </Card>
-                    ))}
-                </div>
-            </ScrollArea>
-          </div>
-        </aside>
+          </aside>
+        )}
 
         {/* Center Canvas */}
         <main className="flex-1 overflow-y-auto bg-white p-4 md:p-8" onClick={() => setSelectedComponentId(null)}>
@@ -4877,21 +4916,29 @@ function FunnelEditorContent() {
         </main>
 
         {/* Right Sidebar */}
-        <aside className="hidden w-80 border-l border-border p-6 lg:block">
+        <aside className={cn(
+          "hidden w-80 border-l border-border p-6 lg:block",
+          activeView === 'construtor' || activeView === 'design' ? 'block' : 'hidden'
+        )}>
           <ScrollArea className="h-full">
             <div className="space-y-6 pr-4">
-              {selectedComponent ? (
-                  <ComponentSettings 
-                    component={selectedComponent} 
-                    onUpdate={updateComponentProps} 
-                    steps={steps}
-                    activeStepId={activeStepId}
-                  />
-              ) : activeStep ? (
-                  <StepSettings step={activeStep} onUpdateStep={updateStepName} steps={steps} />
-              ): (
-                 <div className="text-sm text-muted-foreground">Selecione uma etapa para editar.</div>
+              {activeView === 'construtor' && (
+                selectedComponent ? (
+                    <ComponentSettings 
+                      component={selectedComponent} 
+                      onUpdate={updateComponentProps} 
+                      steps={steps}
+                      activeStepId={activeStepId}
+                    />
+                ) : activeStep ? (
+                    <StepSettings step={activeStep} onUpdateStep={updateStepName} steps={steps} />
+                ): (
+                   <div className="text-sm text-muted-foreground">Selecione uma etapa para editar.</div>
+                )
               )}
+               {activeView === 'design' && (
+                  <DesignSettings />
+               )}
             </div>
           </ScrollArea>
         </aside>
@@ -4907,5 +4954,3 @@ export default function EditorPage() {
         </Suspense>
     )
 }
-
-    
