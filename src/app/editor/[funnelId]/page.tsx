@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { Suspense, useState, ReactNode, useRef, useEffect, useCallback } from 'react';
@@ -4665,9 +4666,9 @@ function FunnelEditorContent() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <aside className="hidden w-72 flex-col border-r border-border md:flex">
+        <aside className="hidden w-96 flex-row border-r border-border md:flex">
           {/* Steps Column */}
-          <div className="flex w-full flex-col border-b border-border">
+          <div className="flex w-1/2 flex-col border-r border-border">
             <div className="flex h-14 items-center justify-between border-b border-border px-4">
               <div className="flex items-center gap-2">
                 <Grip className="h-5 w-5 text-muted-foreground" />
@@ -4686,18 +4687,18 @@ function FunnelEditorContent() {
           {/* Components Column */}
           <div className="flex-1">
             <ScrollArea className="h-full">
-              <div className="grid grid-cols-2 gap-2 p-4">
+              <div className="grid grid-cols-1 gap-2 p-2">
                 {components.map((component) => (
                   <Card 
                     key={component.name} 
-                    className="group flex cursor-pointer flex-col items-center justify-center p-3 text-center transition-colors hover:bg-primary/10 hover:text-primary"
+                    className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
                     onClick={() => addComponentToCanvas(component)}
                     >
-                    <div className="relative text-primary">
+                    <div className="relative text-primary flex-shrink-0">
                       {component.icon}
-                      {component.isNew && <Badge className="absolute -top-2 -right-4 scale-75">Novo</Badge>}
                     </div>
-                    <span className="mt-2 text-xs font-medium">{component.name}</span>
+                    <span className="text-xs font-medium flex-grow">{component.name}</span>
+                    {component.isNew && <Badge className="scale-90">Novo</Badge>}
                   </Card>
                 ))}
               </div>
