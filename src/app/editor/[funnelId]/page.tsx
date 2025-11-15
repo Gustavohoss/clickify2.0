@@ -87,6 +87,7 @@ import {
   Brush,
   Combine,
   Wand2,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -4806,75 +4807,80 @@ function FunnelEditorContent() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        {activeView === 'construtor' && (
-          <aside className="hidden lg:w-96 flex-row border-r border-border md:flex">
-            {/* Steps Column */}
-             <div className="flex w-1/2 flex-col border-r border-border">
-                  <div className="flex h-14 items-center justify-between border-b border-border px-4">
-                      <h2 className="font-semibold">Etapas</h2>
-                      <Button variant="ghost" size="icon" onClick={addStep}><Plus className="h-4 w-4"/></Button>
-                  </div>
-                  <ScrollArea className="flex-1">
-                      <div className="p-2 space-y-1">
-                          {steps.map(step => (
-                              <div key={step.id} className="group relative">
-                                  <Button
-                                      variant={activeStepId === step.id ? 'secondary' : 'ghost'}
-                                      className="w-full justify-start"
-                                      onClick={() => setActiveStepId(step.id)}
-                                  >
-                                      <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
-                                      <span className="truncate flex-1 text-left">{step.name}</span>
-                                  </Button>
-                                  <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100">
-                                     <Popover>
-                                          <PopoverTrigger asChild>
-                                              <Button variant="ghost" size="icon" className="h-7 w-7">
-                                                  <MoreVertical className="h-4 w-4"/>
-                                              </Button>
-                                          </PopoverTrigger>
-                                          <PopoverContent className="w-40 p-1">
-                                              <Button variant="ghost" className="w-full justify-start text-sm font-normal" onClick={() => deleteStep(step.id)} disabled={steps.length <= 1}>
-                                                  <Trash2 className="mr-2 h-4 w-4"/> Excluir
-                                              </Button>
-                                          </PopoverContent>
-                                      </Popover>
-                                  </div>
-                              </div>
-                          ))}
-                      </div>
-                  </ScrollArea>
-              </div>
-            
-            {/* Components Column */}
-            <div className="flex w-1/2 flex-col">
-              <div className="flex h-14 items-center border-b border-border px-4">
-                  <h2 className="font-semibold">Componentes</h2>
-              </div>
-                <div className="flex-1">
-                  <ScrollArea className='h-full'>
-                      <div className="grid grid-cols-1 gap-2 p-2">
-                          {components.map((component) => (
-                          <Card 
-                              key={component.name} 
-                              className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
-                              onClick={() => addComponentToCanvas(component)}
-                              >
-                              <div className="relative text-primary flex-shrink-0">
-                              {component.icon}
-                              </div>
-                              <div className='flex flex-col'>
-                                  <span className="text-xs font-medium flex-grow">{component.name}</span>
-                                  {component.isNew && <Badge className="scale-90 w-fit mt-1">Novo</Badge>}
-                              </div>
-                          </Card>
-                          ))}
-                      </div>
-                  </ScrollArea>
-              </div>
+        <aside className={cn(
+          "flex-row border-r border-border",
+          activeView === 'construtor' ? 'hidden md:flex' : 'hidden',
+          "lg:w-96"
+          )}>
+          <div className="flex w-1/2 flex-col border-r border-border">
+            <div className="flex h-14 items-center justify-between border-b border-border px-4">
+                <h2 className="font-semibold">Etapas</h2>
+                <Button variant="ghost" size="icon" onClick={addStep}><Plus className="h-4 w-4"/></Button>
             </div>
-          </aside>
-        )}
+            <ScrollArea className="flex-1">
+                <div className="p-2 space-y-1">
+                    {steps.map(step => (
+                        <div key={step.id} className="group relative">
+                            <Button
+                                variant={activeStepId === step.id ? 'secondary' : 'ghost'}
+                                className="w-full justify-start"
+                                onClick={() => setActiveStepId(step.id)}
+                            >
+                                <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
+                                <span className="truncate flex-1 text-left">{step.name}</span>
+                            </Button>
+                            <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100">
+                               <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7">
+                                            <MoreVertical className="h-4 w-4"/>
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-40 p-1">
+                                        <Button variant="ghost" className="w-full justify-start text-sm font-normal" onClick={() => deleteStep(step.id)} disabled={steps.length <= 1}>
+                                            <Trash2 className="mr-2 h-4 w-4"/> Excluir
+                                        </Button>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </ScrollArea>
+          </div>
+          
+          <div className="flex w-1/2 flex-col">
+            <div className="flex h-14 items-center border-b border-border px-4">
+                <h2 className="font-semibold">Componentes</h2>
+            </div>
+              <div className="flex-1">
+                <ScrollArea className='h-full'>
+                  <div className="grid grid-cols-1 gap-2 p-2">
+                    {components.map((component) => (
+                      <Card
+                        key={component.name}
+                        className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
+                        onClick={() => addComponentToCanvas(component)}
+                      >
+                        <div className="relative flex-shrink-0 text-primary">
+                          {component.icon}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="flex-grow text-xs font-medium">
+                            {component.name}
+                          </span>
+                          {component.isNew && (
+                            <Badge className="mt-1 w-fit scale-90">Novo</Badge>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+          </div>
+        </aside>
+
 
         {/* Center Canvas */}
         <main className="flex-1 overflow-y-auto bg-white p-4 md:p-8" onClick={() => setSelectedComponentId(null)}>
@@ -4917,8 +4923,8 @@ function FunnelEditorContent() {
 
         {/* Right Sidebar */}
         <aside className={cn(
-          "hidden w-80 border-l border-border p-6 lg:block",
-          activeView === 'construtor' || activeView === 'design' ? 'block' : 'hidden'
+          "w-80 border-l border-border p-6",
+          activeView === 'construtor' || activeView === 'design' ? 'hidden lg:block' : 'hidden'
         )}>
           <ScrollArea className="h-full">
             <div className="space-y-6 pr-4">
@@ -4954,3 +4960,5 @@ export default function EditorPage() {
         </Suspense>
     )
 }
+
+    
