@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, {
@@ -119,6 +120,7 @@ import {
   GitPullRequest,
   Clock10,
   Bot,
+  Code,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6642,12 +6644,28 @@ const TypebotEditor = ({ funnel }: { funnel: Funnel }) => {
                 transformOrigin: '0 0',
              }}
           >
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 gap-8">
                 <div className="flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2">
                     <PlaySquare size={16} className="text-white/60" />
                     <span className="text-sm font-medium">Start</span>
                     <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
                 </div>
+                
+                <div className="w-72 rounded-lg bg-[#262626] p-3">
+                  <div className="text-sm font-medium">Group #1</div>
+                  <div className="mt-2 rounded-md border-2 border-orange-500">
+                    <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
+                      <span className="text-xs text-white/70">Texto</span>
+                       <button className="rounded bg-black/30 p-1 hover:bg-black/50">
+                        <Code size={14} className="text-white/70" />
+                      </button>
+                    </div>
+                    <div className="p-2">
+                       <input type="text" className="w-full bg-transparent text-sm text-white outline-none" placeholder="Digite aqui..." />
+                    </div>
+                  </div>
+                </div>
+
             </div>
           </div>
         </main>
