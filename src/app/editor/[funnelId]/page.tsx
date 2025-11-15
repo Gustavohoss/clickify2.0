@@ -233,8 +233,9 @@ type ComponentProps = {
   iconColor?: string;
   // Specific properties for Button
   text?: string;
-  action?: 'next_step' | 'open_url';
+  action?: 'next_step' | 'open_url' | 'go_to_step';
   url?: string;
+  stepId?: number;
   fullWidth?: boolean;
   variant?: 'default' | 'outline' | 'ghost' | 'secondary' | 'link' | 'destructive';
   // Specific properties for Carregando
@@ -361,6 +362,13 @@ type CanvasComponentData = ComponentType & {
   id: number;
   props: ComponentProps;
 };
+
+type Step = {
+  id: number;
+  name: string;
+  components: CanvasComponentData[];
+};
+
 
 const components: ComponentType[] = [
   { name: 'Alerta', icon: <AlertTriangle /> },
@@ -1657,11 +1665,35 @@ const CanvasComponent = ({ component, isSelected, onClick, onDuplicate, onDelete
   );
 };
 
-const StepSettings = () => (
+const StepSettings = ({ step, onUpdateStep, steps }: { step: Step, onUpdateStep: (id: number, name: string) => void, steps: Step[] }) => {
+    const [stepName, setStepName] = useState(step.name);
+
+    useEffect(() => {
+        setStepName(step.name);
+    }, [step]);
+    
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setStepName(e.target.value);
+    };
+
+    const handleNameBlur = () => {
+        if (stepName.trim() === '') {
+            setStepName(step.name); // revert if empty
+        } else {
+            onUpdateStep(step.id, stepName);
+        }
+    };
+    
+    return (
     <>
         <div>
             <h3 className="text-sm font-medium text-muted-foreground">Título da Etapa</h3>
-            <Input defaultValue="Etapa 1" className="mt-2 text-base" />
+            <Input 
+              value={stepName}
+              onChange={handleNameChange}
+              onBlur={handleNameBlur}
+              className="mt-2 text-base" 
+            />
         </div>
         <Separator />
         <div>
@@ -1682,7 +1714,7 @@ const StepSettings = () => (
             </div>
         </div>
     </>
-);
+)};
 
 const AlertSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
 
@@ -2188,7 +2220,7 @@ const ArgumentosSettings = ({ component, onUpdate }: { component: CanvasComponen
 };
 
 
-const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void }) => {
+const BotaoSettings = ({ component, onUpdate, steps, activeStepId }: { component: CanvasComponentData, onUpdate: (props: ComponentProps) => void, steps: Step[], activeStepId: number }) => {
   return (
     <div className='space-y-6'>
        <Card className="p-4 bg-card border-border/50">
@@ -2207,7 +2239,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
               <UILabel htmlFor="action" className='text-xs'>Ação</UILabel>
               <Select
                 value={component.props.action || 'next_step'}
-                onValueChange={(value: 'next_step' | 'open_url') => onUpdate({ ...component.props, action: value })}
+                onValueChange={(value: 'next_step' | 'open_url' | 'go_to_step') => onUpdate({ ...component.props, action: value })}
               >
                 <SelectTrigger id="action" className="mt-1">
                   <SelectValue />
@@ -2215,6 +2247,7 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
                 <SelectContent>
                   <SelectItem value="next_step">Ir para próxima etapa</SelectItem>
                   <SelectItem value="open_url">Abrir URL</SelectItem>
+                  <SelectItem value="go_to_step">Ir para etapa específica</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -2228,6 +2261,24 @@ const BotaoSettings = ({ component, onUpdate }: { component: CanvasComponentData
                   className="mt-1"
                   placeholder="https://..."
                 />
+              </div>
+            )}
+            {component.props.action === 'go_to_step' && (
+              <div>
+                <UILabel htmlFor="stepId" className='text-xs'>Etapa de Destino</UILabel>
+                <Select
+                  value={component.props.stepId?.toString()}
+                  onValueChange={(value) => onUpdate({ ...component.props, stepId: parseInt(value) })}
+                >
+                  <SelectTrigger id="stepId" className="mt-1">
+                    <SelectValue placeholder="Selecione uma etapa"/>
+                  </SelectTrigger>
+                  <SelectContent>
+                     {steps.filter(step => step.id !== activeStepId).map(step => (
+                        <SelectItem key={step.id} value={step.id.toString()}>{step.name}</SelectItem>
+                     ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
         </div>
@@ -4247,8 +4298,8 @@ const VideoSettings = ({ component, onUpdate }: { component: CanvasComponentData
 };
 
 
-const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void }) => {
-    if (!component) return <div className="text-sm text-muted-foreground">Selecione um componente para editar.</div>;
+const ComponentSettings = ({ component, onUpdate, steps, activeStepId }: { component: CanvasComponentData | null, onUpdate: (id: number, props: ComponentProps) => void, steps: Step[], activeStepId: number }) => {
+    if (!component) return null;
 
     const handleUpdate = (props: ComponentProps) => {
       onUpdate(component.id, props);
@@ -4263,7 +4314,7 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
         case 'Audio':
             return <AudioSettings component={component} onUpdate={handleUpdate} />;
         case 'Botão':
-            return <BotaoSettings component={component} onUpdate={handleUpdate} />;
+            return <BotaoSettings component={component} onUpdate={handleUpdate} steps={steps} activeStepId={activeStepId} />;
         case 'Carregando':
             return <CarregandoSettings component={component} onUpdate={handleUpdate} />;
         case 'Carrosel':
@@ -4319,12 +4370,48 @@ const ComponentSettings = ({ component, onUpdate }: { component: CanvasComponent
 function FunnelEditorContent() {
   const searchParams = useSearchParams();
   const funnelName = searchParams.get('name') || 'Novo Funil';
-  const [canvasComponents, setCanvasComponents] = useState<CanvasComponentData[]>([]);
+  
+  const [steps, setSteps] = useState<Step[]>([{ id: 1, name: 'Etapa 1', components: [] }]);
+  const [activeStepId, setActiveStepId] = useState<number>(1);
   const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
 
+  const activeStep = steps.find(s => s.id === activeStepId);
+  const activeStepComponents = activeStep?.components || [];
+
+  const addStep = () => {
+    const newStepId = Date.now();
+    const newStep: Step = {
+      id: newStepId,
+      name: `Etapa ${steps.length + 1}`,
+      components: []
+    };
+    setSteps(prev => [...prev, newStep]);
+    setActiveStepId(newStepId);
+  };
+
+  const updateStepName = (id: number, name: string) => {
+     setSteps(prev => prev.map(step => step.id === id ? { ...step, name } : step));
+  }
+
+  const deleteStep = (id: number) => {
+    if (steps.length === 1) {
+        // Maybe show a toast message that you can't delete the last step
+        return;
+    }
+    setSteps(prev => prev.filter(step => step.id !== id));
+    if (activeStepId === id) {
+        // Set the active step to the first one in the list
+        setActiveStepId(steps[0].id); 
+    }
+  };
+
+
   const addComponentToCanvas = (component: ComponentType) => {
+    if (!activeStepId) return;
+    
     let defaultProps: ComponentProps = {};
     
+    // Default props logic... (remains the same)
     if (component.name === 'Alerta') {
       const model: AlertModel = 'success';
       defaultProps = {
@@ -4600,24 +4687,31 @@ function FunnelEditorContent() {
       };
     }
 
-
-
     const newComponent: CanvasComponentData = { 
         ...component, 
         id: Date.now(),
         props: defaultProps
     };
-    setCanvasComponents(prev => [...prev, newComponent]);
+
+    setSteps(prevSteps => prevSteps.map(step => 
+      step.id === activeStepId 
+        ? { ...step, components: [...step.components, newComponent] } 
+        : step
+    ));
   };
 
-  const updateComponentProps = (id: number, props: ComponentProps) => {
-    setCanvasComponents(prev =>
-      prev.map(c => (c.id === id ? { ...c, props } : c))
-    );
+  const updateComponentProps = (componentId: number, props: ComponentProps) => {
+    setSteps(prevSteps => prevSteps.map(step => 
+      step.id === activeStepId 
+        ? { ...step, components: step.components.map(c => c.id === componentId ? { ...c, props } : c) }
+        : step
+    ));
   };
   
   const duplicateComponent = (id: number) => {
-    const componentToDuplicate = canvasComponents.find(c => c.id === id);
+    if (!activeStep) return;
+
+    const componentToDuplicate = activeStep.components.find(c => c.id === id);
     if (!componentToDuplicate) return;
 
     const newComponent = {
@@ -4625,21 +4719,32 @@ function FunnelEditorContent() {
       id: Date.now(), // new unique id
     };
 
-    const index = canvasComponents.findIndex(c => c.id === id);
-    const newCanvasComponents = [...canvasComponents];
-    newCanvasComponents.splice(index + 1, 0, newComponent);
-    setCanvasComponents(newCanvasComponents);
+    const index = activeStep.components.findIndex(c => c.id === id);
+    
+    const newComponents = [...activeStep.components];
+    newComponents.splice(index + 1, 0, newComponent);
+
+    setSteps(prevSteps => prevSteps.map(step => 
+      step.id === activeStepId 
+        ? { ...step, components: newComponents }
+        : step
+    ));
   };
 
   const deleteComponent = (id: number) => {
-    setCanvasComponents(prev => prev.filter(c => c.id !== id));
+    setSteps(prevSteps => prevSteps.map(step => 
+      step.id === activeStepId 
+        ? { ...step, components: step.components.filter(c => c.id !== id) }
+        : step
+    ));
+
     if (selectedComponentId === id) {
       setSelectedComponentId(null);
     }
   };
 
 
-  const selectedComponent = canvasComponents.find(c => c.id === selectedComponentId) || null;
+  const selectedComponent = activeStepComponents.find(c => c.id === selectedComponentId) || null;
 
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
@@ -4668,46 +4773,72 @@ function FunnelEditorContent() {
         {/* Left Sidebar */}
         <aside className="hidden w-96 flex-row border-r border-border md:flex">
           {/* Steps Column */}
-          <div className="flex w-1/2 flex-col border-r border-border">
-            <div className="flex h-14 items-center justify-between border-b border-border px-4">
-              <div className="flex items-center gap-2">
-                <Grip className="h-5 w-5 text-muted-foreground" />
-                <h2 className="font-semibold">Etapa 1</h2>
-              </div>
-              <MoreVertical className="h-5 w-5 text-muted-foreground" />
+           <div className="flex w-1/2 flex-col border-r border-border">
+                <div className="flex h-14 items-center justify-between border-b border-border px-4">
+                    <h2 className="font-semibold">Etapas</h2>
+                    <Button variant="ghost" size="icon" onClick={addStep}><Plus className="h-4 w-4"/></Button>
+                </div>
+                <ScrollArea className="flex-1">
+                    <div className="p-2 space-y-1">
+                        {steps.map(step => (
+                            <div key={step.id} className="group relative">
+                                <Button
+                                    variant={activeStepId === step.id ? 'secondary' : 'ghost'}
+                                    className="w-full justify-start"
+                                    onClick={() => setActiveStepId(step.id)}
+                                >
+                                    <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
+                                    <span className="truncate flex-1 text-left">{step.name}</span>
+                                </Button>
+                                <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100">
+                                   <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                                                <MoreVertical className="h-4 w-4"/>
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-40 p-1">
+                                            <Button variant="ghost" className="w-full justify-start text-sm font-normal" onClick={() => deleteStep(step.id)} disabled={steps.length <= 1}>
+                                                <Trash2 className="mr-2 h-4 w-4"/> Excluir
+                                            </Button>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </ScrollArea>
             </div>
-            <div className="p-4">
-              <Button variant="outline" className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Adicionar Etapa
-              </Button>
-            </div>
-          </div>
           
           {/* Components Column */}
-          <div className="flex-1">
-            <ScrollArea className="h-full">
-              <div className="grid grid-cols-1 gap-2 p-2">
-                {components.map((component) => (
-                  <Card 
-                    key={component.name} 
-                    className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
-                    onClick={() => addComponentToCanvas(component)}
-                    >
-                    <div className="relative text-primary flex-shrink-0">
-                      {component.icon}
-                    </div>
-                    <span className="text-xs font-medium flex-grow">{component.name}</span>
-                    {component.isNew && <Badge className="scale-90">Novo</Badge>}
-                  </Card>
-                ))}
-              </div>
+          <div className="flex w-1/2 flex-col">
+            <div className="flex h-14 items-center border-b border-border px-4">
+                <h2 className="font-semibold">Componentes</h2>
+            </div>
+            <ScrollArea className="flex-1">
+                <div className="grid grid-cols-1 gap-2 p-2">
+                    {components.map((component) => (
+                    <Card 
+                        key={component.name} 
+                        className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors hover:bg-primary/10 hover:text-primary"
+                        onClick={() => addComponentToCanvas(component)}
+                        >
+                        <div className="relative text-primary flex-shrink-0">
+                        {component.icon}
+                        </div>
+                        <div className='flex flex-col'>
+                            <span className="text-xs font-medium flex-grow">{component.name}</span>
+                            {component.isNew && <Badge className="scale-90 w-fit mt-1">Novo</Badge>}
+                        </div>
+                    </Card>
+                    ))}
+                </div>
             </ScrollArea>
           </div>
         </aside>
 
         {/* Center Canvas */}
-        <main className="flex-1 overflow-y-auto bg-white p-4" onClick={() => setSelectedComponentId(null)}>
+        <main className="flex-1 overflow-y-auto bg-white p-4 md:p-8" onClick={() => setSelectedComponentId(null)}>
             <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="relative mb-4 h-10">
                     <div className="absolute top-1/2 left-0 w-full h-px bg-black" />
@@ -4722,7 +4853,7 @@ function FunnelEditorContent() {
                 </div>
                 
                 <div className="mt-8 flex min-h-[400px] flex-col gap-4">
-                    {canvasComponents.length === 0 ? (
+                    {activeStepComponents.length === 0 ? (
                         <div className="flex-1 flex items-center justify-center text-center rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4">
                             <div>
                                 <p className="text-lg font-semibold text-black">Nada por aqui 😔</p>
@@ -4730,7 +4861,7 @@ function FunnelEditorContent() {
                             </div>
                         </div>
                     ) : (
-                       canvasComponents.map((comp) => (
+                       activeStepComponents.map((comp) => (
                             <CanvasComponent 
                                 key={comp.id} 
                                 component={comp} 
@@ -4750,9 +4881,16 @@ function FunnelEditorContent() {
           <ScrollArea className="h-full">
             <div className="space-y-6 pr-4">
               {selectedComponent ? (
-                  <ComponentSettings component={selectedComponent} onUpdate={updateComponentProps} />
-              ) : (
-                  <StepSettings />
+                  <ComponentSettings 
+                    component={selectedComponent} 
+                    onUpdate={updateComponentProps} 
+                    steps={steps}
+                    activeStepId={activeStepId}
+                  />
+              ) : activeStep ? (
+                  <StepSettings step={activeStep} onUpdateStep={updateStepName} steps={steps} />
+              ): (
+                 <div className="text-sm text-muted-foreground">Selecione uma etapa para editar.</div>
               )}
             </div>
           </ScrollArea>
@@ -4769,3 +4907,5 @@ export default function EditorPage() {
         </Suspense>
     )
 }
+
+    
