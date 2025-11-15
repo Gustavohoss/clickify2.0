@@ -21,7 +21,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceDot,
-  Label,
+  Label as ChartLabel,
 } from 'recharts';
 import {
   AlertTriangle,
@@ -391,6 +391,9 @@ type Step = {
   id: number;
   name: string;
   components: CanvasComponentData[];
+  width?: string;
+  spacing?: string;
+  borderRadius?: string;
 };
 
 type Funnel = {
@@ -853,7 +856,7 @@ const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentDa
               stroke="#ffffff"
               strokeWidth={2}
             >
-              <Label
+              <ChartLabel
                 value={indicator.indicatorLabel}
                 position="top"
                 offset={-15}
@@ -1780,7 +1783,6 @@ const CanvasComponent = ({
 const StepSettings = ({
   step,
   onUpdateStep,
-  steps,
 }: {
   step: Step;
   onUpdateStep: (id: number, name: string) => void;
@@ -6445,16 +6447,23 @@ function FunnelEditorContent() {
 
   const debouncedUpdateFunnel = useDebouncedCallback((updatedFunnel: Funnel) => {
     if (funnelRef) {
-      // Deep copy and clean the object before sending to Firestore
-      const cleanedFunnel = JSON.parse(JSON.stringify(updatedFunnel, (key, value) => {
-        // Remove React's internal properties and functions
-        if (key === 'icon' && typeof value === 'object' && value !== null && '$$typeof' in value) {
-          return undefined; // Remove React elements
-        }
-        return value;
-      }));
+      // Create a deep copy to avoid modifying the original state object
+      const funnelToSave = JSON.parse(JSON.stringify(updatedFunnel));
+
+      // Clean up non-serializable data from each component's props
+      funnelToSave.steps.forEach((step: Step) => {
+        step.components.forEach((component: CanvasComponentData) => {
+          // Explicitly remove the 'icon' property which contains a React element
+          delete component.icon;
+          // You might need to clean other non-serializable props here too
+          // For instance, if 'icon' was nested inside 'props':
+          if (component.props && component.props.icon) {
+            delete component.props.icon;
+          }
+        });
+      });
       
-      const { id, ...rest } = cleanedFunnel;
+      const { id, ...rest } = funnelToSave;
       updateDoc(funnelRef, rest);
     }
   }, 500);
