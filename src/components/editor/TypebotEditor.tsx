@@ -268,23 +268,25 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
     const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
         if (draggingState.isDragging && draggingState.blockId !== null) {
           setCanvasBlocks(prevBlocks => {
-            let blocks = [...prevBlocks];
+            const blocks = [...prevBlocks];
             const draggedBlockId = draggingState.blockId!;
     
-            // Find the block that was being dragged. It's at the root level during the drag.
-            const draggedBlock = blocks.find(b => b.id === draggedBlockId);
-            if (!draggedBlock) return prevBlocks; // Should not happen
+            // Find the original block that was being dragged.
+            const originalBlockIndex = blocks.findIndex(b => b.id === draggedBlockId);
+            if (originalBlockIndex === -1) return prevBlocks; // Should not happen
+    
+            const originalBlock = blocks[originalBlockIndex];
     
             if (dropIndicator) { // Case 1: Dropped into a group
               const targetGroupIndex = blocks.findIndex(b => b.id === dropIndicator.groupId);
               if (targetGroupIndex > -1) {
                 const targetGroup = { ...blocks[targetGroupIndex] };
     
-                // The block to move is the one we dragged, reset its parentId and position
-                const blockToMove = { ...draggedBlock, parentId: targetGroup.id, position: { x: 0, y: 0 } };
+                // The block to move, reset its parentId and position
+                const blockToMove = { ...originalBlock, parentId: targetGroup.id, position: { x: 0, y: 0 } };
                 
                 // Remove the dragged block from the root level
-                blocks = blocks.filter(b => b.id !== draggedBlockId);
+                blocks.splice(originalBlockIndex, 1);
     
                 // Add to new parent's children at the correct index
                 if (!targetGroup.children) targetGroup.children = [];
@@ -294,24 +296,23 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
               }
             } else { // Case 2: Dropped on the canvas
               // If it's a group, we just update its position (already done during drag)
-              if (draggedBlock.type === 'group') {
-                return blocks; 
+              if (originalBlock.type === 'group') {
+                return blocks;
               }
     
               // If it's a child element, create a new group for it
               const newGroupId = Date.now();
-              const blockToMove = { ...draggedBlock, parentId: newGroupId, position: { x: 0, y: 0 } };
+              const blockToMove = { ...originalBlock, parentId: newGroupId, position: { x: 0, y: 0 } };
               
               const newGroup: CanvasBlock = {
                 id: newGroupId,
                 type: 'group',
-                position: draggedBlock.position, // New group takes the dropped position
+                position: originalBlock.position, // New group takes the dropped position
                 children: [blockToMove],
               };
     
-              // Remove the dragged block from the root and add the new group
-              blocks = blocks.filter(b => b.id !== draggedBlockId);
-              blocks.push(newGroup);
+              // Replace the original block with the new group
+              blocks.splice(originalBlockIndex, 1, newGroup);
               return blocks;
             }
             return blocks;
@@ -426,11 +427,12 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         e.stopPropagation();
         
         let blockToDrag = block;
+        let originalParentId: number | null | undefined = block.parentId;
     
-        if (block.parentId) {
+        if (originalParentId) {
           setCanvasBlocks(prevBlocks => {
             const newBlocks = [...prevBlocks];
-            const parentIndex = newBlocks.findIndex(p => p.id === block.parentId);
+            const parentIndex = newBlocks.findIndex(p => p.id === originalParentId);
             if (parentIndex > -1) {
               const parent = { ...newBlocks[parentIndex] };
               const childRect = document.getElementById(`block-${block.id}`)?.getBoundingClientRect();
