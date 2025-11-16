@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import {
   ArrowLeft,
   Settings,
@@ -834,6 +834,87 @@ const WaitBlockSettings = ({
     );
 };
 
+const EditableTextBlock = memo(({ initialContent, onSave, onVariableInsert, variables, isSelected }) => {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (editor && editor.innerHTML !== initialContent) {
+      editor.innerHTML = initialContent || '';
+    }
+  }, [initialContent, isSelected]);
+
+  const handleBlur = () => {
+    if (editorRef.current) {
+      onSave(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleVariableClick = () => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    const range = document.createRange();
+    range.selectNodeContents(editor);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+  
+  return (
+    <div className="relative w-full">
+      <div
+        ref={editorRef}
+        contentEditable
+        suppressContentEditableWarning
+        onBlur={handleBlur}
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        dangerouslySetInnerHTML={{ __html: initialContent || '' }}
+        data-placeholder="Digite sua mensagem..."
+        className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
+      />
+      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+        <PopoverTrigger asChild>
+          <button 
+            onClick={handleVariableClick} 
+            className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]"
+          >
+            <Braces size={14} />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
+          <Command>
+            <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
+            <CommandList>
+              <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
+              <CommandGroup>
+                {variables.map((variable) => (
+                  <CommandItem key={variable} value={variable} onSelect={() => {
+                      document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
+                      handleBlur(); // Save content after inserting
+                      setIsPopoverOpen(false);
+                  }}>
+                    {variable}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}, (prevProps, nextProps) => {
+  return prevProps.initialContent === nextProps.initialContent &&
+         prevProps.isSelected === nextProps.isSelected &&
+         prevProps.variables === nextProps.variables;
+});
 
 const CanvasTextBlock = ({
   block,
@@ -855,29 +936,10 @@ const CanvasTextBlock = ({
   variables: string[];
 }) => {
   const [hasMounted, setHasMounted] = useState(false);
-  const editableDivRef = useRef<HTMLDivElement>(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-
+  
   useEffect(() => {
     setHasMounted(true);
   }, []);
-
-  const handleContentChange = () => {
-    if (editableDivRef.current) {
-        updateBlockProps(block.id, { content: editableDivRef.current.innerHTML });
-    }
-  };
-  
-  const handleVariableInsert = (variable: string) => {
-    const editor = editableDivRef.current;
-    if (!editor) return;
-  
-    editor.focus();
-    document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
-    
-    handleContentChange();
-    setIsPopoverOpen(false);
-  };
 
   const renderInputBlock = (icon: React.ReactNode, placeholder: string) => (
     <div className="flex flex-col gap-2 w-full">
@@ -958,49 +1020,15 @@ const CanvasTextBlock = ({
         );
       case 'text':
         if (isSelected) {
-            return (
-                <div className="relative w-full">
-                    <div
-                        ref={editableDivRef}
-                        contentEditable
-                        suppressContentEditableWarning
-                        onInput={handleContentChange}
-                        onClick={(e) => e.stopPropagation()}
-                        onMouseDown={(e) => {
-                          e.stopPropagation();
-                          if (document.activeElement !== editableDivRef.current) {
-                            editableDivRef.current?.focus();
-                          }
-                        }}
-                        dangerouslySetInnerHTML={{ __html: block.props?.content || '' }}
-                        data-placeholder="Digite sua mensagem..."
-                        className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[20px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
-                    />
-
-                    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                        <PopoverTrigger asChild>
-                        <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
-                            <Braces size={14} />
-                        </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
-                        <Command>
-                            <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
-                            <CommandList>
-                            <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
-                            <CommandGroup>
-                                {variables.map((variable) => (
-                                <CommandItem key={variable} value={variable} onSelect={() => handleVariableInsert(variable)}>
-                                    {variable}
-                                </CommandItem>
-                                ))}
-                            </CommandGroup>
-                            </CommandList>
-                        </Command>
-                        </PopoverContent>
-                    </Popover>
-                </div>
-            );
+          return (
+            <EditableTextBlock 
+              initialContent={block.props?.content}
+              onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
+              variables={variables}
+              onVariableInsert={() => {}}
+              isSelected={isSelected}
+            />
+          );
         }
         if (block.props?.content) {
           return <div className="text-sm text-white/80 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: block.props.content }} />;
@@ -1027,7 +1055,7 @@ const CanvasTextBlock = ({
       className={cn('group w-full cursor-grab select-none', !isChild && 'absolute w-72')}
       style={!isChild ? { transform: `translate(${block.position.x}px, ${block.position.y}px)` } : {}}
       onMouseDown={(e) => {
-        if (e.button !== 0 || (isSelected && e.target === editableDivRef.current)) return;
+        if (e.button !== 0) return;
         onBlockMouseDown(e, block);
       }}
       onContextMenu={(e) => onContextMenu(e, block)}
