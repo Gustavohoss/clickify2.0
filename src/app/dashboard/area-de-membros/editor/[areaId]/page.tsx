@@ -15,6 +15,8 @@ import {
   Folder,
   X,
   ImageIcon,
+  GripVertical,
+  MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter, useParams } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -35,20 +37,35 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
+
+type Module = {
+  id: string;
+  name: string;
+  coverImageUrl?: string;
+  lessons: any[];
+};
 
 type MemberArea = {
   name: string;
   headerImageUrl?: string;
+  modules?: Module[];
 };
 
 export default function MemberAreaEditorPage() {
   const router = useRouter();
   const { areaId } = useParams() as { areaId: string };
   const firestore = useFirestore();
+  const { toast } = useToast();
+  
   const [headerUrl, setHeaderUrl] = useState('');
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
-  const [coverUrl, setCoverUrl] = useState('');
+  
+  const [newModuleName, setNewModuleName] = useState('');
+  const [newModuleCoverUrl, setNewModuleCoverUrl] = useState('');
+
 
   const areaRef = useMemoFirebase(
     () => (firestore && areaId ? doc(firestore, 'memberAreas', areaId) : null),
@@ -59,9 +76,41 @@ export default function MemberAreaEditorPage() {
 
   const handleSaveHeaderImage = async () => {
     if (areaRef && headerUrl) {
-      await updateDoc(areaRef, { headerImageUrl: headerUrl });
+      try {
+        await updateDoc(areaRef, { headerImageUrl: headerUrl });
+        toast({ title: 'Sucesso!', description: 'Imagem do header salva.' });
+      } catch (error) {
+        toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível salvar a imagem.'})
+      }
     }
   };
+  
+  const handleAddModule = async () => {
+    if (!areaRef || !newModuleName.trim()) {
+       toast({ variant: 'destructive', title: 'Erro', description: 'O nome do módulo é obrigatório.'})
+      return;
+    }
+
+    const newModule: Module = {
+      id: new Date().toISOString(),
+      name: newModuleName,
+      coverImageUrl: newModuleCoverUrl,
+      lessons: [],
+    };
+
+    try {
+      await updateDoc(areaRef, {
+        modules: arrayUnion(newModule),
+      });
+      toast({ title: 'Sucesso!', description: 'Módulo adicionado.' });
+      setNewModuleName('');
+      setNewModuleCoverUrl('');
+      setIsAddModuleOpen(false);
+    } catch (error) {
+       toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível adicionar o módulo.'})
+    }
+  };
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-900 text-gray-200">
@@ -152,15 +201,43 @@ export default function MemberAreaEditorPage() {
                 <Input
                   id="area-name"
                   value={areaData?.name || ''}
-                  onChange={() => {}}
+                  readOnly
                   className="mt-2 w-full max-w-md border-gray-700 bg-gray-800 text-lg text-white"
                 />
               </div>
 
-              <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-gray-700 py-16">
-                 <p className="text-gray-400">Você ainda não adicionou nenhum módulo.</p>
-                 <div className="flex items-center gap-4">
-                     <Button variant="outline" className="gap-2 border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700">
+              <div className="space-y-4">
+                {areaData?.modules && areaData.modules.length > 0 ? (
+                  areaData.modules.map((module) => (
+                    <div key={module.id} className="group flex items-center justify-between rounded-lg bg-gray-800 p-4">
+                       <div className="flex items-center gap-4">
+                         <GripVertical className="cursor-grab text-gray-500" />
+                         <span className="font-semibold">{module.name}</span>
+                       </div>
+                       <div className="flex items-center gap-4">
+                         <Badge className="bg-blue-900/50 text-blue-300">{module.lessons?.length || 0} Conteúdo</Badge>
+                         <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
+                               <MoreVertical size={16} />
+                             </Button>
+                           </DropdownMenuTrigger>
+                           <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
+                              <DropdownMenuItem className="focus:bg-gray-600">Editar</DropdownMenuItem>
+                              <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
+                           </DropdownMenuContent>
+                         </DropdownMenu>
+                       </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-gray-700 py-16">
+                     <p className="text-gray-400">Você ainda não adicionou nenhum módulo.</p>
+                  </div>
+                )}
+                 
+                 <div className="flex items-center justify-center gap-4">
+                    <Button variant="outline" className="gap-2 border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700">
                         <Expand size={16} />
                         Expandir
                     </Button>
@@ -213,13 +290,13 @@ export default function MemberAreaEditorPage() {
                                         <div className="col-span-2 space-y-4">
                                             <div className="space-y-2">
                                                 <Label htmlFor="module-name">Nome do Módulo</Label>
-                                                <Input id="module-name" placeholder="Ex: Módulo 1" className="bg-gray-800 border-gray-600" />
+                                                <Input id="module-name" placeholder="Ex: Módulo 1" className="bg-gray-800 border-gray-600" value={newModuleName} onChange={(e) => setNewModuleName(e.target.value)} />
                                             </div>
                                         </div>
                                         <div className="col-span-1">
                                             <div className="relative aspect-[9/12] w-full overflow-hidden rounded-lg bg-gray-800">
-                                                {coverUrl ? (
-                                                    <Image src={coverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
+                                                {newModuleCoverUrl ? (
+                                                    <Image src={newModuleCoverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
                                                 ) : (
                                                     <div className="flex flex-col h-full items-center justify-center text-gray-500">
                                                         <ImageIcon size={48} />
@@ -241,8 +318,8 @@ export default function MemberAreaEditorPage() {
                                                         id="cover-url"
                                                         placeholder="https://sua-imagem.com/capa.jpg"
                                                         className="border-gray-600 bg-gray-800"
-                                                        value={coverUrl}
-                                                        onChange={(e) => setCoverUrl(e.target.value)}
+                                                        value={newModuleCoverUrl}
+                                                        onChange={(e) => setNewModuleCoverUrl(e.target.value)}
                                                     />
                                                 </div>
                                             </div>
@@ -255,8 +332,8 @@ export default function MemberAreaEditorPage() {
                                         </div>
                                         <div className="col-span-1">
                                             <div className="relative aspect-[9/12] w-full overflow-hidden rounded-lg bg-gray-800">
-                                                {coverUrl ? (
-                                                    <Image src={coverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
+                                                {newModuleCoverUrl ? (
+                                                    <Image src={newModuleCoverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
                                                 ) : (
                                                     <div className="flex flex-col h-full items-center justify-center text-gray-500">
                                                         <ImageIcon size={48} />
@@ -271,7 +348,7 @@ export default function MemberAreaEditorPage() {
                             </Tabs>
                             <DialogFooter className="px-6 py-4 bg-gray-800/50 border-t border-gray-700">
                                 <Button variant="ghost" onClick={() => setIsAddModuleOpen(false)}>Cancelar</Button>
-                                <Button className="bg-green-600 hover:bg-green-700">Salvar</Button>
+                                <Button className="bg-green-600 hover:bg-green-700" onClick={handleAddModule}>Salvar</Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
@@ -291,3 +368,5 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
+
+    
