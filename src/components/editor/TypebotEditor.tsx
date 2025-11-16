@@ -856,7 +856,7 @@ const CanvasTextBlock = ({
 }) => {
   const [hasMounted, setHasMounted] = useState(false);
   const editableDivRef = useRef<HTMLDivElement>(null);
-  const popoverOpen = useRef(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
@@ -874,11 +874,11 @@ const CanvasTextBlock = ({
   
     editor.focus();
     
-    const html = `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>`;
+    const html = `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`;
     document.execCommand('insertHTML', false, html);
     
     handleContentChange();
-    popoverOpen.current = false;
+    setIsPopoverOpen(false);
   };
 
   const renderInputBlock = (icon: React.ReactNode, placeholder: string) => (
@@ -973,7 +973,7 @@ const CanvasTextBlock = ({
                   data-placeholder="Digite sua mensagem..."
                   className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8 min-h-[40px] [&[data-placeholder]]:before:content-[attr(data-placeholder)] [&[data-placeholder]]:before:text-white/40 [&:not(:empty)]:before:hidden"
                 />
-                <Popover open={popoverOpen.current} onOpenChange={(isOpen) => popoverOpen.current = isOpen}>
+                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                   <PopoverTrigger asChild>
                     <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
                       <Braces size={14} />
@@ -1891,13 +1891,14 @@ export function TypebotEditor({
             previewVariablesRef.current
         );
 
-        const message: PreviewMessage = {
-            id: Date.now() + Math.random(),
-            sender: 'bot',
-            content: <p className="text-sm text-black whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
-        };
-
-        setPreviewMessages((prev) => [...prev, message]);
+        setPreviewMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now() + Math.random(),
+              sender: 'bot',
+              content: <div className="text-sm text-black whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
+            },
+          ]);
     }
 
     if (!isWaiting) {
