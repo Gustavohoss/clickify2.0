@@ -104,7 +104,7 @@ type DropIndicator = {
     index: number;
   } | null;
 
-export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromFunnel }: { funnel: Funnel, setFunnel: (updater: (prev: Funnel) => Funnel) => void, debouncedUpdateFunnel: any, deleteBlock?: (id: number) => void }) => {
+export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { funnel: Funnel, setFunnel: (updater: (prev: Funnel) => Funnel) => void, debouncedUpdateFunnel: any, deleteBlock?: (id: number) => void }) => {
     const [activeTab, setActiveTab] = useState('Flow');
     const [isPanning, setIsPanning] = useState(false);
     const [zoom, setZoom] = useState(1);
@@ -183,24 +183,37 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
     };
   
     const deleteBlock = (blockId: number) => {
-        setCanvasBlocks(prev => {
-            const blockToDelete = prev.find(b => b.id === blockId);
-            
-            if (blockToDelete?.parentId) {
-                return prev.map(parent => {
-                    if (parent.id === blockToDelete.parentId && parent.children) {
-                        return {
-                            ...parent,
-                            children: parent.children.filter(child => child.id !== blockId)
-                        };
-                    }
-                    return parent;
-                }).filter(b => b.id !== blockId); // Also remove the detached block if it exists
-            }
-            
-            return prev.filter(block => block.id !== blockId);
-        });
-    };
+      let blockToRemove = canvasBlocks.find(b => b.id === blockId);
+      if (!blockToRemove) {
+          // If not found at root, search in children
+          for (const parent of canvasBlocks) {
+              if (parent.children) {
+                  blockToRemove = parent.children.find(child => child.id === blockId);
+                  if (blockToRemove) break;
+              }
+          }
+      }
+
+      setCanvasBlocks(prev => {
+          // If the block to delete is a group, we just remove it
+          if (blockToRemove?.type === 'group') {
+              return prev.filter(b => b.id !== blockId);
+          }
+
+          // If the block is a child, we remove it from its parent
+          const newBlocks = prev.map(parent => {
+              if (parent.children) {
+                  const newChildren = parent.children.filter(child => child.id !== blockId);
+                  if (newChildren.length !== parent.children.length) {
+                      return { ...parent, children: newChildren };
+                  }
+              }
+              return parent;
+          });
+          // Also filter out any potential root-level orphaned children (shouldn't happen with correct logic)
+          return newBlocks.filter(b => b.id !== blockId);
+      });
+  };
     
   
     const blocks = {
@@ -253,31 +266,53 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
     };
     
     const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
-        if (draggingState.isDragging && draggingState.blockId) {
+        if (draggingState.isDragging && draggingState.blockId !== null) {
           setCanvasBlocks(prevBlocks => {
             let blocks = [...prevBlocks];
             const draggedBlockId = draggingState.blockId!;
     
-            if (dropIndicator) {
+            // Find the block that was being dragged. It's at the root level during the drag.
+            const draggedBlock = blocks.find(b => b.id === draggedBlockId);
+            if (!draggedBlock) return prevBlocks; // Should not happen
+    
+            if (dropIndicator) { // Case 1: Dropped into a group
               const targetGroupIndex = blocks.findIndex(b => b.id === dropIndicator.groupId);
               if (targetGroupIndex > -1) {
                 const targetGroup = { ...blocks[targetGroupIndex] };
-                
-                // Find the original block data (before it was detached for dragging)
-                const originalBlock = prevBlocks.find(b => b.id === draggedBlockId)?.children?.find(c => c.id === draggedBlockId) || prevBlocks.find(b => b.id === draggedBlockId);
     
-                if (originalBlock) {
-                  const blockToMove = { ...originalBlock, parentId: targetGroup.id, position: { x: 0, y: 0 } };
-                  
-                  // Remove from root if it exists there
-                  blocks = blocks.filter(b => b.id !== draggedBlockId);
-
-                  // Add to new parent's children
-                  if (!targetGroup.children) targetGroup.children = [];
-                  targetGroup.children.splice(dropIndicator.index, 0, blockToMove);
-                  blocks[targetGroupIndex] = targetGroup;
-                }
+                // The block to move is the one we dragged, reset its parentId and position
+                const blockToMove = { ...draggedBlock, parentId: targetGroup.id, position: { x: 0, y: 0 } };
+                
+                // Remove the dragged block from the root level
+                blocks = blocks.filter(b => b.id !== draggedBlockId);
+    
+                // Add to new parent's children at the correct index
+                if (!targetGroup.children) targetGroup.children = [];
+                targetGroup.children.splice(dropIndicator.index, 0, blockToMove);
+                blocks[targetGroupIndex] = targetGroup;
+                return blocks;
               }
+            } else { // Case 2: Dropped on the canvas
+              // If it's a group, we just update its position (already done during drag)
+              if (draggedBlock.type === 'group') {
+                return blocks; 
+              }
+    
+              // If it's a child element, create a new group for it
+              const newGroupId = Date.now();
+              const blockToMove = { ...draggedBlock, parentId: newGroupId, position: { x: 0, y: 0 } };
+              
+              const newGroup: CanvasBlock = {
+                id: newGroupId,
+                type: 'group',
+                position: draggedBlock.position, // New group takes the dropped position
+                children: [blockToMove],
+              };
+    
+              // Remove the dragged block from the root and add the new group
+              blocks = blocks.filter(b => b.id !== draggedBlockId);
+              blocks.push(newGroup);
+              return blocks;
             }
             return blocks;
           });
@@ -327,14 +362,14 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
         }
 
         if (draggingState.isDragging && draggingState.blockId) {
-            const newX = (e.clientX / zoom) - panOffset.x - draggingState.dragStartOffset.x;
-            const newY = (e.clientY / zoom) - panOffset.y - draggingState.dragStartOffset.y;
-    
-            setCanvasBlocks(prevBlocks =>
-                prevBlocks.map(block =>
-                    block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block
-                )
-            );
+          const newX = (e.clientX / zoom) - panOffset.x - draggingState.dragStartOffset.x;
+          const newY = (e.clientY / zoom) - panOffset.y - draggingState.dragStartOffset.y;
+  
+          setCanvasBlocks(prevBlocks =>
+              prevBlocks.map(block =>
+                  block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block
+              )
+          );
 
             const dropX = (e.clientX / zoom) - panOffset.x;
             const dropY = (e.clientY / zoom) - panOffset.y;
@@ -391,35 +426,35 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
         e.stopPropagation();
         
         let blockToDrag = block;
-        let originalParentId = block.parentId;
     
-        if (originalParentId) {
-            setCanvasBlocks(prevBlocks => {
-                const newBlocks = [...prevBlocks];
-                const parentIndex = newBlocks.findIndex(p => p.id === originalParentId);
-                if (parentIndex > -1) {
-                    const parent = { ...newBlocks[parentIndex] };
-                    const childIndex = parent.children?.findIndex(c => c.id === block.id) ?? -1;
-                    
-                    if (childIndex > -1 && parent.children) {
-                        const childRect = document.getElementById(`block-${block.id}`)?.getBoundingClientRect();
-                        const canvasRect = canvasRef.current!.getBoundingClientRect();
+        if (block.parentId) {
+          setCanvasBlocks(prevBlocks => {
+            const newBlocks = [...prevBlocks];
+            const parentIndex = newBlocks.findIndex(p => p.id === block.parentId);
+            if (parentIndex > -1) {
+              const parent = { ...newBlocks[parentIndex] };
+              const childRect = document.getElementById(`block-${block.id}`)?.getBoundingClientRect();
+              const canvasRect = canvasRef.current!.getBoundingClientRect();
     
-                        if (childRect && canvasRect) {
-                            const absolutePosition = {
-                                x: (childRect.left - canvasRect.left) / zoom - panOffset.x,
-                                y: (childRect.top - canvasRect.top) / zoom - panOffset.y,
-                            };
-                            
-                            blockToDrag = { ...block, parentId: null, position: absolutePosition };
-                            parent.children = parent.children.filter(c => c.id !== block.id);
-                            newBlocks[parentIndex] = parent;
-                            newBlocks.push(blockToDrag);
-                        }
-                    }
-                }
+              if (childRect && canvasRect) {
+                const absolutePosition = {
+                  x: (childRect.left - canvasRect.left) / zoom - panOffset.x,
+                  y: (childRect.top - canvasRect.top) / zoom - panOffset.y,
+                };
+    
+                // Create a new representation of the block at the root level for dragging
+                blockToDrag = { ...block, parentId: null, position: absolutePosition };
+                
+                // Remove from parent
+                parent.children = parent.children?.filter(c => c.id !== block.id);
+                newBlocks[parentIndex] = parent;
+                newBlocks.push(blockToDrag);
+                
                 return newBlocks;
-            });
+              }
+            }
+            return prevBlocks; // Return original if something fails
+          });
         }
     
         const startX = (e.clientX / zoom) - panOffset.x;
@@ -555,14 +590,14 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
               </div>
   
               {/* Dynamically Rendered Blocks */}
-              {canvasBlocks.filter(b => !b.parentId).map((block, index) => {
+              {canvasBlocks.filter(b => !b.parentId).map((block) => {
                 const BlockComponent = block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
-                
+                const groupIndex = canvasBlocks.filter(b => b.type === 'group' && !b.parentId).findIndex(g => g.id === block.id)
                 return (
                   <BlockComponent
                     key={block.id}
                     block={block}
-                    groupIndex={canvasBlocks.filter(b => b.type === 'group' && !b.parentId).findIndex(g => g.id === block.id)}
+                    groupIndex={groupIndex}
                     onBlockMouseDown={handleBlockMouseDown}
                     onDuplicate={(e: React.MouseEvent) => {
                       e.stopPropagation();
@@ -573,6 +608,7 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
                       deleteBlock(block.id);
                     }}
                     isSelected={selectedBlockId === block.id}
+                    setSelectedBlockId={setSelectedBlockId}
                     dropIndicator={dropIndicator}
                     allBlocks={canvasBlocks}
                     deleteBlock={deleteBlock}
@@ -594,6 +630,7 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
     onDuplicate,
     onDelete,
     isSelected,
+    setSelectedBlockId,
     dropIndicator,
     allBlocks,
     deleteBlock
@@ -604,6 +641,7 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
     onDuplicate: (e: React.MouseEvent) => void;
     onDelete: (e: React.MouseEvent) => void;
     isSelected: boolean;
+    setSelectedBlockId: (id: number | null) => void;
     dropIndicator: DropIndicator;
     allBlocks: CanvasBlock[];
     deleteBlock: (id: number) => void;
@@ -659,7 +697,8 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
                           e.stopPropagation();
                           deleteBlock(child.id);
                         }}
-                        isSelected={false} // Children probably don't get selected in the same way
+                        isSelected={false}
+                        setSelectedBlockId={setSelectedBlockId}
                         isChild={true}
                         allBlocks={allBlocks}
                     />
@@ -678,6 +717,7 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
       onDuplicate,
       onDelete,
       isSelected,
+      setSelectedBlockId,
       isChild = false,
     }: {
       block: CanvasBlock;
@@ -685,6 +725,7 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
       onDuplicate: (e: React.MouseEvent) => void;
       onDelete: (e: React.MouseEvent) => void;
       isSelected: boolean;
+      setSelectedBlockId: (id: number | null) => void;
       isChild?: boolean;
       allBlocks: CanvasBlock[];
       dropIndicator?: DropIndicator;
@@ -749,7 +790,7 @@ export const TypebotEditor = ({ funnel, setFunnel, deleteBlock: deleteBlockFromF
                     </Button>
                 )}
                 
-                {isSelected && !isChild ? (
+                {isSelected ? (
                     <div className="rounded-md border-2 border-orange-500 bg-[#181818]">
                         <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
                             <span className="text-xs text-white/70">Texto</span>
