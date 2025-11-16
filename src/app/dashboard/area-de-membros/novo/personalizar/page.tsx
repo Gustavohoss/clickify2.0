@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Upload, Users, BookCopy, Settings, CheckCircle, Folder } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { useDoc, useFirestore } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/landing/logo';
@@ -23,7 +23,11 @@ export default function PersonalizarWorkspacePage() {
   const { toast } = useToast();
   const areaId = searchParams.get('id');
 
-  const areaRef = areaId ? doc(firestore, 'memberAreas', areaId) : null;
+  const areaRef = useMemoFirebase(
+    () => (areaId && firestore ? doc(firestore, 'memberAreas', areaId) : null),
+    [firestore, areaId]
+  );
+  
   const { data: areaData, isLoading } = useDoc<MemberArea>(areaRef);
 
   const [isFinishing, setIsFinishing] = useState(false);
