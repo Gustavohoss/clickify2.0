@@ -155,7 +155,7 @@ import {
     Step,
     Funnel,
     EditorView,
-} from './types';
+} from './types.tsx';
 
 const components: ComponentType[] = [
   { name: 'Alerta', icon: <AlertTriangle /> },

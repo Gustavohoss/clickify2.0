@@ -97,7 +97,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import type { Funnel, CanvasBlock } from './types';
+import type { Funnel, CanvasBlock } from './types.tsx';
 
 
 export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater: (prev: Funnel) => Funnel) => void, debouncedUpdateFunnel: any }) => {

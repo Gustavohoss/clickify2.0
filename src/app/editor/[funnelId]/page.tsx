@@ -7,7 +7,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { useDebouncedCallback } from 'use-debounce';
 import { StandardFunnelEditor } from '@/components/editor/StandardFunnelEditor';
 import { TypebotEditor } from '@/components/editor/TypebotEditor';
-import type { Funnel, Step } from '@/components/editor/types';
+import type { Funnel, Step } from '@/components/editor/types.tsx';
 
 
 function FunnelEditorContent() {
