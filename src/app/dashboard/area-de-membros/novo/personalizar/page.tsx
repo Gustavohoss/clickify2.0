@@ -44,8 +44,7 @@ export default function PersonalizarWorkspacePage() {
       title: 'Workspace Personalizado!',
       description: 'Sua área de membros está quase pronta.',
     });
-    // For now, just navigate to the main members area page
-    router.push('/dashboard/area-de-membros');
+    router.push(`/dashboard/area-de-membros/novo/confirmacao?id=${areaId}`);
   };
 
   const handleLogoUploadClick = () => {
