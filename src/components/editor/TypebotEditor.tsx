@@ -122,11 +122,9 @@ import { Badge } from '../ui/badge.tsx';
 const ButtonsBlockSettings = ({
   block,
   onUpdate,
-  position,
 }: {
   block: CanvasBlock;
   onUpdate: (id: number, props: any) => void;
-  position: { x: number; y: number };
 }) => {
   const props = block.props || {};
   const buttons = props.buttons || [];
@@ -153,11 +151,7 @@ const ButtonsBlockSettings = ({
 
   return (
     <div
-      className="absolute w-72 rounded-lg bg-[#262626] p-4 shadow-lg space-y-4 text-white"
-      style={{
-        left: `${position.x + 300}px`,
-        top: `${position.y}px`,
-      }}
+      className="w-full space-y-4 text-white p-2"
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div>
@@ -1113,19 +1107,23 @@ const CanvasTextBlock = ({
       case 'input-buttons':
         return (
           <div className="flex flex-col gap-2 w-full">
-            <div className="relative">
-              <EditableTextBlock
-                initialContent={block.props?.content}
-                onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
-                variables={variables}
-                onVariableInsert={() => {}}
-                isSelected={isSelected}
-              />
-              {block.props?.multipleChoice && <div className="absolute -top-1 -left-1"><CheckSquare2 size={12} className="text-orange-400" /></div>}
-            </div>
-            <Button variant="outline" className="w-full bg-[#2a2a2a] border-[#3f3f46] text-white justify-center h-8 text-sm hover:bg-[#3f3f46]" onClick={() => setSelectedBlockId(block.id)}>
-                Add Button
-            </Button>
+            <EditableTextBlock
+              initialContent={block.props?.content}
+              onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
+              variables={variables}
+              onVariableInsert={() => {}}
+              isSelected={isSelected}
+            />
+            {isSelected ? (
+                <ButtonsBlockSettings
+                    block={block}
+                    onUpdate={updateBlockProps}
+                />
+            ) : (
+                <Button variant="outline" className="w-full bg-[#2a2a2a] border-[#3f3f46] text-white justify-center h-8 text-sm hover:bg-[#3f3f46]" onClick={() => setSelectedBlockId(block.id)}>
+                    Add Button
+                </Button>
+            )}
           </div>
         );
       default:
@@ -2370,13 +2368,6 @@ export function TypebotEditor({
                     variables={variables}
                     onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
                 />
-            )}
-            {selectedBlock && selectedBlock.type === 'input-buttons' && (
-              <ButtonsBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-              />
             )}
           </div>
         </main>
