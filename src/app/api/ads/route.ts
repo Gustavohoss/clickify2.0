@@ -15,10 +15,12 @@ export async function GET(req: NextRequest) {
 
   try {
     if (proxyUrl) {
+      // Logic for handling pagination URLs from Meta
       const url = new URL(proxyUrl);
       url.searchParams.set('access_token', ACCESS_TOKEN);
       requestUrl = url.toString();
     } else {
+      // Logic for handling a new search term
       const searchTerm = searchParams.get('search_terms');
       if (!searchTerm) {
         return NextResponse.json({ error: { message: 'O termo de busca é obrigatório.' } }, { status: 400 });
@@ -47,15 +49,18 @@ export async function GET(req: NextRequest) {
     const data = await response.json();
     
     if (!response.ok) {
+      // If Meta API returns an error, forward it
       console.error('Erro da API da Meta:', data);
       const errorMessage = data.error?.message || 'Um erro desconhecido ocorreu na API da Meta.';
       return NextResponse.json({ error: { message: errorMessage } }, { status: response.status });
     }
     
+    // Success, return data from Meta
     return NextResponse.json(data);
 
   } catch (error: any) {
-    console.error('Erro de Servidor Interno:', error);
+    // This catches network errors or if fetch itself fails
+    console.error('Erro de Servidor Interno ao chamar a API:', error);
     return NextResponse.json({ error: { message: error.message || 'Ocorreu um erro de servidor desconhecido.' } }, { status: 500 });
   }
 }

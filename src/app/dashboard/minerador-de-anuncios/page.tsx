@@ -33,10 +33,11 @@ export default function MineradorDeAnunciosPage() {
       if (isNewSearch) {
         params.append('search_terms', searchTerm);
       } else if (nextPageUrl) {
+        // For subsequent pages, we send the full URL to our proxy
         params.append('proxyUrl', nextPageUrl);
       } else {
         setIsLoading(false);
-        return;
+        return; // Should not happen if "Load More" is hidden
       }
       
       const requestUrl = `/api/ads?${params.toString()}`;
@@ -45,7 +46,7 @@ export default function MineradorDeAnunciosPage() {
       const data = await response.json();
       
       if (!response.ok) {
-        // Agora o erro da API será lido da estrutura padronizada
+        // Now the error from the API will be read from the standardized structure
         throw new Error(data.error?.message || 'Ocorreu um erro ao buscar os anúncios.');
       }
 
@@ -57,6 +58,7 @@ export default function MineradorDeAnunciosPage() {
       }
 
     } catch (err: any) {
+      // This will now catch both network errors and errors thrown from the !response.ok check
       setError(err.message || 'Falha ao conectar com a API. Verifique a rota da API e a conexão.');
       console.error(err);
     } finally {
