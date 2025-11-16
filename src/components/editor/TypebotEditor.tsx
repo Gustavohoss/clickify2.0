@@ -116,6 +116,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
 
 const ImageBlockSettings = ({
   block,
@@ -458,6 +459,69 @@ const AudioBlockSettings = ({
     );
   };
 
+const WaitBlockSettings = ({
+    block,
+    onUpdate,
+    position,
+  }: {
+    block: CanvasBlock;
+    onUpdate: (id: number, props: any) => void;
+    position: { x: number; y: number };
+}) => {
+    const props = block.props || {};
+
+    const handleChange = (key: string, value: any) => {
+        onUpdate(block.id, { ...props, [key]: value });
+    };
+
+    return (
+        <div
+            className="absolute w-72 rounded-lg bg-[#262626] p-4 shadow-lg space-y-4 text-white"
+            style={{
+                left: `${position.x + 300}px`,
+                top: `${position.y}px`,
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+        >
+            <div>
+                <Label className="text-sm">Seconds to wait for:</Label>
+                <div className="relative mt-1">
+                    <Input
+                        type="number"
+                        placeholder="2"
+                        value={props.duration || ''}
+                        onChange={(e) => handleChange('duration', e.target.value ? Number(e.target.value) : '')}
+                        className="bg-[#181818] border-[#3f3f46] text-white pr-8 focus:border-orange-500 focus-visible:ring-orange-500"
+                    />
+                    <button className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white">
+                        <Braces size={16} />
+                    </button>
+                </div>
+            </div>
+            <Accordion type="single" collapsible>
+                <AccordionItem value="advanced" className="border-none">
+                    <AccordionTrigger className="text-sm p-2 hover:no-underline hover:bg-[#3f3f46] rounded-md">
+                        Advanced
+                    </AccordionTrigger>
+                    <AccordionContent className="p-2 space-y-2">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="show-timer" className="text-sm">
+                                Show timer
+                            </Label>
+                            <Switch
+                                id="show-timer"
+                                checked={props.showTimer}
+                                onCheckedChange={(c) => handleChange('showTimer', c)}
+                            />
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </div>
+    );
+};
+
+
 const CanvasTextBlock = ({
   block,
   onBlockMouseDown,
@@ -577,6 +641,15 @@ const CanvasTextBlock = ({
                 <span className='truncate'>{block.props?.placeholder || 'Digite sua resposta...'}</span>
               </div>
             );
+        case 'logic-wait':
+                return (
+                    <div className="flex items-center gap-2 text-sm text-white/80 w-full">
+                        <Clock10 size={16} className="text-indigo-400 flex-shrink-0" />
+                        <span className='truncate'>
+                            Aguarde por {block.props.duration || 0} segundo(s)
+                        </span>
+                    </div>
+                );
       case 'text':
         if (isSelected) {
           return (
@@ -1461,80 +1534,87 @@ export function TypebotEditor({
   const connectionsRef = useRef(connections);
   connectionsRef.current = connections;
 
-  const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0) => {
+  const processFlow = useCallback(async (blockId: number | 'start' | null, startIndex = 0) => {
     if (blockId === null) {
-      setWaitingForInput(null);
-      return;
+        setWaitingForInput(null);
+        return;
     }
-  
+
     const findBlockInState = (id: number) => {
-      for (const block of canvasBlocksRef.current) {
-        if (block.id === id) return block;
-      }
-      return undefined;
+        for (const block of canvasBlocksRef.current) {
+            if (block.id === id) return block;
+        }
+        return undefined;
     };
-  
+
     const currentBlockId = blockId === 'start'
-      ? connectionsRef.current.find((c) => c.from === 'start')?.to
-      : blockId;
-  
+        ? connectionsRef.current.find((c) => c.from === 'start')?.to
+        : blockId;
+
     if (!currentBlockId) {
-      setWaitingForInput(null);
-      return;
+        setWaitingForInput(null);
+        return;
     }
-  
+
     const currentBlock = findBlockInState(currentBlockId);
     if (!currentBlock || !currentBlock.children) {
-      setWaitingForInput(null);
-      return;
-    }
-  
-    setCurrentPreviewBlockId(currentBlockId);
-  
-    let isWaiting = false;
-  
-    const childrenToProcess = currentBlock.children.slice(startIndex);
-  
-    for (let i = 0; i < childrenToProcess.length; i++) {
-      const child = childrenToProcess[i];
-      if (child.type.startsWith('input-')) {
-        setWaitingForInput(child);
-        isWaiting = true;
-        break;
-      }
-  
-      const messageContent = interpolateVariables(
-        child.props.content,
-        previewVariablesRef.current
-      );
-  
-      const message: PreviewMessage = {
-        id: Date.now() + Math.random(),
-        sender: 'bot',
-        content: (
-          <CanvasTextBlock
-            block={{ ...child, props: { ...child.props, content: messageContent } }}
-            isSelected={false}
-            isChild={true}
-            onBlockMouseDown={() => {}}
-            onContextMenu={() => {}}
-            setSelectedBlockId={() => {}}
-            updateBlockProps={() => {}}
-            variables={[]}
-          />
-        ),
-      };
-  
-      setPreviewMessages((prev) => [...prev, message]);
-    }
-  
-    if (!isWaiting) {
-      const nextGroupId = connectionsRef.current.find((c) => c.from === currentBlockId)?.to;
-      if (nextGroupId) {
-        setTimeout(() => processFlow(nextGroupId), 500);
-      } else {
         setWaitingForInput(null);
-      }
+        return;
+    }
+
+    setCurrentPreviewBlockId(currentBlockId);
+
+    let isWaiting = false;
+
+    const childrenToProcess = currentBlock.children.slice(startIndex);
+
+    for (let i = 0; i < childrenToProcess.length; i++) {
+        const child = childrenToProcess[i];
+        if (child.type === 'logic-wait') {
+            const duration = child.props.duration || 0;
+            if (duration > 0) {
+                await new Promise(resolve => setTimeout(resolve, duration * 1000));
+            }
+            continue; // Continue to the next block in the group
+        }
+        if (child.type.startsWith('input-')) {
+            setWaitingForInput(child);
+            isWaiting = true;
+            break; 
+        }
+
+        const messageContent = interpolateVariables(
+            child.props.content,
+            previewVariablesRef.current
+        );
+
+        const message: PreviewMessage = {
+            id: Date.now() + Math.random(),
+            sender: 'bot',
+            content: (
+                <CanvasTextBlock
+                    block={{ ...child, props: { ...child.props, content: messageContent } }}
+                    isSelected={false}
+                    isChild={true}
+                    onBlockMouseDown={() => {}}
+                    onContextMenu={() => {}}
+                    setSelectedBlockId={() => {}}
+                    updateBlockProps={() => {}}
+                    variables={[]}
+                />
+            ),
+        };
+
+        setPreviewMessages((prev) => [...prev, message]);
+    }
+
+    if (!isWaiting) {
+        const nextGroupId = connectionsRef.current.find((c) => c.from === currentBlockId)?.to;
+        if (nextGroupId) {
+            setTimeout(() => processFlow(nextGroupId), 500);
+        } else {
+            setWaitingForInput(null);
+        }
     }
   }, []);
 
@@ -1855,6 +1935,7 @@ export function TypebotEditor({
             {selectedBlock && selectedBlock.type === 'image' && <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'audio' && <AudioBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
+            {selectedBlock && selectedBlock.type === 'logic-wait' && <WaitBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'input-text' && (
                 <TextBlockSettings
                     block={selectedBlock}
