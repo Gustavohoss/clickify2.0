@@ -270,7 +270,7 @@ const CanvasTextBlock = ({
       case 'video':
         if (block.props?.videoUrl) {
           return (
-             <div className="w-full aspect-video">
+            <div className="w-full aspect-video">
               {hasMounted && (
                 <ReactPlayer
                   url={block.props.videoUrl}
@@ -900,14 +900,14 @@ export function TypebotEditor({
                 id: newBlockId,
                 parentId: undefined,
                 position: {
-                    x: parentGroup.position.x + (e.clientX - canvasRect.left - panOffset.x) / zoom - draggingState.dragStartOffset.x,
-                    y: parentGroup.position.y + (e.clientY - canvasRect.top - panOffset.y) / zoom - draggingState.dragStartOffset.y,
+                  x: parentGroup.position.x + draggingState.dragStartOffset.x,
+                  y: parentGroup.position.y + draggingState.dragStartOffset.y,
                 },
                 props: draggingState.originalBlock.props,
             };
 
             const groupIsNowEmpty = parentGroup.children?.length === 1;
-
+            
             setCanvasBlocks((prevBlocks) => [
                 ...prevBlocks
                     .map((p) =>
@@ -923,8 +923,8 @@ export function TypebotEditor({
                 ...prev,
                 blockId: newBlockId,
                 dragStartOffset: {
-                    x: (e.clientX - (detachedBlock.position.x * zoom + panOffset.x + canvasRect.left)) / zoom,
-                    y: (e.clientY - (detachedBlock.position.y * zoom + panOffset.y + canvasRect.top)) / zoom,
+                    x: (e.clientX - canvasRect.left - panOffset.x) / zoom - detachedBlock.position.x,
+                    y: (e.clientY - canvasRect.top - panOffset.y) / zoom - detachedBlock.position.y,
                 },
             }));
         }
@@ -995,11 +995,20 @@ export function TypebotEditor({
     if (!blockToDrag) return;
 
     let dragStartOffset;
-
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    
     if (blockToDrag.parentId) {
-      dragStartOffset = { x: 0, y: 0 };
+        const blockElement = document.getElementById(`block-${blockToDrag.id}`);
+        if(blockElement) {
+          const blockRect = blockElement.getBoundingClientRect();
+          dragStartOffset = {
+            x: (e.clientX - blockRect.left) / zoom,
+            y: (e.clientY - blockRect.top) / zoom,
+          };
+        } else {
+          dragStartOffset = { x: 0, y: 0 };
+        }
     } else {
-        const canvasRect = canvasRef.current.getBoundingClientRect();
         dragStartOffset = {
             x: (e.clientX - canvasRect.left - panOffset.x) / zoom - blockToDrag.position.x,
             y: (e.clientY - canvasRect.top - panOffset.y) / zoom - blockToDrag.position.y,
