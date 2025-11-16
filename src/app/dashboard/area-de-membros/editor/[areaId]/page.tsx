@@ -53,8 +53,8 @@ export default function WorkspaceEditorPage() {
               <p className="text-sm text-muted-foreground mb-6">
                 Ajuste nome, logo e preferências.
               </p>
-              <Button variant="outline" className="w-full">
-                Abrir configurações
+              <Button variant="outline" className="w-full" asChild>
+                <Link href={`/dashboard/area-de-membros/editor/${areaId}/settings`}>Abrir configurações</Link>
               </Button>
             </Card>
 
