@@ -1115,23 +1115,24 @@ const CanvasTextBlock = ({
       case 'input-buttons':
         return (
           <div className="flex flex-col gap-2 w-full">
-            <EditableTextBlock
-              initialContent={block.props?.content}
-              onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
-              variables={variables}
-              onVariableInsert={() => {}}
-              isSelected={isSelected}
-            />
-            <div className="flex flex-col gap-1.5">
-                {(block.props?.buttons || []).map((button: any, index: number) => (
-                    <Button key={index} variant="outline" className="w-full bg-[#3f3f46] border-[#52525b] text-white justify-start">
-                        {button.text}
-                    </Button>
-                ))}
-                <Button variant="outline" className="w-full border-dashed border-[#52525b] text-white/50">
-                    Adicionar botão
-                </Button>
+            <div className="relative">
+              <EditableTextBlock
+                initialContent={block.props?.content}
+                onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
+                variables={variables}
+                onVariableInsert={() => {}}
+                isSelected={isSelected}
+              />
+              {block.props?.multipleChoice && <div className="absolute -top-1 -left-1"><CheckSquare2 size={12} className="text-orange-400" /></div>}
             </div>
+            {(block.props?.buttons || []).map((button: any, index: number) => (
+                <Button key={index} variant="outline" className="w-full bg-[#3f3f46] border-[#52525b] text-white justify-center h-8 text-sm">
+                    {button.text}
+                </Button>
+            ))}
+            <Button variant="outline" className="w-full border-dashed border-[#52525b] text-white/50 h-8 text-sm" onClick={() => setSelectedBlockId(block.id)}>
+                Add Button
+            </Button>
           </div>
         );
       default:
