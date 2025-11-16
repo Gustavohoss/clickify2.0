@@ -114,8 +114,17 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
     const canvasRef = useRef<HTMLDivElement>(null);
     const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
     
-    const [draggingBlockId, setDraggingBlockId] = useState<number | null>(null);
-    const dragStartOffset = useRef({ x: 0, y: 0 });
+    const [draggingState, setDraggingState] = useState<{
+        blockId: number | null;
+        isDragging: boolean;
+        dragStartMouse: { x: number; y: number };
+        dragStartOffset: { x: number; y: number };
+    }>({
+        blockId: null,
+        isDragging: false,
+        dragStartMouse: { x: 0, y: 0 },
+        dragStartOffset: { x: 0, y: 0 },
+    });
     const [dropIndicator, setDropIndicator] = useState<DropIndicator>(null);
   
   
@@ -201,7 +210,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
       ],
     };
   
-    const handleMouseDown = (e: React.MouseEvent<HTMLElement>) => {
+    const handleCanvasMouseDown = (e: React.MouseEvent<HTMLElement>) => {
       // Only pan if clicking on the canvas background
       if (e.target === e.currentTarget) {
         setIsPanning(true);
@@ -212,32 +221,38 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
     };
     
     const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
-        if (draggingBlockId !== null) {
+        if (!draggingState.isDragging && draggingState.blockId) {
+            setSelectedBlockId(draggingState.blockId);
+        } else if (draggingState.isDragging && draggingState.blockId) {
             setCanvasBlocks(prevBlocks => {
                 let blocks = [...prevBlocks];
-                const draggedBlock = blocks.find(b => b.id === draggingBlockId);
+                const draggedBlock = blocks.find(b => b.id === draggingState.blockId);
                 if (!draggedBlock) return prevBlocks;
 
+                // Create a mutable copy
+                let mutableDraggedBlock = { ...draggedBlock };
+                
                 // Remove from old parent
-                if (draggedBlock.parentId) {
-                    const oldParent = blocks.find(b => b.id === draggedBlock.parentId);
-                    if (oldParent && oldParent.children) {
-                        oldParent.children = oldParent.children.filter(child => child.id !== draggingBlockId);
+                blocks = blocks.map(b => {
+                    if (b.children) {
+                        return { ...b, children: b.children.filter(c => c.id !== draggingState.blockId) };
                     }
-                }
-                // Remove from root if it was there
-                blocks = blocks.filter(b => b.id !== draggingBlockId);
+                    return b;
+                }).filter(b => b.id !== draggingState.blockId);
+
 
                 // Add to new parent (or root)
                 if (dropIndicator) {
                     const newParent = blocks.find(b => b.id === dropIndicator.groupId);
                     if (newParent && newParent.children) {
-                        const newDraggedBlock = { ...draggedBlock, parentId: newParent.id, position: { x: 0, y: 0 } };
-                        newParent.children.splice(dropIndicator.index, 0, newDraggedBlock);
+                        mutableDraggedBlock.parentId = newParent.id;
+                        mutableDraggedBlock.position = { x: 0, y: 0 }; // Reset position relative to parent
+                        newParent.children.splice(dropIndicator.index, 0, mutableDraggedBlock);
                     }
                 } else {
                      // Dropped on canvas, not in a group
-                     blocks.push({ ...draggedBlock, parentId: null });
+                     mutableDraggedBlock.parentId = null;
+                     blocks.push(mutableDraggedBlock);
                 }
                 
                 return blocks;
@@ -245,7 +260,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
         }
     
         setIsPanning(false);
-        setDraggingBlockId(null);
+        setDraggingState({ blockId: null, isDragging: false, dragStartMouse: { x: 0, y: 0 }, dragStartOffset: { x: 0, y: 0 } });
         setDropIndicator(null);
         if (canvasRef.current) {
             canvasRef.current.style.cursor = 'default';
@@ -257,7 +272,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
       // We only stop panning/dragging if the mouse button is not pressed
       if (e.buttons === 0) {
         setIsPanning(false);
-        setDraggingBlockId(null);
+        setDraggingState({ blockId: null, isDragging: false, dragStartMouse: { x: 0, y: 0 }, dragStartOffset: { x: 0, y: 0 } });
         setDropIndicator(null);
         if (canvasRef.current) {
           canvasRef.current.style.cursor = 'default';
@@ -271,58 +286,79 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
             const dy = (e.clientY - startPanPosition.current.y) / zoom;
             setPanOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
             startPanPosition.current = { x: e.clientX, y: e.clientY };
-        } else if (draggingBlockId !== null) {
-            const newX = (e.clientX / zoom) - panOffset.x - dragStartOffset.current.x;
-            const newY = (e.clientY / zoom) - panOffset.y - dragStartOffset.current.y;
-    
-            setCanvasBlocks(prevBlocks =>
-                prevBlocks.map(block =>
-                    block.id === draggingBlockId ? { ...block, position: { x: newX, y: newY } } : block
-                )
-            );
-
-            // Drop indicator logic
-            const dropX = (e.clientX / zoom) - panOffset.x;
-            const dropY = (e.clientY / zoom) - panOffset.y;
-            let foundTarget = false;
-
-            for (const block of canvasBlocks) {
-                if (block.type === 'group' && block.id !== draggingBlockId) {
-                    const groupEl = document.getElementById(`block-${block.id}`);
-                    if (!groupEl) continue;
-
-                    const groupRect = groupEl.getBoundingClientRect();
-                    const scaledDropX = dropX * zoom;
-                    const scaledDropY = dropY * zoom;
-
-                    if (
-                        scaledDropX >= groupRect.left &&
-                        scaledDropX <= groupRect.right &&
-                        scaledDropY >= groupRect.top &&
-                        scaledDropY <= groupRect.bottom
-                    ) {
-                        foundTarget = true;
-                        let newIndex = block.children?.length || 0;
-                        const childrenContainer = groupEl.querySelector('[data-children-container]');
-
-                        if (childrenContainer) {
-                           const childElements = Array.from(childrenContainer.children);
-                           for (let i = 0; i < childElements.length; i++) {
-                               const childRect = childElements[i].getBoundingClientRect();
-                               if (scaledDropY < childRect.top + childRect.height / 2) {
-                                   newIndex = i;
-                                   break;
-                               }
-                           }
-                        }
-
-                        setDropIndicator({ groupId: block.id, index: newIndex });
-                        break;
-                    }
+            return;
+        } 
+        
+        if (draggingState.blockId !== null) {
+            const dx = Math.abs(e.clientX - draggingState.dragStartMouse.x);
+            const dy = Math.abs(e.clientY - draggingState.dragStartMouse.y);
+            
+            if (!draggingState.isDragging && (dx > 5 || dy > 5)) {
+                setDraggingState(prev => ({ ...prev, isDragging: true }));
+                 if (canvasRef.current) {
+                    canvasRef.current.style.cursor = 'grabbing';
                 }
             }
-            if (!foundTarget) {
-                setDropIndicator(null);
+
+            if (draggingState.isDragging) {
+                const newX = (e.clientX / zoom) - panOffset.x - draggingState.dragStartOffset.x;
+                const newY = (e.clientY / zoom) - panOffset.y - draggingState.dragStartOffset.y;
+        
+                setCanvasBlocks(prevBlocks =>
+                    prevBlocks.map(block =>
+                        block.id === draggingState.blockId ? { ...block, position: { x: newX, y: newY } } : block
+                    )
+                );
+
+                // Drop indicator logic
+                const dropX = (e.clientX / zoom) - panOffset.x;
+                const dropY = (e.clientY / zoom) - panOffset.y;
+                let foundTarget = false;
+
+                for (const block of canvasBlocks) {
+                    if (block.type === 'group' && block.id !== draggingState.blockId) {
+                        const groupEl = document.getElementById(`block-${block.id}`);
+                        if (!groupEl) continue;
+
+                        const groupRect = groupEl.getBoundingClientRect();
+                        const canvasRect = canvasRef.current!.getBoundingClientRect();
+                        
+                        const groupLeft = (groupRect.left - canvasRect.left) / zoom + panOffset.x;
+                        const groupTop = (groupRect.top - canvasRect.top) / zoom + panOffset.y;
+                        const groupRight = groupLeft + groupRect.width / zoom;
+                        const groupBottom = groupTop + groupRect.height / zoom;
+
+
+                        if (
+                            dropX >= block.position.x &&
+                            dropX <= block.position.x + groupEl.offsetWidth &&
+                            dropY >= block.position.y &&
+                            dropY <= block.position.y + groupEl.offsetHeight
+                        ) {
+                            foundTarget = true;
+                            let newIndex = block.children?.length || 0;
+                            const childrenContainer = groupEl.querySelector('[data-children-container]');
+
+                            if (childrenContainer) {
+                               const childElements = Array.from(childrenContainer.children);
+                               for (let i = 0; i < childElements.length; i++) {
+                                   const childRect = childElements[i].getBoundingClientRect();
+                                    const childTop = (childRect.top - canvasRect.top) / zoom + panOffset.y;
+                                   if (dropY < childTop + (childRect.height/zoom) / 2) {
+                                       newIndex = i;
+                                       break;
+                                   }
+                               }
+                            }
+
+                            setDropIndicator({ groupId: block.id, index: newIndex });
+                            break;
+                        }
+                    }
+                }
+                if (!foundTarget) {
+                    setDropIndicator(null);
+                }
             }
         }
     };
@@ -333,44 +369,43 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
         
         let draggedBlock = { ...block };
         if (block.parentId) {
-            setCanvasBlocks(prevBlocks => {
+             setCanvasBlocks(prevBlocks => {
                 const newBlocks = [...prevBlocks];
                 const parent = newBlocks.find(b => b.id === block.parentId);
                 if (parent && parent.children) {
-                    const childIndex = parent.children.findIndex(c => c.id === block.id);
-                    if (childIndex > -1) {
-                         const childRect = document.getElementById(`block-${block.id}`)?.getBoundingClientRect();
-                         const parentRect = document.getElementById(`block-${parent.id}`)?.getBoundingClientRect();
-
-                         if (childRect && parentRect) {
-                            const absolutePosition = {
-                                x: (parentRect.left / zoom) - panOffset.x + (childRect.left - parentRect.left) / zoom,
-                                y: (parentRect.top / zoom) - panOffset.y + (childRect.top - parentRect.top) / zoom,
-                            };
-                            
-                            draggedBlock = { ...block, parentId: null, position: absolutePosition };
-                            parent.children.splice(childIndex, 1);
-                            newBlocks.push(draggedBlock);
-                         }
+                    const childRect = document.getElementById(`block-${block.id}`)?.getBoundingClientRect();
+                    const canvasRect = canvasRef.current!.getBoundingClientRect();
+                    
+                    if (childRect && canvasRect) {
+                        const absolutePosition = {
+                            x: (childRect.left - canvasRect.left) / zoom - panOffset.x,
+                            y: (childRect.top - canvasRect.top) / zoom - panOffset.y,
+                        };
+                        
+                        draggedBlock = { ...block, parentId: null, position: absolutePosition };
+                        
+                        // Temporarily remove from children array for visual feedback
+                        parent.children = parent.children.filter(c => c.id !== block.id);
+                        
+                        newBlocks.push(draggedBlock);
                     }
                 }
                 return newBlocks;
             });
         } 
 
-        setDraggingBlockId(draggedBlock.id);
-        setSelectedBlockId(draggedBlock.id);
         const startX = (e.clientX / zoom) - panOffset.x;
         const startY = (e.clientY / zoom) - panOffset.y;
-        dragStartOffset.current = {
-            x: startX - draggedBlock.position.x,
-            y: startY - draggedBlock.position.y,
-        };
-        
-    
-        if (canvasRef.current) {
-            canvasRef.current.style.cursor = 'grabbing';
-        }
+
+        setDraggingState({
+            blockId: draggedBlock.id,
+            isDragging: false,
+            dragStartMouse: { x: e.clientX, y: e.clientY },
+            dragStartOffset: {
+                x: startX - draggedBlock.position.x,
+                y: startY - draggedBlock.position.y,
+            }
+        });
     };
   
   
@@ -448,7 +483,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
               backgroundImage: 'radial-gradient(#3f3f46 1px, transparent 1px)',
               backgroundSize: '20px 20px',
             }}
-            onMouseDown={handleMouseDown}
+            onMouseDown={handleCanvasMouseDown}
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
@@ -499,7 +534,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
                   <BlockComponent
                     key={block.id}
                     block={block}
-                    onMouseDown={handleBlockMouseDown}
+                    onBlockMouseDown={handleBlockMouseDown}
                     onDuplicate={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       duplicateBlock(block.id);
@@ -510,6 +545,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
                     }}
                     isSelected={selectedBlockId === block.id}
                     dropIndicator={dropIndicator}
+                    allBlocks={canvasBlocks}
                   />
                 );
               })}
@@ -523,18 +559,20 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
   
   const CanvasGroupBlock = ({
     block,
-    onMouseDown,
+    onBlockMouseDown,
     onDuplicate,
     onDelete,
     isSelected,
     dropIndicator,
+    allBlocks,
   }: {
     block: CanvasBlock;
-    onMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
+    onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
     onDuplicate: (e: React.MouseEvent) => void;
     onDelete: (e: React.MouseEvent) => void;
     isSelected: boolean;
     dropIndicator: DropIndicator;
+    allBlocks: CanvasBlock[];
   }) => (
     <div
       id={`block-${block.id}`}
@@ -542,7 +580,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
       style={{
         transform: `translate(${block.position.x}px, ${block.position.y}px)`,
       }}
-      onMouseDown={(e) => onMouseDown(e, block)}
+      onMouseDown={(e) => onBlockMouseDown(e, block)}
     >
       <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
         <Button
@@ -576,12 +614,12 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
       <div className={cn("w-72 rounded-lg bg-[#262626] p-3 space-y-2", isSelected && "ring-2 ring-orange-500")}>
         <div className="text-sm font-medium">Group #{block.id.toString().slice(-2)}</div>
         <div data-children-container className="min-h-[50px] rounded-md border border-dashed border-white/20 p-2 space-y-2">
-            {block.children?.map((child, index) => (
+            {(block.children || []).map((child, index) => (
                 <React.Fragment key={child.id}>
                     {dropIndicator?.groupId === block.id && dropIndicator.index === index && <DropPlaceholder />}
                     <CanvasTextBlock
                         block={child}
-                        onMouseDown={(e, b) => onMouseDown(e,b)}
+                        onBlockMouseDown={(e, b) => onBlockMouseDown(e,b)}
                         onDuplicate={(e) => { e.stopPropagation(); /* Not implemented for children */}}
                         onDelete={(e) => {
                           e.stopPropagation();
@@ -589,6 +627,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
                         }}
                         isSelected={false} // Children probably don't get selected in the same way
                         isChild={true}
+                        allBlocks={allBlocks}
                     />
                 </React.Fragment>
             ))}
@@ -601,18 +640,19 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
 
  const CanvasTextBlock = ({
       block,
-      onMouseDown,
+      onBlockMouseDown,
       onDuplicate,
       onDelete,
       isSelected,
       isChild = false,
     }: {
       block: CanvasBlock;
-      onMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
+      onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
       onDuplicate: (e: React.MouseEvent) => void;
       onDelete: (e: React.MouseEvent) => void;
       isSelected: boolean;
       isChild?: boolean;
+      allBlocks: CanvasBlock[];
       dropIndicator?: DropIndicator;
     }) => (
         <div
@@ -624,7 +664,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
             style={!isChild ? {
                 transform: `translate(${block.position.x}px, ${block.position.y}px)`,
             } : {}}
-            onMouseDown={(e) => onMouseDown(e, block)}
+            onMouseDown={(e) => onBlockMouseDown(e, block)}
         >
             {!isChild && (
                 <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -674,7 +714,7 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
                 )}
                 
                 {isSelected && !isChild ? (
-                    <div className="rounded-md border-2 border-orange-500">
+                    <div className="rounded-md border-2 border-orange-500 bg-[#181818]">
                         <div className="flex items-center justify-between border-b border-orange-500/50 p-2">
                             <span className="text-xs text-white/70">Texto</span>
                             <button className="rounded bg-black/30 p-1 hover:bg-black/50">
