@@ -111,7 +111,7 @@ type DropIndicator = {
     index: number;
   } | null;
 
-  const ImageBlockSettings = ({ block, onUpdate }: { block: CanvasBlock; onUpdate: (id: number, props: any) => void }) => {
+  const ImageBlockSettings = ({ block, onUpdate, position }: { block: CanvasBlock; onUpdate: (id: number, props: any) => void; position: { x: number, y: number } }) => {
     const [imageUrl, setImageUrl] = useState(block.props?.imageUrl || '');
     const [onClickLink, setOnClickLink] = useState(block.props?.onClickLink || false);
   
@@ -129,8 +129,8 @@ type DropIndicator = {
       <div
         className="absolute w-72 rounded-lg bg-[#262626] p-3 shadow-lg"
         style={{
-          left: `${block.position.x + 300}px`,
-          top: `${block.position.y}px`,
+            left: `${position.x + 300}px`,
+            top: `${position.y}px`,
         }}
         onMouseDown={(e) => e.stopPropagation()}
       >
@@ -255,12 +255,13 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
           }
       
           // It's a child block, find its parent and remove it
+          let groupBecameEmpty = false;
           const newBlocks = prev.map(parent => {
             if (parent.children) {
               const newChildren = parent.children.filter(child => child.id !== blockId);
-              // If the group becomes empty, remove the group
-              if (parent.children.length > 0 && newChildren.length === 0) {
-                return null;
+               if (parent.children.length > 0 && newChildren.length === 0) {
+                groupBecameEmpty = true;
+                return null; // This group will be removed
               }
               return { ...parent, children: newChildren };
             }
@@ -405,11 +406,23 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         if (draggingState.isDragging && draggingState.originalBlock && draggingState.blockId) {
             
             setCanvasBlocks(prevBlocks => {
+                const blockExists = prevBlocks.some(b => {
+                    if (b.id === draggingState.originalBlock!.id) return true;
+                    if (b.children) {
+                        return b.children.some(c => c.id === draggingState.originalBlock!.id);
+                    }
+                    return false;
+                });
+
+                if (blockExists) {
+                    return prevBlocks.filter(b => b.id !== draggingState.blockId);
+                }
+
                 let newBlocks = [...prevBlocks];
                 const currentlyDraggedBlockIndex = newBlocks.findIndex(b => b.id === draggingState.blockId);
 
                 if (currentlyDraggedBlockIndex > -1) {
-                    newBlocks.splice(currentlyDraggedBlockIndex, 1);
+                     newBlocks.splice(currentlyDraggedBlockIndex, 1);
                 }
                 
                 const originalParentIndex = newBlocks.findIndex(p => p.id === draggingState.originalBlock!.parentId);
@@ -426,7 +439,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                     }
                 }
 
-                return newBlocks;
+                return newBlocks.filter(b => b.id !== draggingState.blockId);
             });
         }
 
@@ -465,43 +478,51 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         
                 const groupRect = groupElement.getBoundingClientRect();
                 const childElement = document.getElementById(`block-${draggingState.originalBlock.id}`);
-                const childRect = childElement?.getBoundingClientRect();
-        
+                if (!childElement) return;
+                const childRect = childElement.getBoundingClientRect();
+                
+                const relativeChildX = (childRect.left - groupRect.left) / zoom;
+                const relativeChildY = (childRect.top - groupRect.top) / zoom;
+
                 const newBlockId = Date.now();
+
                 const detachedBlock: CanvasBlock = {
                   ...draggingState.originalBlock,
                   id: newBlockId,
                   parentId: undefined,
                   position: {
-                    x: ((childRect?.left || groupRect.left) - canvasRect.left) / zoom,
-                    y: ((childRect?.top || groupRect.top) - canvasRect.top) / zoom,
+                    x: (groupRect.left - canvasRect.left + panOffset.x) / zoom + relativeChildX,
+                    y: (groupRect.top - canvasRect.top + panOffset.y) / zoom + relativeChildY,
                   },
                 };
-        
-                setDraggingState(prev => ({
-                  ...prev,
-                  blockId: newBlockId,
-                  dragStartOffset: {
-                    x: (e.clientX - (childRect?.left || groupRect.left)) / zoom,
-                    y: (e.clientY - (childRect?.top || groupRect.top)) / zoom,
-                  },
-                }));
-        
+
+                 const parentGroup = canvasBlocks.find(p => p.id === draggingState.originalBlock!.parentId);
+                 const groupIsNowEmpty = parentGroup?.children?.length === 1;
+
                 setCanvasBlocks(prevBlocks => [
                   ...prevBlocks.map(p =>
                     p.id === draggingState.originalBlock!.parentId
                       ? { ...p, children: p.children?.filter(c => c.id !== draggingState.originalBlock!.id) }
                       : p
-                  ),
+                  ).filter(p => !(p.id === draggingState.originalBlock!.parentId && groupIsNowEmpty)),
                   detachedBlock,
                 ]);
+
+                setDraggingState(prev => ({
+                    ...prev,
+                    blockId: newBlockId,
+                    dragStartOffset: {
+                      x: (e.clientX - childRect.left) / zoom,
+                      y: (e.clientY - childRect.top) / zoom,
+                    },
+                }));
               }
             }
           }
 
         if (draggingState.isDragging && draggingState.blockId && canvasRef.current) {
-            const newX = (e.clientX - canvasRect.left) / zoom - draggingState.dragStartOffset.x;
-            const newY = (e.clientY - canvasRect.top) / zoom - draggingState.dragStartOffset.y;
+            const newX = (e.clientX - canvasRect.left - panOffset.x) / zoom - draggingState.dragStartOffset.x;
+            const newY = (e.clientY - canvasRect.top - panOffset.y) / zoom - draggingState.dragStartOffset.y;
 
             setCanvasBlocks(prevBlocks =>
                 prevBlocks.map(block =>
@@ -536,22 +557,17 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         
                   if (childrenContainer) {
                     const childElements = Array.from(childrenContainer.children) as HTMLElement[];
-                    let isPlaced = false;
                     for (let i = 0; i < childElements.length; i++) {
                       const childEl = childElements[i];
                       if(childEl.dataset.testid === 'drop-placeholder') continue;
                       const childRect = childEl.getBoundingClientRect();
                       const childTopInCanvas = (childRect.top - canvasRect.top) / zoom;
-                      const dropZoneMidpoint = childTopInCanvas + (childRect.height / zoom) / 2;
+                      const dropZoneMidpoint = childTopInCanvas + (childRect.height / zoom) / 2 + 5;
         
                       if (dropY < dropZoneMidpoint) {
                         newIndex = i;
-                        isPlaced = true;
                         break;
                       }
-                    }
-                     if (!isPlaced) {
-                        newIndex = childElements.filter(el => el.dataset.testid !== 'drop-placeholder').length;
                     }
                   }
                   setDropIndicator({ groupId: block.id, index: newIndex });
@@ -585,8 +601,8 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
             const childRect = childElement.getBoundingClientRect();
 
             positionOnCanvas = {
-                x: (childRect.left - canvasRect.left - panOffset.x) / zoom,
-                y: (childRect.top - canvasRect.top - panOffset.y) / zoom
+                x: (childRect.left - canvasRect.left) / zoom,
+                y: (childRect.top - canvasRect.top) / zoom
             };
         }
         
@@ -615,6 +631,21 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
       </Button>
     );
     const selectedBlock = canvasBlocks.find(b => b.id === selectedBlockId) || canvasBlocks.flatMap(b => b.children || []).find(c => c.id === selectedBlockId);
+
+    const getSelectedBlockPosition = () => {
+        if (!selectedBlock || !canvasRef.current) return { x: 0, y: 0 };
+    
+        const blockElement = document.getElementById(`block-${selectedBlock.id}`);
+        if (!blockElement) return { x: 0, y: 0 };
+    
+        const blockRect = blockElement.getBoundingClientRect();
+        const canvasRect = canvasRef.current.getBoundingClientRect();
+    
+        return {
+          x: (blockRect.left - canvasRect.left) / zoom,
+          y: (blockRect.top - canvasRect.top) / zoom,
+        };
+      };
 
     return (
       <div className="flex h-screen w-full flex-col bg-[#111111] text-white">
@@ -709,7 +740,6 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                style={{
                   transform: `scale(${zoom})`,
                   transformOrigin: 'top left',
-                  backgroundPosition: `${panOffset.x}px ${panOffset.y}px`
                }}
             >
              <div
@@ -725,7 +755,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
               {/* Static Start Node */}
               <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-lg bg-[#262626] px-3 py-2"
                   style={{
-                      transform: `translate(-50%, -50%) translate(-200px, 0px)`
+                      transform: `translate(${panOffset.x}px, ${panOffset.y}px) translate(-200px, 0px)`
                   }}
               >
                   <PlaySquare size={16} className="text-white/60" />
@@ -761,7 +791,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                 );
               })}
                 {selectedBlock && selectedBlock.type === 'image' && (
-                    <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} />
+                    <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={getSelectedBlockPosition()} />
                 )}
               </div>
             </div>
