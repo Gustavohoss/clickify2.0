@@ -31,8 +31,12 @@ const menuTypes = [
     { value: 'dashboard', label: 'Dashboard', icon: '📊' },
     { value: 'courses', label: 'Cursos', icon: '📚' },
     { value: 'community', label: 'Comunidade', icon: '👥' },
-    { value: 'support', label: 'Suporte', icon: '❓' },
+    { value: 'support', label: 'Suporte', icon: '🎧' },
     { value: 'favorites', label: 'Favoritos', icon: '⭐' },
+    { value: 'premium', label: 'Premium', icon: '👑' },
+    { value: 'ads', label: 'Anúncios', icon: '📢' },
+    { value: 'analytics', label: 'Analytics', icon: '📈' },
+    { value: 'resources', label: 'Recursos', icon: '📁' },
 ];
 
 type MenuItem = {
