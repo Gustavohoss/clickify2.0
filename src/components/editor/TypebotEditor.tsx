@@ -248,26 +248,18 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
   
     const deleteBlock = (blockId: number) => {
         setCanvasBlocks(prev => {
-          // Check if it's a root block to be deleted
-          const isRootBlock = prev.some(b => b.id === blockId);
-          if (isRootBlock) {
-            return prev.filter(b => b.id !== blockId);
-          }
-      
-          // It's a child block, find its parent and remove it
           const newBlocks = prev.map(parent => {
-            if (parent.children) {
+              if (!parent.children) return parent;
               const newChildren = parent.children.filter(child => child.id !== blockId);
-               if (parent.children.length > 0 && newChildren.length === 0) {
-                // If the group becomes empty, remove the group itself
-                return null;
+              if (newChildren.length === 0) {
+                  // If the group becomes empty, filter out the group itself
+                  return null;
               }
               return { ...parent, children: newChildren };
-            }
-            return parent;
-          }).filter(Boolean) as CanvasBlock[];
-      
-          return newBlocks;
+          }).filter(b => b !== null) as CanvasBlock[];
+
+          // Also handle deletion of top-level blocks
+          return newBlocks.filter(b => b.id !== blockId);
         });
       
         if (selectedBlockId === blockId) {
@@ -472,46 +464,42 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                 }
           
                 if (draggingState.originalBlock?.parentId && canvasRef.current) {
-                  const groupElement = document.getElementById(`block-${draggingState.originalBlock.parentId}`);
-                  if (!groupElement) return;
+                    const parentGroup = canvasBlocks.find(p => p.id === draggingState.originalBlock!.parentId);
+                    if (!parentGroup) return;
           
-                  const groupRect = groupElement.getBoundingClientRect();
-                  const childElement = document.getElementById(`block-${draggingState.originalBlock.id}`);
-                  if (!childElement) return;
-                  const childRect = childElement.getBoundingClientRect();
-                  
-                  const newBlockId = Date.now();
+                    const groupRect = document.getElementById(`block-${parentGroup.id}`)!.getBoundingClientRect();
+                    const childRect = document.getElementById(`block-${draggingState.originalBlock.id}`)!.getBoundingClientRect();
+                    const newBlockId = Date.now();
   
-                  const detachedBlock: CanvasBlock = {
-                    ...draggingState.originalBlock,
-                    id: newBlockId,
-                    parentId: undefined,
-                    position: {
-                      x: (childRect.left - canvasRect.left + panOffset.x) / zoom,
-                      y: (childRect.top - canvasRect.top + panOffset.y) / zoom,
-                    },
-                  };
+                    const detachedBlock: CanvasBlock = {
+                        ...draggingState.originalBlock,
+                        id: newBlockId,
+                        parentId: undefined,
+                        position: {
+                            x: parentGroup.position.x + (childRect.left - groupRect.left) / zoom,
+                            y: parentGroup.position.y + (childRect.top - groupRect.top) / zoom,
+                        },
+                    };
+                    
+                    const groupIsNowEmpty = parentGroup.children?.length === 1;
 
-                  const parentGroup = canvasBlocks.find(p => p.id === draggingState.originalBlock!.parentId);
-                  const groupIsNowEmpty = parentGroup?.children?.length === 1;
-
-                  setCanvasBlocks(prevBlocks => [
-                    ...prevBlocks.map(p =>
-                        p.id === draggingState.originalBlock!.parentId
-                        ? { ...p, children: p.children?.filter(c => c.id !== draggingState.originalBlock!.id) }
-                        : p
-                    ).filter(p => !(p.id === draggingState.originalBlock!.parentId && groupIsNowEmpty)),
-                    detachedBlock,
-                  ]);
-  
-                  setDraggingState(prev => ({
-                      ...prev,
-                      blockId: newBlockId,
-                      dragStartOffset: {
-                        x: (e.clientX - childRect.left) / zoom,
-                        y: (e.clientY - childRect.top) / zoom,
-                      },
-                  }));
+                    setCanvasBlocks(prevBlocks => [
+                        ...prevBlocks.map(p =>
+                            p.id === draggingState.originalBlock!.parentId
+                            ? { ...p, children: p.children?.filter(c => c.id !== draggingState.originalBlock!.id) }
+                            : p
+                        ).filter(p => !(p.id === draggingState.originalBlock!.parentId && groupIsNowEmpty)),
+                        detachedBlock,
+                      ]);
+    
+                    setDraggingState(prev => ({
+                        ...prev,
+                        blockId: newBlockId,
+                        dragStartOffset: {
+                          x: (e.clientX - childRect.left) / zoom,
+                          y: (e.clientY - childRect.top) / zoom,
+                        },
+                    }));
                 }
               }
           }
@@ -582,17 +570,30 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
         e.stopPropagation();
         
         if (!canvasRef.current) return;
+
+        const blockToDrag = findBlock(block.id);
+        if (!blockToDrag) return;
+
+        let dragStartOffset;
+
+        if(blockToDrag.parentId) {
+            const parent = findBlock(blockToDrag.parentId);
+            if (!parent) return;
+            dragStartOffset = { x: 0, y: 0 }; // Will be recalculated on drag start
+        } else {
+             dragStartOffset = {
+                x: (e.clientX - canvasRef.current.getBoundingClientRect().left) / zoom - blockToDrag.position.x - (panOffset.x / zoom),
+                y: (e.clientY - canvasRef.current.getBoundingClientRect().top) / zoom - blockToDrag.position.y - (panOffset.y / zoom)
+            };
+        }
     
         setDraggingState({
             blockId: block.id,
             isDragging: false,
             isReadyToDrag: true,
             dragStartMouse: { x: e.clientX, y: e.clientY },
-            dragStartOffset: {
-                x: (e.clientX - canvasRef.current.getBoundingClientRect().left) / zoom - block.position.x - panOffset.x,
-                y: (e.clientY - canvasRef.current.getBoundingClientRect().top) / zoom - block.position.y - panOffset.y,
-            },
-            originalBlock: JSON.parse(JSON.stringify(block))
+            dragStartOffset: dragStartOffset,
+            originalBlock: JSON.parse(JSON.stringify(blockToDrag))
         });
     };
     
@@ -913,7 +914,7 @@ export const TypebotEditor = ({ funnel, setFunnel, debouncedUpdateFunnel }: { fu
                 <img
                   src={block.props.imageUrl}
                   alt="User provided content"
-                  className="max-h-24 w-full object-contain rounded-md"
+                  className="max-w-full h-auto object-contain rounded-md"
                 />
               );
             }
