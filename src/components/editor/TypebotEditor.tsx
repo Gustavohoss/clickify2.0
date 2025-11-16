@@ -401,7 +401,6 @@ const CanvasTextBlock = ({
   );
 };
 
-
 type DropIndicator = {
   groupId: number;
   index: number;
@@ -682,10 +681,16 @@ export function TypebotEditor({
   const handleContextMenu = (e: React.MouseEvent, block: CanvasBlock) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!canvasRef.current) return;
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const x = (e.clientX - canvasRect.left);
+    const y = (e.clientY - canvasRect.top);
+
     setContextMenu({
       visible: true,
-      x: e.clientX,
-      y: e.clientY,
+      x: x,
+      y: y,
       blockId: block.id,
     });
   };
@@ -744,9 +749,11 @@ export function TypebotEditor({
 
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLElement>) => {
     if (e.target === e.currentTarget) {
-      setIsPanning(true);
-      startPanPosition.current = { x: e.clientX, y: e.clientY };
-      e.currentTarget.style.cursor = 'grabbing';
+      if (e.button === 0) { // Left click to pan
+        setIsPanning(true);
+        startPanPosition.current = { x: e.clientX, y: e.clientY };
+        e.currentTarget.style.cursor = 'grabbing';
+      }
       setSelectedBlockId(null);
       setContextMenu({ ...contextMenu, visible: false });
     }
@@ -1136,53 +1143,55 @@ export function TypebotEditor({
           <div
             className="relative h-full w-full"
             style={{
-              transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
+              transform: `scale(${zoom})`,
               transformOrigin: 'top left',
             }}
           >
-            {/* Static Start Node */}
-            <div
-              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-lg bg-[#262626] px-3 py-2"
-              style={{
-                transform: `translate(-200px, 0px)`,
-              }}
-            >
-              <PlaySquare size={16} className="text-white/60" />
-              <span className="text-sm font-medium">Start</span>
-              <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
-            </div>
+            <div className="absolute" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}>
+                {/* Static Start Node */}
+                <div
+                className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-lg bg-[#262626] px-3 py-2"
+                style={{
+                    transform: `translate(-200px, 0px)`,
+                }}
+                >
+                <PlaySquare size={16} className="text-white/60" />
+                <span className="text-sm font-medium">Start</span>
+                <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
+                </div>
 
-            {/* Dynamically Rendered Blocks */}
-            {canvasBlocks
-              .filter((b) => !b.parentId)
-              .map((block, index) => {
-                const BlockComponent = block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
-                const groupIndex = canvasBlocks.filter((b) => b.type === 'group' && !b.parentId).findIndex((g) => g.id === block.id);
-                return (
-                  <BlockComponent
-                    key={block.id}
-                    block={block}
-                    groupIndex={groupIndex}
-                    onBlockMouseDown={handleBlockMouseDown}
-                    onDuplicate={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      duplicateBlock(block.id);
-                    }}
-                    onDelete={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      deleteBlock(block.id);
-                    }}
-                    onContextMenu={handleContextMenu}
-                    isSelected={selectedBlockId === block.id}
-                    setSelectedBlockId={setSelectedBlockId}
-                    dropIndicator={dropIndicator}
-                    allBlocks={canvasBlocks}
-                    deleteBlock={deleteBlock}
-                    selectedBlockId={selectedBlockId}
-                    updateBlockProps={updateBlockProps}
-                  />
-                );
-              })}
+                {/* Dynamically Rendered Blocks */}
+                {canvasBlocks
+                .filter((b) => !b.parentId)
+                .map((block, index) => {
+                    const BlockComponent = block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
+                    const groupIndex = canvasBlocks.filter((b) => b.type === 'group' && !b.parentId).findIndex((g) => g.id === block.id);
+                    return (
+                    <BlockComponent
+                        key={block.id}
+                        block={block}
+                        groupIndex={groupIndex}
+                        onBlockMouseDown={handleBlockMouseDown}
+                        onDuplicate={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        duplicateBlock(block.id);
+                        }}
+                        onDelete={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        deleteBlock(block.id);
+                        }}
+                        onContextMenu={handleContextMenu}
+                        isSelected={selectedBlockId === block.id}
+                        setSelectedBlockId={setSelectedBlockId}
+                        dropIndicator={dropIndicator}
+                        allBlocks={canvasBlocks}
+                        deleteBlock={deleteBlock}
+                        selectedBlockId={selectedBlockId}
+                        updateBlockProps={updateBlockProps}
+                    />
+                    );
+                })}
+            </div>
             {selectedBlock && selectedBlock.type === 'image' && <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {contextMenu.visible && (
