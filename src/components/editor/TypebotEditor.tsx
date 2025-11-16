@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -581,6 +582,7 @@ export const TypebotEditor = ({
         y: blockToDuplicate.position.y + 20,
       },
       children: blockToDuplicate.children ? [] : undefined, // Don't duplicate children for now
+      props: {},
     };
     setCanvasBlocks((prev) => [...prev, newBlock]);
   };
@@ -688,6 +690,7 @@ export const TypebotEditor = ({
             id: draggedBlock.id,
             parentId: targetGroup.id,
             position: { x: 0, y: 0 },
+            props: draggedBlock.props,
           };
           const newChildren = [...(targetGroup.children || [])];
           newChildren.splice(dropIndicator.index, 0, blockToInsert);
@@ -699,7 +702,7 @@ export const TypebotEditor = ({
         if (draggedBlock.type !== 'group') {
           isDroppedOnTarget = true;
           const newGroupId = Date.now();
-          const blockToMove: CanvasBlock = { ...draggingState.originalBlock, id: draggedBlock.id, parentId: newGroupId, position: { x: 0, y: 0 } };
+          const blockToMove: CanvasBlock = { ...draggingState.originalBlock, id: draggedBlock.id, parentId: newGroupId, position: { x: 0, y: 0 }, props: draggedBlock.props };
           const newGroup: CanvasBlock = {
             id: newGroupId,
             type: 'group',
@@ -813,6 +816,7 @@ export const TypebotEditor = ({
                     x: parentGroup.position.x + (e.clientX - canvasRect.left - panOffset.x) / zoom - draggingState.dragStartOffset.x,
                     y: parentGroup.position.y + (e.clientY - canvasRect.top - panOffset.y) / zoom - draggingState.dragStartOffset.y,
                 },
+                props: draggingState.originalBlock.props,
             };
 
             const groupIsNowEmpty = parentGroup.children?.length === 1;
