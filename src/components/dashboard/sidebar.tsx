@@ -10,6 +10,7 @@ import {
   BarChart,
   Settings,
   LogOut,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/landing/logo';
@@ -19,6 +20,7 @@ import { useAuth } from '@/firebase';
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/produtos', label: 'Produtos', icon: ShoppingBag },
+  { href: '/dashboard/entregaveis', label: 'Entregáveis', icon: Package },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
   { href: '/dashboard/social', label: 'Social', icon: Users },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart },
