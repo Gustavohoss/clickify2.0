@@ -39,6 +39,7 @@ const PlatformIcon = ({ platform }: { platform: string }) => {
 
 export function AdCard({ ad }: AdCardProps) {
     const formatDate = (dateString: string) => {
+        if (!dateString) return 'Data não disponível';
         return new Date(dateString).toLocaleDateString('pt-BR', {
           day: '2-digit',
           month: '2-digit',
@@ -52,7 +53,7 @@ export function AdCard({ ad }: AdCardProps) {
     <Card className="flex flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
       <CardHeader className="p-4">
         <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-bold truncate">{ad.page_name}</CardTitle>
+            <CardTitle className="text-base font-bold truncate">{ad.page_name || 'Página desconhecida'}</CardTitle>
             <div className="flex items-center gap-2">
             {ad.publisher_platforms?.map((platform) => (
                 <Badge key={platform} variant="secondary" className="gap-1 capitalize">

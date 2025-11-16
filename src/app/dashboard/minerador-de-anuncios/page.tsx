@@ -47,6 +47,7 @@ export default function MineradorDeAnunciosPage() {
       const data = await response.json();
       
       if (!response.ok) {
+        // Agora o erro da API será exibido corretamente
         throw new Error(data.error?.message || 'Ocorreu um erro ao buscar os anúncios.');
       }
 
@@ -59,6 +60,7 @@ export default function MineradorDeAnunciosPage() {
 
     } catch (err: any) {
       setError(err.message || 'Falha ao conectar com a API. Verifique a rota da API e a conexão.');
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -112,11 +114,20 @@ export default function MineradorDeAnunciosPage() {
         </div>
       )}
 
-      {nextPageUrl && (
+      {nextPageUrl && !isLoading && (
         <div className="text-center mt-8">
             <Button onClick={() => handleSearch(false)} disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Carregar Mais'}
             </Button>
+        </div>
+      )}
+      
+      {isLoading && nextPageUrl && (
+        <div className="text-center mt-8">
+          <Button disabled={true}>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Carregando...
+          </Button>
         </div>
       )}
     </div>
