@@ -7,7 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { File, Sparkles } from 'lucide-react';
+import { File, Sparkles, BookCopy, Folder } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 export default function NovaAreaDeMembrosPage() {
   const router = useRouter();
@@ -18,6 +20,14 @@ export default function NovaAreaDeMembrosPage() {
     // Lógica para salvar e ir para a próxima etapa
     console.log({ workspaceName, description });
     // router.push('/dashboard/area-de-membros/novo/passo-2');
+  };
+
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[\s-]+/g, '-');
   };
 
   return (
@@ -108,9 +118,10 @@ export default function NovaAreaDeMembrosPage() {
               onChange={(e) => setWorkspaceName(e.target.value)}
               maxLength={32}
             />
-            <p className="text-xs text-muted-foreground text-right">
-              {workspaceName.length}/32 caracteres
-            </p>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span className="text-green-400">cakto.com/{generateSlug(workspaceName)}</span>
+              <span>{workspaceName.length}/32 caracteres</span>
+            </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -133,6 +144,33 @@ export default function NovaAreaDeMembrosPage() {
              <p className="text-xs text-muted-foreground text-right">
               {description.length}/500 caracteres
             </p>
+          </div>
+
+          <div className="space-y-4">
+             <div className="flex items-center gap-2">
+              <BookCopy className="h-5 w-5" />
+              <h3 className="text-base font-semibold">
+                Preview do workspace
+              </h3>
+            </div>
+            <Card className="bg-card/50 p-6">
+                <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Folder className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                        <h4 className={cn("font-bold text-lg", !workspaceName && 'text-muted-foreground/50')}>
+                            {workspaceName || 'Curso 01'}
+                        </h4>
+                        <p className={cn("mt-1 text-sm text-muted-foreground", !description && 'italic')}>
+                            {description || 'Ola esse e meu curso'}
+                        </p>
+                        <p className="mt-4 text-xs text-green-400">
+                          cakto.com/{generateSlug(workspaceName)}
+                        </p>
+                    </div>
+                </div>
+            </Card>
           </div>
         </div>
 
