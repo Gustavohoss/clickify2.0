@@ -761,17 +761,19 @@ export function TypebotEditor({
 
   const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
     if (draggingState.isDragging && draggingState.blockId !== null && draggingState.originalBlock) {
-      const draggedBlock = canvasBlocks.find((b) => b.id === draggingState.blockId);
+      const draggedBlock = findBlock(draggingState.blockId);
       if (!draggedBlock) return;
-
+  
       let isDroppedOnTarget = false;
       let updatedBlocks = [...canvasBlocks];
-
+  
       if (dropIndicator) {
         isDroppedOnTarget = true;
         const targetGroupIndex = updatedBlocks.findIndex((b) => b.id === dropIndicator.groupId);
+  
         if (targetGroupIndex > -1) {
           const targetGroup = { ...updatedBlocks[targetGroupIndex] };
+          
           const blockToInsert: CanvasBlock = {
             ...draggingState.originalBlock,
             id: draggedBlock.id,
@@ -779,9 +781,11 @@ export function TypebotEditor({
             position: { x: 0, y: 0 },
             props: draggedBlock.props,
           };
+          
           const newChildren = [...(targetGroup.children || [])];
           newChildren.splice(dropIndicator.index, 0, blockToInsert);
           targetGroup.children = newChildren;
+          
           updatedBlocks[targetGroupIndex] = targetGroup;
           updatedBlocks = updatedBlocks.filter((b) => b.id !== draggedBlock.id);
         }
@@ -789,7 +793,13 @@ export function TypebotEditor({
         if (draggedBlock.type !== 'group') {
           isDroppedOnTarget = true;
           const newGroupId = Date.now();
-          const blockToMove: CanvasBlock = { ...draggingState.originalBlock, id: draggedBlock.id, parentId: newGroupId, position: { x: 0, y: 0 }, props: draggedBlock.props };
+          const blockToMove: CanvasBlock = {
+            ...draggingState.originalBlock,
+            id: draggedBlock.id,
+            parentId: newGroupId,
+            position: { x: 0, y: 0 },
+            props: draggedBlock.props
+          };
           const newGroup: CanvasBlock = {
             id: newGroupId,
             type: 'group',
@@ -801,14 +811,14 @@ export function TypebotEditor({
           updatedBlocks.push(newGroup);
         }
       }
-
+  
       if (isDroppedOnTarget) {
         setCanvasBlocks(updatedBlocks);
       }
     } else if (!draggingState.isDragging && draggingState.blockId && e.button === 0) {
       setSelectedBlockId(draggingState.blockId);
     }
-
+  
     setIsPanning(false);
     setDraggingState({ blockId: null, isDragging: false, dragStartMouse: { x: 0, y: 0 }, dragStartOffset: { x: 0, y: 0 }, originalBlock: null, isReadyToDrag: false });
     setDropIndicator(null);
@@ -816,48 +826,39 @@ export function TypebotEditor({
       canvasRef.current.style.cursor = 'default';
     }
   };
-
+  
   const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
     if (isPanning || draggingState.isDragging) {
       setIsPanning(false);
 
       if (draggingState.isDragging && draggingState.originalBlock && draggingState.blockId) {
-        setCanvasBlocks((prevBlocks) => {
-          const blockExists = prevBlocks.some((b) => {
-            if (b.id === draggingState.originalBlock!.id) return true;
-            if (b.children) {
-              return b.children.some((c) => c.id === draggingState.originalBlock!.id);
-            }
-            return false;
-          });
+        // Find if the block being dragged exists in the current state, if not, it means it was a child that was detached
+        const currentDraggedBlock = findBlock(draggingState.blockId);
+        
+        // Restore the original block if it was detached from a parent but not dropped in a new valid target
+        if (!currentDraggedBlock) {
+             setCanvasBlocks(prevBlocks => {
+                let restoredBlocks = [...prevBlocks];
+                
+                // Find and remove the temporary top-level block if it exists
+                restoredBlocks = restoredBlocks.filter(b => b.id !== draggingState.blockId);
 
-          if (blockExists) {
-            return prevBlocks.filter((b) => b.id !== draggingState.blockId);
-          }
-
-          let newBlocks = [...prevBlocks];
-          const currentlyDraggedBlockIndex = newBlocks.findIndex((b) => b.id === draggingState.blockId);
-
-          if (currentlyDraggedBlockIndex > -1) {
-            newBlocks.splice(currentlyDraggedBlockIndex, 1);
-          }
-
-          const originalParentIndex = newBlocks.findIndex((p) => p.id === draggingState.originalBlock!.parentId);
-          if (originalParentIndex > -1) {
-            const parent = { ...newBlocks[originalParentIndex] };
-            if (!parent.children?.find((c) => c.id === draggingState.originalBlock!.id)) {
-              parent.children = [...(parent.children || []), draggingState.originalBlock!];
-              // Proper sort might be needed if order matters
-              newBlocks[originalParentIndex] = parent;
-            }
-          } else {
-            if (!newBlocks.find((b) => b.id === draggingState.originalBlock!.id)) {
-              newBlocks.push(draggingState.originalBlock!);
-            }
-          }
-
-          return newBlocks.filter((b) => b.id !== draggingState.blockId);
-        });
+                // Find the original parent and re-insert the original child block
+                const parentIndex = restoredBlocks.findIndex(p => p.id === draggingState.originalBlock!.parentId);
+                if (parentIndex > -1) {
+                    const parent = { ...restoredBlocks[parentIndex] };
+                    const children = [...(parent.children || [])];
+                    const childExists = children.some(c => c.id === draggingState.originalBlock!.id);
+                    if (!childExists) {
+                       // This assumes order doesn't matter or needs another way to restore order
+                       children.push(draggingState.originalBlock!); 
+                       parent.children = children;
+                       restoredBlocks[parentIndex] = parent;
+                    }
+                }
+                return restoredBlocks;
+            });
+        }
       }
 
       setDraggingState({ blockId: null, isDragging: false, dragStartMouse: { x: 0, y: 0 }, dragStartOffset: { x: 0, y: 0 }, originalBlock: null, isReadyToDrag: false });
@@ -1159,9 +1160,9 @@ export function TypebotEditor({
             <div className="absolute" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}>
                 {/* Static Start Node */}
                 <div
-                className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-lg bg-[#262626] px-3 py-2"
+                className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2"
                 style={{
-                    transform: `translate(-200px, 0px)`,
+                    transform: `translate(50px, 50px)`,
                 }}
                 >
                 <PlaySquare size={16} className="text-white/60" />
