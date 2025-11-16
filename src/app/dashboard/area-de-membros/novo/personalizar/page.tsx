@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Upload, Users, BookCopy, Settings, CheckCircle, Folder } from 'lucide-react';
@@ -22,6 +23,10 @@ export default function PersonalizarWorkspacePage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const areaId = searchParams.get('id');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const areaRef = useMemoFirebase(
     () => (areaId && firestore ? doc(firestore, 'memberAreas', areaId) : null),
@@ -41,6 +46,25 @@ export default function PersonalizarWorkspacePage() {
     });
     // For now, just navigate to the main members area page
     router.push('/dashboard/area-de-membros');
+  };
+
+  const handleLogoUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+        // In a real app, you'd upload this file to a storage service
+        // and get a URL to save in Firestore.
+        // For now, we'll just use the local preview URL.
+        setLogoUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -97,11 +121,29 @@ export default function PersonalizarWorkspacePage() {
             <p className="text-sm text-muted-foreground">
               Adicione um logo personalizado para seu workspace (opcional).
             </p>
-            <div className="mt-2 flex justify-center rounded-lg border border-dashed border-border px-6 py-10">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/png, image/jpeg, image/gif"
+            />
+            <div 
+              className="mt-2 flex justify-center rounded-lg border border-dashed border-border px-6 py-10 hover:border-primary cursor-pointer transition-colors"
+              onClick={handleLogoUploadClick}
+            >
               <div className="text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted/50 mx-auto">
-                    <div className="h-8 w-8 bg-gradient-to-br from-blue-400 to-green-400 rounded-md" />
-                </div>
+                {logoPreview ? (
+                   <Image src={logoPreview} alt="Preview do Logo" width={100} height={100} className="mx-auto h-24 w-24 rounded-lg object-contain" />
+                ) : (
+                  <>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted/50 mx-auto">
+                        <Upload className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <p className='mt-4 text-sm font-semibold'>Clique para enviar</p>
+                    <p className='text-xs text-muted-foreground mt-1'>PNG, JPG, GIF até 5MB</p>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -117,7 +159,11 @@ export default function PersonalizarWorkspacePage() {
               </div>
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Folder className="h-6 w-6" />
+                  {logoPreview ? (
+                    <Image src={logoPreview} alt="Preview do Logo" width={48} height={48} className="rounded-md object-contain" />
+                  ) : (
+                    <Folder className="h-6 w-6" />
+                  )}
                 </div>
                 <div className="flex-1">
                   <h4 className="font-bold text-lg">
