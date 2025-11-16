@@ -10,13 +10,8 @@ import {
   Upload,
   List,
   Plus,
-  Link,
+  Link as LinkIcon,
   Trash2,
-  BarChart2,
-  LayoutDashboard,
-  Book,
-  MessageSquare,
-  HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,9 +29,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const menuTypes = [
     { value: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { value: 'my-courses', label: 'Meus Cursos', icon: '📚' },
+    { value: 'courses', label: 'Cursos', icon: '📚' },
     { value: 'community', label: 'Comunidade', icon: '👥' },
-    { value: 'support', label: 'Suporte', icon: '🎧' },
+    { value: 'support', label: 'Suporte', icon: '❓' },
+    { value: 'favorites', label: 'Favoritos', icon: '⭐' },
 ];
 
 type MenuItem = {
@@ -342,9 +338,10 @@ export default function WorkspaceSettingsPage() {
                 </Button>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
                     <Button variant="outline" onClick={() => addMenuItem('dashboard', 'Dashboard', '/dashboard')}>Dashboard</Button>
-                    <Button variant="outline" onClick={() => addMenuItem('my-courses', 'Meus Cursos', '/my-courses')}>Meus Cursos</Button>
+                    <Button variant="outline" onClick={() => addMenuItem('courses', 'Cursos', '/courses')}>Cursos</Button>
                     <Button variant="outline" onClick={() => addMenuItem('community', 'Comunidade', '/community')}>Comunidade</Button>
                     <Button variant="outline" onClick={() => addMenuItem('support', 'Suporte', '/support')}>Suporte</Button>
+                    <Button variant="outline" onClick={() => addMenuItem('favorites', 'Favoritos', '/favorites')}>Favoritos</Button>
                 </div>
               </div>
             ) : (
@@ -374,7 +371,7 @@ export default function WorkspaceSettingsPage() {
                         className="h-8"
                       />
                       <div className="relative flex items-center">
-                        <Link className="absolute left-2 h-4 w-4 text-muted-foreground" />
+                        <LinkIcon className="absolute left-2 h-4 w-4 text-muted-foreground" />
                         <Input
                           value={item.url}
                           onChange={(e) => updateMenuItem(item.id, 'url', e.target.value)}
