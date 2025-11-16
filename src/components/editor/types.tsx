@@ -240,7 +240,7 @@ export type Funnel = {
   name: string;
   type: string;
   userId: string;
-  steps: Step[];
+  steps: Step[] | CanvasBlock[];
 };
 
 export type EditorView = 'construtor' | 'fluxo' | 'design' | 'leads' | 'configuracoes';

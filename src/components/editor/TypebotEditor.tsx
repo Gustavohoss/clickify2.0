@@ -873,11 +873,8 @@ const CanvasTextBlock = ({
     if (!editor) return;
   
     editor.focus();
-    
-    // Use document.execCommand for inserting HTML, which is more robust for contentEditable
     document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
     
-    // Manually trigger the onInput handler since execCommand might not
     handleContentChange();
     setIsPopoverOpen(false);
   };
@@ -1833,6 +1830,7 @@ export function TypebotEditor({
   connectionsRef.current = connections;
   
   const interpolateVariables = useCallback((text: string = '') => {
+    if (!text) return '';
     return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
         return previewVariablesRef.current[key] || `{{${key}}}`;
     });
