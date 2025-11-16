@@ -119,7 +119,7 @@ export default function NovaAreaDeMembrosPage() {
               maxLength={32}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span className="text-green-400">cakto.com/{generateSlug(workspaceName)}</span>
+              <span className="text-green-400">seudominio.com/{generateSlug(workspaceName)}</span>
               <span>{workspaceName.length}/32 caracteres</span>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function NovaAreaDeMembrosPage() {
                             {description || 'Ola esse e meu curso'}
                         </p>
                         <p className="mt-4 text-xs text-green-400">
-                          cakto.com/{generateSlug(workspaceName)}
+                          seudominio.com/{generateSlug(workspaceName)}
                         </p>
                     </div>
                 </div>
