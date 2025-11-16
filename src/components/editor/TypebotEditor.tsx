@@ -185,6 +185,9 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
           { name: 'Jump', icon: <GitCommit size={16} />, type: 'logic-jump' },
           { name: 'Return', icon: <GitPullRequest size={16} />, type: 'logic-return' },
       ],
+      Groups: [
+        { name: 'Group', icon: <Combine size={16} />, type: 'group' },
+      ],
     };
   
     const handleMouseDown = (e: React.MouseEvent<HTMLElement>) => {
@@ -531,13 +534,17 @@ export const TypebotEditor = ({ funnel }: { funnel: Funnel, setFunnel: (updater:
         </Button>
       </div>
   
-      <div className="w-72 rounded-lg bg-[#262626] p-3 space-y-2">
+      <div className={cn("w-72 rounded-lg bg-[#262626] p-3 space-y-2", isSelected && "ring-2 ring-orange-500")}>
         <div className="text-sm font-medium">Group #{block.id.toString().slice(-2)}</div>
-        <div className="min-h-[50px] rounded-md border border-dashed border-white/20 p-2">
+        <div className="min-h-[50px] rounded-md border border-dashed border-white/20 p-2 space-y-2">
             {block.children?.map(child => (
-                 <div key={child.id} className="rounded-md bg-zinc-700 p-2 text-sm">
-                    {child.type}
-                 </div>
+                <div key={child.id} className="flex items-center justify-between rounded-md bg-[#181818] p-2">
+                    <div className="flex items-center gap-2">
+                        <MessageCircle size={16} className="text-white/60" />
+                        <span className="text-sm text-white/60">...</span>
+                    </div>
+                    <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
+                </div>
             ))}
         </div>
       </div>
