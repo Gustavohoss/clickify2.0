@@ -288,10 +288,10 @@ export default function WorkspaceSettingsPage() {
                 Adicionar Primeiro
               </Button>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
-                <Button variant="secondary">Dashboard</Button>
-                <Button variant="secondary">Meus Cursos</Button>
-                <Button variant="secondary">Comunidade</Button>
-                <Button variant="secondary">Suporte</Button>
+                <Button variant="outline">Dashboard</Button>
+                <Button variant="outline">Meus Cursos</Button>
+                <Button variant="outline">Comunidade</Button>
+                <Button variant="outline">Suporte</Button>
               </div>
             </div>
           </div>
