@@ -1392,20 +1392,29 @@ export function TypebotEditor({
         if (startNode) {
             const rect = startNode.getBoundingClientRect();
             startPos = {
-                x: (rect.right - canvasRect.left) / zoom, 
-                y: (rect.top + rect.height / 2 - canvasRect.top) / zoom, 
+                x: (rect.right - canvasRect.left) / zoom - panOffset.x / zoom,
+                y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y / zoom,
             };
         }
     } else {
-        const block = findBlock(fromBlockId as number);
-        if(block) startPos = { x: block.position.x + 288 + panOffset.x / zoom, y: block.position.y + 36 / 2 + panOffset.y / zoom };
+        const fromBlock = findBlock(fromBlockId as number);
+        if (fromBlock && fromBlock.type === 'group') {
+            const blockEl = document.getElementById(`block-${fromBlockId}`);
+            if (blockEl) {
+                const rect = blockEl.getBoundingClientRect();
+                 startPos = {
+                    x: (rect.right - canvasRect.left) / zoom - panOffset.x / zoom,
+                    y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y / zoom,
+                };
+            }
+        }
     }
 
     if(startPos) {
         setDrawingConnection({
             fromBlockId,
             fromHandle,
-            from: {x: startPos.x - panOffset.x/zoom, y: startPos.y - panOffset.y/zoom},
+            from: startPos,
             to: { x: startPos.x, y: startPos.y },
         });
     }
@@ -1449,11 +1458,13 @@ export function TypebotEditor({
   canvasBlocksRef.current = canvasBlocks;
   const previewVariablesRef = useRef(previewVariables);
   previewVariablesRef.current = previewVariables;
+  const connectionsRef = useRef(connections);
+  connectionsRef.current = connections;
 
   const processFlow = useCallback((blockId: number | 'start' | null) => {
     if (blockId === null) return;
   
-    const nextBlockId = connections.find((c) => c.from === blockId)?.to;
+    const nextBlockId = connectionsRef.current.find((c) => c.from === blockId)?.to;
     if (!nextBlockId) {
       setWaitingForInput(null);
       return;
@@ -1462,16 +1473,13 @@ export function TypebotEditor({
     const findBlockInState = (id: number) => {
       for (const block of canvasBlocksRef.current) {
         if (block.id === id) return block;
-        if (block.children) {
-          const child = block.children.find((c) => c.id === id);
-          if (child) return child;
-        }
       }
-      return undefined;
+      return undefined; // Only check top-level groups
     };
   
     const nextBlock = findBlockInState(nextBlockId);
     if (!nextBlock || !nextBlock.children) {
+      setWaitingForInput(null);
       return;
     }
   
@@ -1514,7 +1522,7 @@ export function TypebotEditor({
     if (!isWaiting) {
       setTimeout(() => processFlow(nextBlockId), 500);
     }
-  }, [connections]);
+  }, []);
 
   const startPreview = useCallback(() => {
     setPreviewMessages([]);
@@ -1538,11 +1546,12 @@ export function TypebotEditor({
     if (waitingForInput.props.variable) {
         setPreviewVariables(prev => ({...prev, [waitingForInput.props.variable]: userInput }));
     }
-
+    
+    const lastBlockId = currentPreviewBlockId;
     setUserInput('');
     setWaitingForInput(null);
 
-    processFlow(currentPreviewBlockId);
+    processFlow(lastBlockId);
   };
   
   const interpolateVariables = (text: string = '', vars: {[key:string]: any}) => {
@@ -1686,26 +1695,46 @@ export function TypebotEditor({
                 </marker>
               </defs>
               {connections.map((conn, index) => {
-                let startPos, endPos;
+                let startPos: {x:number, y:number} | undefined;
+                let endPos: {x:number, y:number} | undefined;
+
                 const toBlock = findBlock(conn.to);
-                
+
                 if (conn.from === 'start') {
-                    const startNode = document.getElementById('start-node');
-                    if (startNode) {
-                        const rect = startNode.getBoundingClientRect();
-                        const canvasRect = canvasRef.current!.getBoundingClientRect();
-                        startPos = { 
-                            x: (rect.right - canvasRect.left) / zoom, 
-                            y: (rect.top + rect.height / 2 - canvasRect.top) / zoom 
-                        };
-                    }
+                  const startNode = document.getElementById('start-node');
+                  if (startNode) {
+                    const rect = startNode.getBoundingClientRect();
+                    const canvasRect = canvasRef.current!.getBoundingClientRect();
+                    startPos = {
+                      x: (rect.right - canvasRect.left) / zoom - (panOffset.x / zoom),
+                      y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - (panOffset.y / zoom),
+                    };
+                  }
                 } else {
-                    const fromBlock = findBlock(conn.from as number);
-                    if(fromBlock) startPos = { x: fromBlock.position.x + 288 + panOffset.x/zoom, y: fromBlock.position.y + 36 / 2 + panOffset.y/zoom };
+                  const fromBlock = findBlock(conn.from as number);
+                  if (fromBlock && fromBlock.type === 'group') {
+                    const blockEl = document.getElementById(`block-${conn.from}`);
+                    if (blockEl) {
+                      const rect = blockEl.getBoundingClientRect();
+                      const canvasRect = canvasRef.current!.getBoundingClientRect();
+                      startPos = {
+                          x: (rect.right - canvasRect.left) / zoom - panOffset.x / zoom,
+                          y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y / zoom,
+                      };
+                    }
+                  }
                 }
 
-                if(toBlock) {
-                    endPos = { x: toBlock.position.x + panOffset.x/zoom, y: toBlock.position.y + 36 / 2 + panOffset.y/zoom };
+                if (toBlock && toBlock.type === 'group') {
+                    const blockEl = document.getElementById(`block-${conn.to}`);
+                     if (blockEl) {
+                      const rect = blockEl.getBoundingClientRect();
+                      const canvasRect = canvasRef.current!.getBoundingClientRect();
+                       endPos = {
+                        x: (rect.left - canvasRect.left) / zoom - panOffset.x / zoom,
+                        y: (rect.top + rect.height / 2 - canvasRect.top) / zoom - panOffset.y / zoom,
+                      };
+                    }
                 }
 
                 if (startPos && endPos) {
