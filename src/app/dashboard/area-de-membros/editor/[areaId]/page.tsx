@@ -225,24 +225,34 @@ export default function MemberAreaEditorPage() {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="cover">
-                                    <div className="space-y-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="cover-url">URL da imagem de capa</Label>
-                                            <div className="flex items-center gap-2">
-                                                <Link size={16} className="text-gray-500" />
-                                                <Input 
-                                                    id="cover-url"
-                                                    placeholder="https://sua-imagem.com/capa.jpg"
-                                                    className="border-gray-600 bg-gray-800"
-                                                />
+                                    <div className="grid grid-cols-3 gap-6">
+                                        <div className="col-span-2 space-y-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="cover-url">URL da imagem de capa</Label>
+                                                <div className="flex items-center gap-2">
+                                                    <Link size={16} className="text-gray-500" />
+                                                    <Input 
+                                                        id="cover-url"
+                                                        placeholder="https://sua-imagem.com/capa.jpg"
+                                                        className="border-gray-600 bg-gray-800"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <Alert className="bg-blue-900/50 border-blue-800">
+                                            <Info className="h-4 w-4 text-blue-400" />
+                                            <AlertDescription className="text-blue-300">
+                                                Tamanho recomendado: 200x300 pixels
+                                            </AlertDescription>
+                                            </Alert>
+                                        </div>
+                                        <div className="col-span-1">
+                                            <div className="relative aspect-[9/12] w-full overflow-hidden rounded-lg bg-gray-800">
+                                                <div className="flex flex-col h-full items-center justify-center text-gray-500">
+                                                    <ImageIcon size={48} />
+                                                </div>
+                                                <Badge className="absolute top-2 right-2 bg-green-600 text-white">0 Aulas</Badge>
                                             </div>
                                         </div>
-                                        <Alert className="bg-blue-900/50 border-blue-800">
-                                          <Info className="h-4 w-4 text-blue-400" />
-                                          <AlertDescription className="text-blue-300">
-                                            Tamanho recomendado: 200x300 pixels
-                                          </AlertDescription>
-                                        </Alert>
                                     </div>
                                 </TabsContent>
                                 </div>
