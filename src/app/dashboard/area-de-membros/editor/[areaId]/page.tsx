@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -47,6 +48,7 @@ export default function MemberAreaEditorPage() {
   const firestore = useFirestore();
   const [headerUrl, setHeaderUrl] = useState('');
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
+  const [coverUrl, setCoverUrl] = useState('');
 
   const areaRef = useMemoFirebase(
     () => (firestore && areaId ? doc(firestore, 'memberAreas', areaId) : null),
@@ -235,6 +237,8 @@ export default function MemberAreaEditorPage() {
                                                         id="cover-url"
                                                         placeholder="https://sua-imagem.com/capa.jpg"
                                                         className="border-gray-600 bg-gray-800"
+                                                        value={coverUrl}
+                                                        onChange={(e) => setCoverUrl(e.target.value)}
                                                     />
                                                 </div>
                                             </div>
@@ -247,9 +251,13 @@ export default function MemberAreaEditorPage() {
                                         </div>
                                         <div className="col-span-1">
                                             <div className="relative aspect-[9/12] w-full overflow-hidden rounded-lg bg-gray-800">
-                                                <div className="flex flex-col h-full items-center justify-center text-gray-500">
-                                                    <ImageIcon size={48} />
-                                                </div>
+                                                {coverUrl ? (
+                                                    <Image src={coverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
+                                                ) : (
+                                                    <div className="flex flex-col h-full items-center justify-center text-gray-500">
+                                                        <ImageIcon size={48} />
+                                                    </div>
+                                                )}
                                                 <Badge className="absolute top-2 right-2 bg-green-600 text-white">0 Aulas</Badge>
                                             </div>
                                         </div>
