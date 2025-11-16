@@ -13,31 +13,31 @@ export async function GET(req: NextRequest) {
 
   let requestUrl: string;
 
-  if (proxyUrl) {
-    const url = new URL(proxyUrl);
-    url.searchParams.set('access_token', ACCESS_TOKEN);
-    requestUrl = url.toString();
-  } else {
-    const searchTerm = searchParams.get('search_terms');
-    if (!searchTerm) {
-      return NextResponse.json({ error: { message: 'O termo de busca é obrigatório.' } }, { status: 400 });
+  try {
+    if (proxyUrl) {
+      const url = new URL(proxyUrl);
+      url.searchParams.set('access_token', ACCESS_TOKEN);
+      requestUrl = url.toString();
+    } else {
+      const searchTerm = searchParams.get('search_terms');
+      if (!searchTerm) {
+        return NextResponse.json({ error: { message: 'O termo de busca é obrigatório.' } }, { status: 400 });
+      }
+
+      const fields = 'ad_creative_body,ad_creative_link_caption,ad_creative_link_description,ad_creative_link_title,ad_delivery_start_time,funding_entity,page_name,page_id,publisher_platforms,spend,impressions,ad_snapshot_url';
+      
+      const params = new URLSearchParams({
+        search_terms: searchTerm,
+        ad_type: 'ALL',
+        ad_reached_countries: "['BR']",
+        fields: fields,
+        access_token: ACCESS_TOKEN,
+        limit: searchParams.get('limit') || '25',
+      });
+
+      requestUrl = `https://graph.facebook.com/${FB_GRAPH_VERSION}/ads_archive?${params.toString()}`;
     }
 
-    const fields = 'ad_creative_body,ad_creative_link_caption,ad_creative_link_description,ad_creative_link_title,ad_delivery_start_time,funding_entity,page_name,page_id,publisher_platforms,spend,impressions,ad_snapshot_url';
-    
-    const params = new URLSearchParams({
-      search_terms: searchTerm,
-      ad_type: 'ALL',
-      ad_reached_countries: "['BR']",
-      fields: fields,
-      access_token: ACCESS_TOKEN,
-      limit: searchParams.get('limit') || '25',
-    });
-
-    requestUrl = `https://graph.facebook.com/${FB_GRAPH_VERSION}/ads_archive?${params.toString()}`;
-  }
-
-  try {
     const response = await fetch(requestUrl, {
       headers: {
         'Accept': 'application/json',
@@ -48,7 +48,6 @@ export async function GET(req: NextRequest) {
     
     if (!response.ok) {
       console.error('Erro da API da Meta:', data);
-      // Garante que a resposta de erro sempre tenha a estrutura { error: { message: '...' } }
       const errorMessage = data.error?.message || 'Um erro desconhecido ocorreu na API da Meta.';
       return NextResponse.json({ error: { message: errorMessage } }, { status: response.status });
     }
