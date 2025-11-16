@@ -270,7 +270,7 @@ const CanvasTextBlock = ({
       case 'video':
         if (block.props?.videoUrl) {
           return (
-            <div className="w-full aspect-video">
+             <div className="w-full aspect-video">
               {hasMounted && (
                 <ReactPlayer
                   url={block.props.videoUrl}
@@ -798,7 +798,7 @@ export function TypebotEditor({
       if (isDroppedOnTarget) {
         setCanvasBlocks(updatedBlocks);
       }
-    } else if (!draggingState.isDragging && draggingState.blockId) {
+    } else if (!draggingState.isDragging && draggingState.blockId && e.button === 0) {
       setSelectedBlockId(draggingState.blockId);
     }
 
@@ -979,6 +979,7 @@ export function TypebotEditor({
 
   const handleBlockMouseDown = (e: React.MouseEvent, block: CanvasBlock) => {
     e.stopPropagation();
+    if (e.button !== 0) return; // Only process left-clicks for dragging/selection
     setContextMenu({ ...contextMenu, visible: false });
 
     if (!canvasRef.current) return;
