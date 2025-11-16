@@ -1039,38 +1039,38 @@ export function TypebotEditor({
 
   const blocks = {
     "Bolhas": [
-      { name: 'Texto', icon: <MessageCircle size={16} />, type: 'text' },
-      { name: 'Imagem', icon: <ImageIconLucide size={16} />, type: 'image' },
-      { name: 'Vídeo', icon: <Video size={16} />, type: 'video' },
-      { name: 'Embutir', icon: <Code2 size={16} />, type: 'embed' },
-      { name: 'Áudio', icon: <AudioWaveform size={16} />, type: 'audio' },
+      { name: 'Texto', icon: <MessageCircle size={16} />, type: 'text', color: 'text-sky-400' },
+      { name: 'Imagem', icon: <ImageIconLucide size={16} />, type: 'image', color: 'text-sky-400' },
+      { name: 'Vídeo', icon: <Video size={16} />, type: 'video', color: 'text-sky-400' },
+      { name: 'Embutir', icon: <Code2 size={16} />, type: 'embed', color: 'text-sky-400' },
+      { name: 'Áudio', icon: <AudioWaveform size={16} />, type: 'audio', color: 'text-sky-400' },
     ],
     "Entradas": [
-      { name: 'Texto', icon: <TextCursorInput size={16} />, type: 'input-text' },
-      { name: 'Número', icon: <span className="font-bold">7</span>, type: 'input-number' },
-      { name: 'Email', icon: <AtSign size={16} />, type: 'input-email' },
-      { name: 'Website', icon: <Link2 size={16} />, type: 'input-website' },
-      { name: 'Data', icon: <Calendar size={16} />, type: 'input-date' },
-      { name: 'Hora', icon: <Clock size={16} />, type: 'input-time' },
-      { name: 'Telefone', icon: <Phone size={16} />, type: 'input-phone' },
-      { name: 'Botões', icon: <CheckSquare2 size={16} />, type: 'input-buttons' },
-      { name: 'Escolha de Imagem', icon: <PictureInPicture size={16} />, type: 'input-pic' },
-      { name: 'Pagamento', icon: <CreditCard size={16} />, type: 'input-payment' },
-      { name: 'Avaliação', icon: <StarHalf size={16} />, type: 'input-rating' },
-      { name: 'Arquivo', icon: <UploadCloud size={16} />, type: 'input-file' },
-      { name: 'Cartões', icon: <GanttChart size={16} />, type: 'input-cards' },
+      { name: 'Texto', icon: <TextCursorInput size={16} />, type: 'input-text', color: 'text-orange-400' },
+      { name: 'Número', icon: <span className="font-bold">7</span>, type: 'input-number', color: 'text-orange-400' },
+      { name: 'Email', icon: <AtSign size={16} />, type: 'input-email', color: 'text-orange-400' },
+      { name: 'Website', icon: <Link2 size={16} />, type: 'input-website', color: 'text-orange-400' },
+      { name: 'Data', icon: <Calendar size={16} />, type: 'input-date', color: 'text-orange-400' },
+      { name: 'Hora', icon: <Clock size={16} />, type: 'input-time', color: 'text-orange-400' },
+      { name: 'Telefone', icon: <Phone size={16} />, type: 'input-phone', color: 'text-orange-400' },
+      { name: 'Botões', icon: <CheckSquare2 size={16} />, type: 'input-buttons', color: 'text-orange-400' },
+      { name: 'Escolha de Imagem', icon: <PictureInPicture size={16} />, type: 'input-pic', color: 'text-orange-400' },
+      { name: 'Pagamento', icon: <CreditCard size={16} />, type: 'input-payment', color: 'text-orange-400' },
+      { name: 'Avaliação', icon: <StarHalf size={16} />, type: 'input-rating', color: 'text-orange-400' },
+      { name: 'Arquivo', icon: <UploadCloud size={16} />, type: 'input-file', color: 'text-orange-400' },
+      { name: 'Cartões', icon: <GanttChart size={16} />, type: 'input-cards', color: 'text-orange-400' },
     ],
     "Lógica": [
-      { name: 'Definir variável', icon: <Variable size={16} />, type: 'logic-variable' },
-      { name: 'Condição', icon: <GitBranch size={16} />, type: 'logic-condition' },
-      { name: 'Redirecionar', icon: <ArrowRightLeft size={16} />, type: 'logic-redirect' },
-      { name: 'Script', icon: <FileCode size={16} />, type: 'logic-script' },
-      { name: 'Typebot', icon: <Bot size={16} />, type: 'logic-typebot' },
-      { name: 'Aguardar', icon: <Clock10 size={16} />, type: 'logic-wait' },
-      { name: 'Teste A/B', icon: <GitCompareArrows size={16} />, type: 'logic-abtest' },
-      { name: 'Webhook', icon: <Webhook size={16} />, type: 'logic-webhook' },
-      { name: 'Pular para', icon: <GitCommit size={16} />, type: 'logic-jump' },
-      { name: 'Retornar', icon: <GitPullRequest size={16} />, type: 'logic-return' },
+      { name: 'Definir variável', icon: <Variable size={16} />, type: 'logic-variable', color: 'text-indigo-400' },
+      { name: 'Condição', icon: <GitBranch size={16} />, type: 'logic-condition', color: 'text-indigo-400' },
+      { name: 'Redirecionar', icon: <ArrowRightLeft size={16} />, type: 'logic-redirect', color: 'text-indigo-400' },
+      { name: 'Script', icon: <FileCode size={16} />, type: 'logic-script', color: 'text-indigo-400' },
+      { name: 'Typebot', icon: <Bot size={16} />, type: 'logic-typebot', color: 'text-indigo-400' },
+      { name: 'Aguardar', icon: <Clock10 size={16} />, type: 'logic-wait', color: 'text-indigo-400' },
+      { name: 'Teste A/B', icon: <GitCompareArrows size={16} />, type: 'logic-abtest', color: 'text-indigo-400' },
+      { name: 'Webhook', icon: <Webhook size={16} />, type: 'logic-webhook', color: 'text-indigo-400' },
+      { name: 'Pular para', icon: <GitCommit size={16} />, type: 'logic-jump', color: 'text-indigo-400' },
+      { name: 'Retornar', icon: <GitPullRequest size={16} />, type: 'logic-return', color: 'text-indigo-400' },
     ],
     "Grupos": [{ name: 'Grupo', icon: <Combine size={16} />, type: 'group' }],
   };
@@ -1462,7 +1462,10 @@ export function TypebotEditor({
   connectionsRef.current = connections;
 
   const processFlow = useCallback((blockId: number | 'start' | null, startIndex = 0) => {
-    if (blockId === null) return;
+    if (blockId === null) {
+      setWaitingForInput(null);
+      return;
+    }
   
     const findBlockInState = (id: number) => {
       for (const block of canvasBlocksRef.current) {
@@ -1563,7 +1566,7 @@ export function TypebotEditor({
     setUserInput('');
     setWaitingForInput(null);
   
-    if (lastBlockId && lastInputBlock.parentId === lastBlockId) {
+    if (lastBlockId && typeof lastBlockId === 'number' && lastInputBlock.parentId === lastBlockId) {
       const parentBlock = canvasBlocksRef.current.find(b => b.id === lastBlockId);
       if (parentBlock && parentBlock.children) {
         const lastInputIndex = parentBlock.children.findIndex(c => c.id === lastInputBlock.id);
@@ -1661,7 +1664,7 @@ export function TypebotEditor({
                         className="h-9 w-full justify-start gap-2 bg-[#262626] text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white"
                         onClick={() => addBlock(item.type)}
                       >
-                        {item.icon}
+                        <span className={cn(item.color)}>{item.icon}</span>
                         {item.name}
                       </Button>
                     ))}
