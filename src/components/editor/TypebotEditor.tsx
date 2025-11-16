@@ -139,7 +139,7 @@ const ImageBlockSettings = ({
             Link
           </TabsTrigger>
           <TabsTrigger value="upload" className="text-xs data-[state=active]:bg-[#3f3f46] data-[state=active]:text-white rounded-md">
-            Upload
+            Enviar
           </TabsTrigger>
           <TabsTrigger value="giphy" className="text-xs data-[state=active]:bg-[#3f3f46] data-[state=active]:text-white rounded-md">
             Giphy
@@ -148,13 +148,13 @@ const ImageBlockSettings = ({
             Unsplash
           </TabsTrigger>
           <TabsTrigger value="icon" className="text-xs data-[state=active]:bg-[#3f3f46] data-[state=active]:text-white rounded-md">
-            Icon
+            Ícone
           </TabsTrigger>
         </TabsList>
         <TabsContent value="link" className="mt-4">
           <div className="space-y-4">
             <Input
-              placeholder="Paste the image link..."
+              placeholder="Cole o link da imagem..."
               value={imageUrl}
               onChange={handleImageUrlChange}
               className="bg-[#181818] border-[#3f3f46] text-white"
@@ -162,7 +162,7 @@ const ImageBlockSettings = ({
             <div className="flex items-center space-x-2">
               <Switch id="on-click-link" checked={onClickLink} onCheckedChange={handleOnClickLinkChange} />
               <Label htmlFor="on-click-link" className="text-sm">
-                On click link
+                Abrir link ao clicar
               </Label>
             </div>
           </div>
@@ -206,7 +206,7 @@ const VideoBlockSettings = ({
         <TabsContent value="link" className="mt-4">
           <div className="space-y-4">
             <Input
-              placeholder="Paste the video link..."
+              placeholder="Cole o link do vídeo..."
               value={videoUrl}
               onChange={handleVideoUrlChange}
               className="bg-[#181818] border-[#3f3f46] text-white"
@@ -252,25 +252,25 @@ const AudioBlockSettings = ({
         <Tabs defaultValue="link" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 h-auto">
             <TabsTrigger value="upload" className="text-xs data-[state=active]:bg-[#3f3f46] data-[state=active]:text-white rounded-md">
-              Upload
+              Enviar
             </TabsTrigger>
             <TabsTrigger value="link" className="text-xs data-[state=active]:bg-[#3f3f46] data-[state=active]:text-white rounded-md">
-              Embed link
+              Incorporar link
             </TabsTrigger>
           </TabsList>
           <TabsContent value="link" className="mt-4">
             <div className="space-y-4">
               <Input
-                placeholder="Paste the audio file link..."
+                placeholder="Cole o link do arquivo de áudio..."
                 value={audioUrl}
                 onChange={handleAudioUrlChange}
                 className="bg-[#181818] border-[#3f3f46] text-white"
               />
-               <p className="text-xs text-center text-white/50">Works with .MP3s and .WAVs</p>
+               <p className="text-xs text-center text-white/50">Funciona com .MP3 e .WAV</p>
               <div className="flex items-center space-x-2">
                 <Switch id="autoplay" checked={autoplay} onCheckedChange={handleAutoplayChange} />
                 <Label htmlFor="autoplay" className="text-sm">
-                  Enable autoplay
+                  Habilitar autoplay
                 </Label>
               </div>
             </div>
@@ -318,7 +318,7 @@ const CanvasTextBlock = ({
           return (
             <img
               src={block.props.imageUrl}
-              alt="User provided content"
+              alt="Conteúdo fornecido pelo usuário"
               className="max-w-full h-auto object-contain rounded-md"
             />
           );
@@ -326,10 +326,10 @@ const CanvasTextBlock = ({
         return (
           <div className="flex items-center gap-2">
             <ImageIconLucide size={16} className="text-white/60" />
-            <span className="text-sm text-white/60">Click to edit...</span>
+            <span className="text-sm text-white/60">Clique para editar...</span>
           </div>
         );
-    case 'audio':
+      case 'audio':
         if (block.props?.audioUrl) {
           return (
             <div className="w-full">
@@ -348,7 +348,7 @@ const CanvasTextBlock = ({
         return (
             <div className="flex items-center gap-2">
             <AudioWaveform size={16} className="text-white/60" />
-            <span className="text-sm text-white/60">Click to edit...</span>
+            <span className="text-sm text-white/60">Clique para editar...</span>
             </div>
         );
       case 'video':
@@ -369,7 +369,7 @@ const CanvasTextBlock = ({
         return (
           <div className="flex items-center gap-2">
             <Video size={16} className="text-white/60" />
-            <span className="text-sm text-white/60">Click to edit...</span>
+            <span className="text-sm text-white/60">Clique para editar...</span>
           </div>
         );
       case 'text':
@@ -381,7 +381,7 @@ const CanvasTextBlock = ({
                 onChange={handleTextChange}
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
-                placeholder="Type your message..."
+                placeholder="Digite sua mensagem..."
                 className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8"
                 rows={3}
               />
@@ -558,7 +558,7 @@ const CanvasGroupBlock = ({
     </div>
 
     <div className={cn('w-72 rounded-lg bg-[#262626] p-3 space-y-2', isSelected && 'ring-2 ring-blue-500')}>
-      <div className="text-sm font-medium">Group #{groupIndex + 1}</div>
+      <div className="text-sm font-medium">Grupo #{groupIndex + 1}</div>
       <div data-children-container className="min-h-[50px] rounded-md border border-dashed border-white/20 p-2 space-y-2">
         {(block.children || []).map((child, index) => (
           <React.Fragment key={child.id}>
@@ -611,14 +611,14 @@ const ContextMenu = ({
         className="w-full justify-start gap-2 text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white"
         onClick={onDuplicate}
       >
-        <Copy size={14} /> Duplicate
+        <Copy size={14} /> Duplicar
       </Button>
       <Button
         variant="ghost"
         className="w-full justify-start gap-2 text-sm font-normal text-red-500 hover:bg-red-500/10 hover:text-red-500"
         onClick={onDelete}
       >
-        <Trash2 size={14} /> Delete
+        <Trash2 size={14} /> Excluir
       </Button>
     </div>
   );
@@ -634,7 +634,7 @@ export function TypebotEditor({
   setFunnel: (updater: (prev: Funnel | null) => Funnel | null) => void;
   debouncedUpdateFunnel: any;
 }) {
-  const [activeTab, setActiveTab] = useState('Flow');
+  const [activeTab, setActiveTab] = useState('Fluxo');
   const [isPanning, setIsPanning] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -794,41 +794,41 @@ export function TypebotEditor({
   };
 
   const blocks = {
-    Bubbles: [
-      { name: 'Text', icon: <MessageCircle size={16} />, type: 'text' },
-      { name: 'Image', icon: <ImageIconLucide size={16} />, type: 'image' },
-      { name: 'Video', icon: <Video size={16} />, type: 'video' },
-      { name: 'Embed', icon: <Code2 size={16} />, type: 'embed' },
-      { name: 'Audio', icon: <AudioWaveform size={16} />, type: 'audio' },
+    Bolhas: [
+      { name: 'Texto', icon: <MessageCircle size={16} />, type: 'text' },
+      { name: 'Imagem', icon: <ImageIconLucide size={16} />, type: 'image' },
+      { name: 'Vídeo', icon: <Video size={16} />, type: 'video' },
+      { name: 'Embutir', icon: <Code2 size={16} />, type: 'embed' },
+      { name: 'Áudio', icon: <AudioWaveform size={16} />, type: 'audio' },
     ],
-    Inputs: [
-      { name: 'Text', icon: <TextCursorInput size={16} />, type: 'input-text' },
-      { name: 'Number', icon: <span className="font-bold">7</span>, type: 'input-number' },
+    Entradas: [
+      { name: 'Texto', icon: <TextCursorInput size={16} />, type: 'input-text' },
+      { name: 'Número', icon: <span className="font-bold">7</span>, type: 'input-number' },
       { name: 'Email', icon: <AtSign size={16} />, type: 'input-email' },
       { name: 'Website', icon: <Link2 size={16} />, type: 'input-website' },
-      { name: 'Date', icon: <Calendar size={16} />, type: 'input-date' },
-      { name: 'Time', icon: <Clock size={16} />, type: 'input-time' },
-      { name: 'Phone', icon: <Phone size={16} />, type: 'input-phone' },
-      { name: 'Buttons', icon: <CheckSquare2 size={16} />, type: 'input-buttons' },
-      { name: 'Pic choice', icon: <PictureInPicture size={16} />, type: 'input-pic' },
-      { name: 'Payment', icon: <CreditCard size={16} />, type: 'input-payment' },
-      { name: 'Rating', icon: <StarHalf size={16} />, type: 'input-rating' },
-      { name: 'File', icon: <UploadCloud size={16} />, type: 'input-file' },
-      { name: 'Cards', icon: <GanttChart size={16} />, type: 'input-cards' },
+      { name: 'Data', icon: <Calendar size={16} />, type: 'input-date' },
+      { name: 'Hora', icon: <Clock size={16} />, type: 'input-time' },
+      { name: 'Telefone', icon: <Phone size={16} />, type: 'input-phone' },
+      { name: 'Botões', icon: <CheckSquare2 size={16} />, type: 'input-buttons' },
+      { name: 'Escolha de Imagem', icon: <PictureInPicture size={16} />, type: 'input-pic' },
+      { name: 'Pagamento', icon: <CreditCard size={16} />, type: 'input-payment' },
+      { name: 'Avaliação', icon: <StarHalf size={16} />, type: 'input-rating' },
+      { name: 'Arquivo', icon: <UploadCloud size={16} />, type: 'input-file' },
+      { name: 'Cartões', icon: <GanttChart size={16} />, type: 'input-cards' },
     ],
-    Logic: [
-      { name: 'Set variable', icon: <Variable size={16} />, type: 'logic-variable' },
-      { name: 'Condition', icon: <GitBranch size={16} />, type: 'logic-condition' },
-      { name: 'Redirect', icon: <ArrowRightLeft size={16} />, type: 'logic-redirect' },
+    Lógica: [
+      { name: 'Definir variável', icon: <Variable size={16} />, type: 'logic-variable' },
+      { name: 'Condição', icon: <GitBranch size={16} />, type: 'logic-condition' },
+      { name: 'Redirecionar', icon: <ArrowRightLeft size={16} />, type: 'logic-redirect' },
       { name: 'Script', icon: <FileCode size={16} />, type: 'logic-script' },
       { name: 'Typebot', icon: <Bot size={16} />, type: 'logic-typebot' },
-      { name: 'Wait', icon: <Clock10 size={16} />, type: 'logic-wait' },
-      { name: 'AB Test', icon: <GitCompareArrows size={16} />, type: 'logic-abtest' },
+      { name: 'Aguardar', icon: <Clock10 size={16} />, type: 'logic-wait' },
+      { name: 'Teste A/B', icon: <GitCompareArrows size={16} />, type: 'logic-abtest' },
       { name: 'Webhook', icon: <Webhook size={16} />, type: 'logic-webhook' },
-      { name: 'Jump', icon: <GitCommit size={16} />, type: 'logic-jump' },
-      { name: 'Return', icon: <GitPullRequest size={16} />, type: 'logic-return' },
+      { name: 'Pular para', icon: <GitCommit size={16} />, type: 'logic-jump' },
+      { name: 'Retornar', icon: <GitPullRequest size={16} />, type: 'logic-return' },
     ],
-    Groups: [{ name: 'Group', icon: <Combine size={16} />, type: 'group' }],
+    Grupos: [{ name: 'Grupo', icon: <Combine size={16} />, type: 'group' }],
   };
 
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLElement>) => {
@@ -1168,12 +1168,12 @@ export function TypebotEditor({
 
         <div className="flex items-center gap-2">
           <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
-            <Share2 size={16} /> Share
+            <Share2 size={16} /> Compartilhar
           </Button>
           <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
-            <TestTube2 size={16} /> Test
+            <TestTube2 size={16} /> Testar
           </Button>
-          <Button className="h-9 bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">Publish</Button>
+          <Button className="h-9 bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">Publicar</Button>
         </div>
       </header>
 
@@ -1221,7 +1221,7 @@ export function TypebotEditor({
         >
           <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
             <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
-              {['Flow', 'Theme', 'Settings', 'Share'].map((tab) => (
+              {['Fluxo', 'Tema', 'Configurações', 'Compartilhar'].map((tab) => (
                 <Button
                   key={tab}
                   variant={activeTab === tab ? 'secondary' : 'ghost'}
@@ -1250,7 +1250,7 @@ export function TypebotEditor({
                 }}
                 >
                 <PlaySquare size={16} className="text-white/60" />
-                <span className="text-sm font-medium">Start</span>
+                <span className="text-sm font-medium">Início</span>
                 <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />
                 </div>
 
