@@ -12,45 +12,48 @@ export default function MineradorDeAnunciosPage() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [nextPage, setNextPage] = useState<string | null>(null);
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
 
-  const handleSearch = async (url?: string) => {
-    if (!searchTerm.trim() && !url) {
+  const handleSearch = async (isNewSearch = true) => {
+    if (!searchTerm.trim()) {
       setError('Por favor, insira um termo de busca.');
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    if (!url) {
+    if (isNewSearch) {
       setAds([]);
+      setNextPageUrl(null);
     }
 
     try {
-      let requestUrl = '/api/ads';
       const params = new URLSearchParams();
-
-      if (url) {
-        // If a full next-page URL is provided by Facebook, we need to proxy it.
-        params.append('proxyUrl', url);
-      } else {
+      
+      if (isNewSearch) {
         params.append('search_terms', searchTerm);
+      } else if (nextPageUrl) {
+        // If it's not a new search, we use the proxyUrl param to pass the full next page URL
+        params.append('proxyUrl', nextPageUrl);
+      } else {
+        // No next page URL and not a new search, do nothing.
+        setIsLoading(false);
+        return;
       }
       
-      requestUrl = `${requestUrl}?${params.toString()}`;
+      const requestUrl = `/api/ads?${params.toString()}`;
 
       const response = await fetch(requestUrl);
       const data = await response.json();
       
       if (!response.ok) {
-        // Now, we can expect a more detailed error from our own API route
         throw new Error(data.error?.message || 'Ocorreu um erro ao buscar os anúncios.');
       }
 
-      setAds(prev => url ? [...prev, ...data.data] : data.data);
-      setNextPage(data.paging?.next || null);
+      setAds(prev => isNewSearch ? data.data : [...prev, ...data.data]);
+      setNextPageUrl(data.paging?.next || null);
 
-      if (data.data.length === 0 && !url) {
+      if (data.data.length === 0 && isNewSearch) {
         setError('Nenhum anúncio encontrado para este termo de busca.');
       }
 
@@ -80,11 +83,11 @@ export default function MineradorDeAnunciosPage() {
                 placeholder="Ex: 'marketing digital', 'produto físico'..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch(true)}
                 className="flex-grow"
                 />
-                <Button onClick={() => handleSearch()} disabled={isLoading && !nextPage} className="w-full sm:w-auto">
-                {isLoading && !nextPage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+                <Button onClick={() => handleSearch(true)} disabled={isLoading && !nextPageUrl} className="w-full sm:w-auto">
+                {isLoading && !nextPageUrl ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                 Buscar Anúncios
                 </Button>
             </div>
@@ -109,9 +112,9 @@ export default function MineradorDeAnunciosPage() {
         </div>
       )}
 
-      {nextPage && (
+      {nextPageUrl && !isLoading && (
         <div className="text-center mt-8">
-            <Button onClick={() => handleSearch(nextPage)} disabled={isLoading}>
+            <Button onClick={() => handleSearch(false)} disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Carregar Mais'}
             </Button>
         </div>
