@@ -465,6 +465,7 @@ const CanvasTextBlock = ({
   setSelectedBlockId,
   isChild = false,
   updateBlockProps,
+  variables
 }: {
   block: CanvasBlock;
   onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
@@ -475,8 +476,11 @@ const CanvasTextBlock = ({
   setSelectedBlockId: (id: number | null) => void;
   isChild?: boolean;
   updateBlockProps: (id: number, props: any) => void;
+  variables: string[];
 }) => {
   const [hasMounted, setHasMounted] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
 
   useEffect(() => {
     setHasMounted(true);
@@ -485,6 +489,26 @@ const CanvasTextBlock = ({
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateBlockProps(block.id, { content: e.target.value });
   };
+  
+  const handleVariableInsert = (variable: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const newText = `${text.substring(0, start)}{{${variable}}}${text.substring(end)}`;
+
+    updateBlockProps(block.id, { content: newText });
+
+    // Focus and set cursor position after update
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPosition = start + `{{${variable}}}`.length;
+      textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+    }, 0);
+  };
+
 
   const getBlockContent = () => {
     switch (block.type) {
@@ -559,6 +583,7 @@ const CanvasTextBlock = ({
           return (
             <div className="relative w-full">
               <textarea
+                ref={textareaRef}
                 value={block.props?.content || ''}
                 onChange={handleTextChange}
                 onClick={(e) => e.stopPropagation()}
@@ -567,9 +592,32 @@ const CanvasTextBlock = ({
                 className="w-full bg-transparent text-sm text-white outline-none resize-none p-0 pr-8"
                 rows={3}
               />
-              <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
-                <Braces size={14} />
-              </button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]">
+                    <Braces size={14} />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-0 bg-[#262626] border-[#3f3f46] text-white">
+                  <Command>
+                    <CommandInput placeholder="Procurar variável..." className="h-9 text-white" />
+                    <CommandList>
+                      <CommandEmpty>Nenhuma variável encontrada.</CommandEmpty>
+                      <CommandGroup>
+                        {variables.map((variable) => (
+                          <CommandItem
+                            key={variable}
+                            value={variable}
+                            onSelect={() => handleVariableInsert(variable)}
+                          >
+                            {variable}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           );
         }
@@ -689,6 +737,7 @@ const CanvasGroupBlock = ({
   deleteBlock,
   selectedBlockId,
   updateBlockProps,
+  variables,
 }: {
   block: CanvasBlock;
   groupIndex: number;
@@ -703,6 +752,7 @@ const CanvasGroupBlock = ({
   deleteBlock: (id: number) => void;
   selectedBlockId: number | null;
   updateBlockProps: (id: number, props: any) => void;
+  variables: string[];
 }) => (
   <div
     id={`block-${block.id}`}
@@ -767,6 +817,7 @@ const CanvasGroupBlock = ({
               setSelectedBlockId={setSelectedBlockId}
               isChild={true}
               updateBlockProps={updateBlockProps}
+              variables={variables}
             />
           </React.Fragment>
         ))}
@@ -1466,6 +1517,7 @@ export function TypebotEditor({
                         deleteBlock={deleteBlock}
                         selectedBlockId={selectedBlockId}
                         updateBlockProps={updateBlockProps}
+                        variables={variables}
                     />
                     );
                 })}
