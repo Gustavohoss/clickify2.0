@@ -1038,14 +1038,14 @@ export function TypebotEditor({
   };
 
   const blocks = {
-    Bolhas: [
+    "Bolhas": [
       { name: 'Texto', icon: <MessageCircle size={16} />, type: 'text' },
       { name: 'Imagem', icon: <ImageIconLucide size={16} />, type: 'image' },
       { name: 'Vídeo', icon: <Video size={16} />, type: 'video' },
       { name: 'Embutir', icon: <Code2 size={16} />, type: 'embed' },
       { name: 'Áudio', icon: <AudioWaveform size={16} />, type: 'audio' },
     ],
-    Entradas: [
+    "Entradas": [
       { name: 'Texto', icon: <TextCursorInput size={16} />, type: 'input-text' },
       { name: 'Número', icon: <span className="font-bold">7</span>, type: 'input-number' },
       { name: 'Email', icon: <AtSign size={16} />, type: 'input-email' },
@@ -1060,7 +1060,7 @@ export function TypebotEditor({
       { name: 'Arquivo', icon: <UploadCloud size={16} />, type: 'input-file' },
       { name: 'Cartões', icon: <GanttChart size={16} />, type: 'input-cards' },
     ],
-    Lógica: [
+    "Lógica": [
       { name: 'Definir variável', icon: <Variable size={16} />, type: 'logic-variable' },
       { name: 'Condição', icon: <GitBranch size={16} />, type: 'logic-condition' },
       { name: 'Redirecionar', icon: <ArrowRightLeft size={16} />, type: 'logic-redirect' },
@@ -1072,7 +1072,7 @@ export function TypebotEditor({
       { name: 'Pular para', icon: <GitCommit size={16} />, type: 'logic-jump' },
       { name: 'Retornar', icon: <GitPullRequest size={16} />, type: 'logic-return' },
     ],
-    Grupos: [{ name: 'Grupo', icon: <Combine size={16} />, type: 'group' }],
+    "Grupos": [{ name: 'Grupo', icon: <Combine size={16} />, type: 'group' }],
   };
 
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLElement>) => {
@@ -1450,6 +1450,11 @@ export function TypebotEditor({
     return {x:0, y:0};
   };
 
+  const canvasBlocksRef = useRef(canvasBlocks);
+  canvasBlocksRef.current = canvasBlocks;
+  const previewVariablesRef = useRef(previewVariables);
+  previewVariablesRef.current = previewVariables;
+
   const processFlow = useCallback((blockId: number | 'start' | null) => {
     if (blockId === null) return;
 
@@ -1459,7 +1464,18 @@ export function TypebotEditor({
         return;
     }
     
-    const nextBlock = findBlock(nextBlockId);
+    const findBlockInState = (id: number) => {
+      for (const block of canvasBlocksRef.current) {
+        if (block.id === id) return block;
+        if (block.children) {
+          const child = block.children.find((c) => c.id === id);
+          if (child) return child;
+        }
+      }
+      return undefined;
+    }
+
+    const nextBlock = findBlockInState(nextBlockId);
     if (!nextBlock || !nextBlock.children) return;
 
     setCurrentPreviewBlockId(nextBlockId);
@@ -1472,7 +1488,7 @@ export function TypebotEditor({
             isWaiting = true;
         }
 
-        const messageContent = interpolateVariables(child.props.content || child.props.placeholder, previewVariables);
+        const messageContent = interpolateVariables(child.props.content || child.props.placeholder, previewVariablesRef.current);
 
         const message: PreviewMessage = {
             id: Date.now() + Math.random(),
@@ -1481,7 +1497,6 @@ export function TypebotEditor({
                         block={{...child, props: {...child.props, content: messageContent}}} 
                         isSelected={false} 
                         isChild={true} 
-                        // Dummy functions, not used in preview
                         onBlockMouseDown={()=>{}}
                         onContextMenu={()=>{}}
                         setSelectedBlockId={()=>{}}
@@ -1496,10 +1511,9 @@ export function TypebotEditor({
     }
 
     if (!isWaiting) {
-        // If no input was found in the group, automatically move to the next one
         setTimeout(() => processFlow(nextBlockId), 500);
     }
-}, [connections, canvasBlocks, previewVariables]);
+  }, [connections]);
 
   const startPreview = useCallback(() => {
     setPreviewMessages([]);
@@ -1518,10 +1532,8 @@ export function TypebotEditor({
   const handleUserInput = () => {
     if (!userInput.trim() || !waitingForInput) return;
 
-    // Add user message to chat
     setPreviewMessages(prev => [...prev, { id: Date.now(), sender: 'user', content: userInput }]);
 
-    // Save variable if defined
     if (waitingForInput.props.variable) {
         setPreviewVariables(prev => ({...prev, [waitingForInput.props.variable]: userInput }));
     }
@@ -1529,7 +1541,6 @@ export function TypebotEditor({
     setUserInput('');
     setWaitingForInput(null);
 
-    // Continue flow
     processFlow(currentPreviewBlockId);
   };
   
@@ -1565,7 +1576,6 @@ export function TypebotEditor({
 
   return (
     <div className="flex h-screen w-full flex-col bg-[#111111] text-white">
-      {/* Header */}
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-[#262626] px-4">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-[#262626]">
@@ -1598,9 +1608,7 @@ export function TypebotEditor({
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar */}
         <aside className="w-64 shrink-0 border-r border-[#262626] bg-[#181818]">
           <ScrollArea className="h-full">
             <div className="space-y-4 p-3">
@@ -1626,7 +1634,6 @@ export function TypebotEditor({
           </ScrollArea>
         </aside>
 
-        {/* Canvas */}
         <main
           ref={canvasRef}
           className="relative flex-1 overflow-hidden"
@@ -1731,7 +1738,6 @@ export function TypebotEditor({
             )}
             </svg>
             <div className="absolute" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}>
-                {/* Static Start Node */}
                 <div
                 id="start-node"
                 className="absolute flex items-center gap-2 rounded-lg bg-[#262626] px-3 py-2 w-52"
@@ -1744,8 +1750,6 @@ export function TypebotEditor({
                 <div className="flex-grow" />
                 <ConnectionHandle onMouseDown={(e) => handleConnectionStart(e, 'start', 'output')} />
                 </div>
-
-                {/* Dynamically Rendered Blocks */}
                 {canvasBlocks
                 .filter((b) => !b.parentId)
                 .map((block, index) => {
