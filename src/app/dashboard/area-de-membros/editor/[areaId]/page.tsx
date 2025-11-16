@@ -17,6 +17,7 @@ import {
   ImageIcon,
   GripVertical,
   MoreVertical,
+  ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter, useParams } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { useState } from 'react';
+import { useState }from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
@@ -39,6 +40,7 @@ import {
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
 type Module = {
@@ -208,28 +210,43 @@ export default function MemberAreaEditorPage() {
 
               <div className="space-y-4">
                 {areaData?.modules && areaData.modules.length > 0 ? (
-                  areaData.modules.map((module) => (
-                    <div key={module.id} className="group flex items-center justify-between rounded-lg bg-gray-800 p-4">
-                       <div className="flex items-center gap-4">
-                         <GripVertical className="cursor-grab text-gray-500" />
-                         <span className="font-semibold">{module.name}</span>
-                       </div>
-                       <div className="flex items-center gap-4">
-                         <Badge className="bg-blue-900/50 text-blue-300">{module.lessons?.length || 0} Conteúdo</Badge>
-                         <DropdownMenu>
-                           <DropdownMenuTrigger asChild>
-                             <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
-                               <MoreVertical size={16} />
-                             </Button>
-                           </DropdownMenuTrigger>
-                           <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
-                              <DropdownMenuItem className="focus:bg-gray-600">Editar</DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
-                           </DropdownMenuContent>
-                         </DropdownMenu>
-                       </div>
-                    </div>
-                  ))
+                    <Accordion type="multiple" className="w-full space-y-2">
+                        {areaData.modules.map((module) => (
+                        <AccordionItem key={module.id} value={`module-${module.id}`} className="rounded-lg bg-gray-800 border-none">
+                            <AccordionTrigger className="w-full p-4 hover:no-underline">
+                            <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center gap-4">
+                                <GripVertical className="cursor-grab text-gray-500" />
+                                <span className="font-semibold">{module.name}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                <Badge className="bg-blue-900/50 text-blue-300">{module.lessons?.length || 0} Conteúdo</Badge>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400" onClick={(e) => e.stopPropagation()}>
+                                        <MoreVertical size={16} />
+                                    </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
+                                    <DropdownMenuItem className="focus:bg-gray-600">Editar</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <ChevronDown className="h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" />
+                                </div>
+                            </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="p-4 pt-0">
+                                <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 py-4 space-y-4">
+                                    <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
+                                    <Button variant="ghost" className="gap-2 text-green-400">
+                                        <PlusCircle size={16} /> Adicionar Conteúdo
+                                    </Button>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                        ))}
+                    </Accordion>
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-gray-700 py-16">
                      <p className="text-gray-400">Você ainda não adicionou nenhum módulo.</p>
@@ -368,5 +385,7 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
+
+    
 
     
