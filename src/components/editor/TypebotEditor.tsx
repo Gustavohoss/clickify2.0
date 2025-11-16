@@ -101,6 +101,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import type { Funnel, CanvasBlock } from './types.tsx';
 import ReactPlayer from 'react-player';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select.tsx';
 
 const ImageBlockSettings = ({
   block,
@@ -280,6 +281,109 @@ const AudioBlockSettings = ({
     );
   };
 
+  const TextBlockSettings = ({
+    block,
+    onUpdate,
+    position,
+  }: {
+    block: CanvasBlock;
+    onUpdate: (id: number, props: any) => void;
+    position: { x: number; y: number };
+  }) => {
+    const props = block.props || {};
+  
+    const handleChange = (key: string, value: any) => {
+      onUpdate(block.id, { ...props, [key]: value });
+    };
+  
+    return (
+      <div
+        className="absolute w-72 rounded-lg bg-[#262626] p-4 shadow-lg space-y-4 text-white"
+        style={{
+          left: `${position.x + 300}px`,
+          top: `${position.y}px`,
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <Label htmlFor="long-text" className="text-sm">Texto longo</Label>
+          <Switch id="long-text" checked={props.longText} onCheckedChange={(c) => handleChange('longText', c)} />
+        </div>
+        
+        <div>
+          <Label className="text-xs text-white/50">Texto de exemplo</Label>
+          <div className="relative mt-1">
+            <Input
+              placeholder="Digite sua resposta..."
+              value={props.placeholder || ''}
+              onChange={(e) => handleChange('placeholder', e.target.value)}
+              className="bg-[#181818] border-[#3f3f46] text-white pr-8"
+            />
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white">
+              <Braces size={16} />
+            </button>
+          </div>
+        </div>
+  
+        <div>
+          <Label className="text-xs text-white/50">Rótulo do botão</Label>
+          <div className="relative mt-1">
+            <Input
+              placeholder="Enviar"
+              value={props.buttonLabel || ''}
+              onChange={(e) => handleChange('buttonLabel', e.target.value)}
+              className="bg-[#181818] border-[#3f3f46] text-white pr-8"
+            />
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white">
+              <Braces size={16} />
+            </button>
+          </div>
+        </div>
+        
+        <div>
+          <Label className="text-xs text-white/50">Modo de entrada</Label>
+          <Select value={props.inputMode || 'text'} onValueChange={(v) => handleChange('inputMode', v)}>
+            <SelectTrigger className="mt-1 bg-[#181818] border-[#3f3f46]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#262626] border-[#3f3f46] text-white">
+              <SelectItem value="text">Texto</SelectItem>
+              <SelectItem value="number">Número</SelectItem>
+              <SelectItem value="email">Email</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+  
+        <div className="flex items-center justify-between rounded-lg bg-[#181818] p-3">
+          <Label htmlFor="allow-audio-clip" className="text-sm">Permitir clipe de áudio</Label>
+          <Switch id="allow-audio-clip" checked={props.allowAudioClip} onCheckedChange={(c) => handleChange('allowAudioClip', c)} />
+        </div>
+  
+        <div className="flex items-center justify-between rounded-lg bg-[#181818] p-3">
+          <Label htmlFor="allow-attachments" className="text-sm">Permitir anexos</Label>
+          <Switch id="allow-attachments" checked={props.allowAttachments} onCheckedChange={(c) => handleChange('allowAttachments', c)} />
+        </div>
+  
+        <div>
+          <Label className="text-xs text-white/50">Salvar a resposta em uma variável</Label>
+          <div className="relative mt-1">
+            <Select onValueChange={(v) => handleChange('variable', v)}>
+              <SelectTrigger className="bg-[#181818] border-[#3f3f46]">
+                <SelectValue placeholder="Selecione uma variável" />
+              </SelectTrigger>
+              <SelectContent className="bg-[#262626] border-[#3f3f46] text-white">
+                {/* Add variable options here */}
+              </SelectContent>
+            </Select>
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white">
+              <Settings size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
 const CanvasTextBlock = ({
   block,
   onBlockMouseDown,
@@ -372,6 +476,13 @@ const CanvasTextBlock = ({
             <span className="text-sm text-white/60">Clique para editar...</span>
           </div>
         );
+        case 'input-text':
+            return (
+              <div className="flex items-center gap-2 text-sm text-white/80 w-full">
+                <TextCursorInput size={16} className="text-orange-400 flex-shrink-0" />
+                <span className='truncate'>{block.props?.placeholder || 'Digite sua resposta...'}</span>
+              </div>
+            );
       case 'text':
         if (isSelected) {
           return (
@@ -470,7 +581,7 @@ const CanvasTextBlock = ({
         <div
           className={cn(
             'flex items-center justify-between rounded-md bg-[#181818] p-2 min-h-[40px]',
-            isSelected && (block.type === 'text' ? 'border border-orange-500' : 'ring-2 ring-blue-500')
+            isSelected && (block.type.startsWith('input-') ? 'border border-orange-500' : 'ring-2 ring-blue-500')
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -478,7 +589,7 @@ const CanvasTextBlock = ({
           }}
         >
           <div className="flex items-center gap-2 w-full">{getBlockContent()}</div>
-          {!isSelected && block.type !== 'text' && <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />}
+          {!isSelected && !block.type.startsWith('input-') && <div className="h-3 w-3 rounded-full border-2 border-orange-400 bg-transparent" />}
         </div>
       </div>
     </div>
@@ -916,25 +1027,20 @@ export function TypebotEditor({
       setIsPanning(false);
 
       if (draggingState.isDragging && draggingState.originalBlock && draggingState.blockId) {
-        // Find if the block being dragged exists in the current state, if not, it means it was a child that was detached
         const currentDraggedBlock = findBlock(draggingState.blockId);
         
-        // Restore the original block if it was detached from a parent but not dropped in a new valid target
         if (!currentDraggedBlock) {
              setCanvasBlocks(prevBlocks => {
                 let restoredBlocks = [...prevBlocks];
                 
-                // Find and remove the temporary top-level block if it exists
                 restoredBlocks = restoredBlocks.filter(b => b.id !== draggingState.blockId);
 
-                // Find the original parent and re-insert the original child block
                 const parentIndex = restoredBlocks.findIndex(p => p.id === draggingState.originalBlock!.parentId);
                 if (parentIndex > -1) {
                     const parent = { ...restoredBlocks[parentIndex] };
                     const children = [...(parent.children || [])];
                     const childExists = children.some(c => c.id === draggingState.originalBlock!.id);
                     if (!childExists) {
-                       // This assumes order doesn't matter or needs another way to restore order
                        children.push(draggingState.originalBlock!); 
                        parent.children = children;
                        restoredBlocks[parentIndex] = parent;
@@ -1071,7 +1177,7 @@ export function TypebotEditor({
 
   const handleBlockMouseDown = (e: React.MouseEvent, block: CanvasBlock) => {
     e.stopPropagation();
-    if (e.button !== 0) return; // Only process left-clicks for dragging/selection
+    if (e.button !== 0) return;
     setContextMenu({ ...contextMenu, visible: false });
 
     if (!canvasRef.current) return;
@@ -1289,6 +1395,7 @@ export function TypebotEditor({
             {selectedBlock && selectedBlock.type === 'image' && <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'audio' && <AudioBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
+            {selectedBlock && selectedBlock.type === 'input-text' && <TextBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {contextMenu.visible && (
               <ContextMenu
                 x={contextMenu.x}
