@@ -118,13 +118,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
 import { Badge } from '../ui/badge.tsx';
+import { Textarea } from '../ui/textarea.tsx';
 
 const ButtonsBlockSettings = ({
   block,
   onUpdate,
+  position,
 }: {
   block: CanvasBlock;
   onUpdate: (id: number, props: any) => void;
+  position: { x: number; y: number };
 }) => {
   const props = block.props || {};
   const buttons = props.buttons || [];
@@ -151,9 +154,22 @@ const ButtonsBlockSettings = ({
 
   return (
     <div
-      className="w-full space-y-4 text-white p-2"
+      className="absolute w-72 rounded-lg bg-[#262626] p-4 shadow-lg space-y-4 text-white"
+      style={{
+        left: `${position.x + 300}px`,
+        top: `${position.y}px`,
+      }}
       onMouseDown={(e) => e.stopPropagation()}
     >
+        <div>
+            <Label className="text-xs text-white/50">Conteúdo</Label>
+            <Textarea
+                value={props.content || ''}
+                onChange={(e) => handleChange('content', e.target.value)}
+                placeholder="Digite sua pergunta aqui..."
+                className="bg-[#181818] border-[#3f3f46] text-white mt-1"
+            />
+        </div>
       <div>
         <Label className="text-xs text-white/50">Item</Label>
         <div className="space-y-2 mt-1">
@@ -904,31 +920,30 @@ const EditableTextBlock = memo(
   ({ initialContent, onSave, onVariableInsert, variables, isSelected }) => {
     const editorRef = useRef<HTMLDivElement>(null);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-
+    
     useEffect(() => {
       const editor = editorRef.current;
       if (editor && editor.innerHTML !== initialContent) {
         editor.innerHTML = initialContent || '';
       }
     }, [initialContent]);
-
+    
     const handleBlur = () => {
       if (editorRef.current) {
         onSave(editorRef.current.innerHTML);
       }
     };
-
-    const handleVariableClick = () => {
+    
+    const handleVariableInsert = (variable: string) => {
       const editor = editorRef.current;
       if (!editor) return;
-
+    
       editor.focus();
-      document.execCommand(
-        'insertHTML',
-        false,
-        `<span style="color: #a78bfa;" contenteditable="false">{{...}}</span>&nbsp;`
-      );
-      handleBlur(); // Save content after inserting
+    
+      document.execCommand('insertHTML', false, `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`);
+      
+      onSave(editor.innerHTML);
+      setIsPopoverOpen(false);
     };
 
     return (
@@ -952,7 +967,6 @@ const EditableTextBlock = memo(
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <button
-              onClick={handleVariableClick}
               className="absolute right-1 top-1 h-6 w-6 rounded bg-[#3f3f46] flex items-center justify-center hover:bg-[#4a4a52]"
             >
               <Braces size={14} />
@@ -968,15 +982,7 @@ const EditableTextBlock = memo(
                     <CommandItem
                       key={variable}
                       value={variable}
-                      onSelect={() => {
-                        document.execCommand(
-                          'insertHTML',
-                          false,
-                          `<span style="color: #a78bfa;" contenteditable="false">{{${variable}}}</span>&nbsp;`
-                        );
-                        handleBlur(); // Save content after inserting
-                        setIsPopoverOpen(false);
-                      }}
+                      onSelect={() => handleVariableInsert(variable)}
                     >
                       {variable}
                     </CommandItem>
@@ -1100,31 +1106,27 @@ const CanvasTextBlock = ({
               initialContent={block.props?.content}
               onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
               variables={variables}
-              onVariableInsert={() => {}}
+              onVariableInsert={(variable) => {
+                const currentContent = block.props?.content || '';
+                const newContent = `${currentContent}{{${variable}}}`;
+                updateBlockProps(block.id, { content: newContent });
+              }}
               isSelected={isSelected}
             />
           );
       case 'input-buttons':
+        const { buttons = [] } = block.props || {};
         return (
-          <div className="flex flex-col gap-2 w-full">
-            <EditableTextBlock
-              initialContent={block.props?.content}
-              onSave={(newContent) => updateBlockProps(block.id, { content: newContent })}
-              variables={variables}
-              onVariableInsert={() => {}}
-              isSelected={isSelected}
-            />
-            {isSelected ? (
-                <ButtonsBlockSettings
-                    block={block}
-                    onUpdate={updateBlockProps}
-                />
-            ) : (
-                <Button variant="outline" className="w-full bg-[#2a2a2a] border-[#3f3f46] text-white justify-center h-8 text-sm hover:bg-[#3f3f46]" onClick={() => setSelectedBlockId(block.id)}>
-                    Add Button
-                </Button>
-            )}
-          </div>
+            <div className="flex flex-col gap-2 w-full text-sm text-white/80">
+                {block.props?.content || 'Clique para editar a pergunta...'}
+                <div className='mt-2 space-y-2'>
+                    {buttons.map((button: any, index: number) => (
+                        <Button key={index} variant='outline' className='w-full justify-center bg-[#2a2a2a] border-[#3f3f46] text-white h-8'>
+                            {button.text}
+                        </Button>
+                    ))}
+                </div>
+            </div>
         );
       default:
         return (
@@ -1151,7 +1153,7 @@ const CanvasTextBlock = ({
         <div
           className={cn(
             'flex flex-col items-start justify-between rounded-md bg-[#181818] p-2 min-h-[40px] gap-2',
-            isSelected && (block.type.startsWith('input-') ? 'border border-orange-500' : 'ring-2 ring-blue-500')
+            isSelected && (block.type.startsWith('input-') || block.type.startsWith('logic-') ? 'ring-2 ring-orange-500' : 'ring-2 ring-blue-500')
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -2342,6 +2344,7 @@ export function TypebotEditor({
             {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'audio' && <AudioBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'logic-wait' && <WaitBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
+            {selectedBlock && selectedBlock.type === 'input-buttons' && <ButtonsBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'input-text' && (
                 <TextBlockSettings
                     block={selectedBlock}
