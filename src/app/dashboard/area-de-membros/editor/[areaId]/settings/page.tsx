@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Globe,
   Users,
@@ -22,7 +22,6 @@ import { useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 
 const NavItem = ({
   icon,
@@ -70,14 +69,14 @@ export default function WorkspaceSettingsPage() {
   const [menuItems, setMenuItems] = useState<string[]>([]);
 
 
-  useState(() => {
+  useEffect(() => {
     if (areaData) {
       setWorkspaceName(areaData.name || '');
       setSupportEmail(areaData.supportEmail || '');
       setPrimaryColor(areaData.primaryColor || '#6366F1');
       setLogoUrl(areaData.logoUrl || '');
     }
-  });
+  }, [areaData]);
 
   const handleSave = async () => {
     if (!areaRef) return;
@@ -289,10 +288,10 @@ export default function WorkspaceSettingsPage() {
                 Adicionar Primeiro
               </Button>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
-                <Badge variant="secondary">Dashboard</Badge>
-                <Badge variant="secondary">Meus Cursos</Badge>
-                <Badge variant="secondary">Comunidade</Badge>
-                <Badge variant="secondary">Suporte</Badge>
+                <Button variant="secondary">Dashboard</Button>
+                <Button variant="secondary">Meus Cursos</Button>
+                <Button variant="secondary">Comunidade</Button>
+                <Button variant="secondary">Suporte</Button>
               </div>
             </div>
           </div>
