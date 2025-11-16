@@ -18,7 +18,6 @@ import {
   Minus,
   HelpCircle,
   BarChart2,
-  ImageIcon,
   List as ListIcon,
   Text as TextIcon,
   CheckSquare,
@@ -31,7 +30,6 @@ import {
   FileCode,
   FileText as FileTextIcon,
   Heading1,
-  Video,
   Check,
   XCircle,
   CheckCircle,
@@ -92,6 +90,7 @@ import {
   GanttChart,
   AtSign,
   Braces,
+  Video,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -100,7 +99,9 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import type { Funnel, CanvasBlock, ComponentProps } from './types.tsx';
+import type { Funnel, CanvasBlock } from './types.tsx';
+import ReactPlayer from 'react-player';
+
 
 type DropIndicator = {
   groupId: number;
@@ -177,6 +178,52 @@ const ImageBlockSettings = ({
   );
 };
 
+const VideoBlockSettings = ({
+  block,
+  onUpdate,
+  position,
+}: {
+  block: CanvasBlock;
+  onUpdate: (id: number, props: any) => void;
+  position: { x: number; y: number };
+}) => {
+  const [videoUrl, setVideoUrl] = useState(block.props?.videoUrl || '');
+
+  const handleVideoUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVideoUrl(e.target.value);
+    onUpdate(block.id, { ...block.props, videoUrl: e.target.value });
+  };
+
+  return (
+    <div
+      className="absolute w-72 rounded-lg bg-[#262626] p-3 shadow-lg"
+      style={{
+        left: `${position.x + 300}px`,
+        top: `${position.y}px`,
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <Tabs defaultValue="link" className="w-full">
+        <TabsList className="grid w-full grid-cols-1 bg-transparent p-0 h-auto">
+          <TabsTrigger value="link" className="text-xs data-[state=active]:bg-[#3f3f46] data-[state=active]:text-white rounded-md">
+            Link
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="link" className="mt-4">
+          <div className="space-y-4">
+            <Input
+              placeholder="Paste the video link..."
+              value={videoUrl}
+              onChange={handleVideoUrlChange}
+              className="bg-[#181818] border-[#3f3f46] text-white"
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
 const CanvasTextBlock = ({
   block,
   onBlockMouseDown,
@@ -217,6 +264,20 @@ const CanvasTextBlock = ({
             <ImageIconLucide size={16} className="text-white/60" />
             <span className="text-sm text-white/60">Click to edit...</span>
           </div>
+        );
+      case 'video':
+        if (block.props?.videoUrl) {
+            return (
+                <div className="w-full aspect-video">
+                    <ReactPlayer url={block.props.videoUrl} width="100%" height="100%" controls />
+                </div>
+            );
+        }
+        return (
+            <div className="flex items-center gap-2">
+                <Video size={16} className="text-white/60" />
+                <span className="text-sm text-white/60">Click to edit...</span>
+            </div>
         );
       case 'text':
         if (isSelected) {
@@ -432,9 +493,8 @@ export const TypebotEditor = ({
   debouncedUpdateFunnel,
 }: {
   funnel: Funnel;
-  setFunnel: (updater: (prev: Funnel) => Funnel) => void;
+  setFunnel: (updater: (prev: Funnel | null) => Funnel | null) => void;
   debouncedUpdateFunnel: any;
-  deleteBlock?: (id: number) => void;
 }) => {
   const [activeTab, setActiveTab] = useState('Flow');
   const [isPanning, setIsPanning] = useState(false);
@@ -521,22 +581,24 @@ export const TypebotEditor = ({
 
   const deleteBlock = (blockId: number) => {
     setCanvasBlocks((prev) => {
-      const newBlocks = prev
-        .map((parent) => {
-          if (!parent.children) return parent;
-          const newChildren = parent.children.filter((child) => child.id !== blockId);
-          if (newChildren.length === 0) {
-            return null;
-          }
-          return { ...parent, children: newChildren };
-        })
-        .filter((b) => b !== null) as CanvasBlock[];
+        const newBlocks = prev
+            .map((parent) => {
+                if (!parent.children) return parent;
+                const newChildren = parent.children.filter((child) => child.id !== blockId);
+                // If the group becomes empty after deleting the child, remove the group
+                if (parent.children.length > 0 && newChildren.length === 0) {
+                    return null;
+                }
+                return { ...parent, children: newChildren };
+            })
+            .filter((b) => b !== null) as CanvasBlock[];
 
-      return newBlocks.filter((b) => b.id !== blockId);
+        // Also filter out top-level blocks
+        return newBlocks.filter((b) => b.id !== blockId);
     });
 
     if (selectedBlockId === blockId) {
-      setSelectedBlockId(null);
+        setSelectedBlockId(null);
     }
   };
 
@@ -732,43 +794,42 @@ export const TypebotEditor = ({
         }
 
         if (draggingState.originalBlock?.parentId && canvasRef.current) {
-          const parentGroup = canvasBlocks.find((p) => p.id === draggingState.originalBlock!.parentId);
-          if (!parentGroup) return;
+            const parentGroup = canvasBlocks.find((p) => p.id === draggingState.originalBlock!.parentId);
+            if (!parentGroup) return;
 
-          const groupEl = document.getElementById(`block-${parentGroup.id}`);
-          const childEl = document.getElementById(`block-${draggingState.originalBlock.id}`);
-          if (!groupEl || !childEl) return;
-          const groupRect = groupEl.getBoundingClientRect();
-          const childRect = childEl.getBoundingClientRect();
-          const newBlockId = Date.now();
+            const newBlockId = Date.now();
 
-          const detachedBlock: CanvasBlock = {
-            ...draggingState.originalBlock,
-            id: newBlockId,
-            parentId: undefined,
-            position: {
-                x: (groupRect.left - canvasRect.left + childRect.left - groupRect.left - panOffset.x) / zoom,
-                y: (groupRect.top - canvasRect.top + childRect.top - groupRect.top - panOffset.y) / zoom,
-              },
-          };
+            const detachedBlock: CanvasBlock = {
+                ...draggingState.originalBlock,
+                id: newBlockId,
+                parentId: undefined,
+                position: {
+                    x: parentGroup.position.x + (draggingState.dragStartMouse.x - (parentGroup.position.x * zoom + panOffset.x + canvasRect.left)) / zoom,
+                    y: parentGroup.position.y + (draggingState.dragStartMouse.y - (parentGroup.position.y * zoom + panOffset.y + canvasRect.top)) / zoom,
+                },
+            };
 
-          const groupIsNowEmpty = parentGroup.children?.length === 1;
+            const groupIsNowEmpty = parentGroup.children?.length === 1;
 
-          setCanvasBlocks((prevBlocks) => [
-            ...prevBlocks
-              .map((p) => (p.id === draggingState.originalBlock!.parentId ? { ...p, children: p.children?.filter((c) => c.id !== draggingState.originalBlock!.id) } : p))
-              .filter((p) => !(p.id === draggingState.originalBlock!.parentId && groupIsNowEmpty)),
-            detachedBlock,
-          ]);
+            setCanvasBlocks((prevBlocks) => [
+                ...prevBlocks
+                    .map((p) =>
+                        p.id === draggingState.originalBlock!.parentId
+                            ? { ...p, children: p.children?.filter((c) => c.id !== draggingState.originalBlock!.id) }
+                            : p
+                    )
+                    .filter((p) => !(p.id === draggingState.originalBlock!.parentId && groupIsNowEmpty)),
+                detachedBlock,
+            ]);
 
-          setDraggingState((prev) => ({
-            ...prev,
-            blockId: newBlockId,
-            dragStartOffset: {
-              x: (e.clientX - childRect.left) / zoom,
-              y: (e.clientY - childRect.top) / zoom,
-            },
-          }));
+            setDraggingState((prev) => ({
+                ...prev,
+                blockId: newBlockId,
+                dragStartOffset: {
+                    x: (e.clientX - (detachedBlock.position.x * zoom + panOffset.x + canvasRect.left)) / zoom,
+                    y: (e.clientY - (detachedBlock.position.y * zoom + panOffset.y + canvasRect.top)) / zoom,
+                },
+            }));
         }
       }
     }
@@ -874,28 +935,19 @@ export const TypebotEditor = ({
     const blockElement = document.getElementById(`block-${id}`);
     if (!blockElement) return { x: 0, y: 0 };
 
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-    const blockRect = blockElement.getBoundingClientRect();
-
     const block = findBlock(id);
     if (block?.parentId) {
       const parent = findBlock(block.parentId);
       if (parent) {
-        const parentEl = document.getElementById(`block-${parent.id}`);
-        if (parentEl) {
-          const parentRect = parentEl.getBoundingClientRect();
-          return {
-            x: (parentRect.left - canvasRect.left + blockRect.left - parentRect.left - panOffset.x) / zoom,
-            y: (parentRect.top - canvasRect.top + blockRect.top - parentRect.top - panOffset.y) / zoom,
-          };
-        }
+        return {
+          x: parent.position.x,
+          y: parent.position.y,
+        };
       }
     }
+    if(block) return block.position
 
-    return {
-      x: (blockRect.left - canvasRect.left - panOffset.x) / zoom,
-      y: (blockRect.top - canvasRect.top - panOffset.y) / zoom,
-    };
+    return {x:0, y:0};
   };
 
   const selectedBlock = findBlock(selectedBlockId);
@@ -1038,6 +1090,7 @@ export const TypebotEditor = ({
                 );
               })}
             {selectedBlock && selectedBlock.type === 'image' && <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
+            {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
           </div>
         </main>
       </div>
