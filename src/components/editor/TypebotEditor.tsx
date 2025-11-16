@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   ArrowLeft,
   Settings,
@@ -223,6 +223,7 @@ const CanvasTextBlock = ({
   onBlockMouseDown,
   onDuplicate,
   onDelete,
+  onContextMenu,
   isSelected,
   setSelectedBlockId,
   isChild = false,
@@ -232,6 +233,7 @@ const CanvasTextBlock = ({
   onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
   onDuplicate: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent) => void;
+  onContextMenu: (e: React.MouseEvent, block: CanvasBlock) => void;
   isSelected: boolean;
   setSelectedBlockId: (id: number | null) => void;
   isChild?: boolean;
@@ -336,6 +338,7 @@ const CanvasTextBlock = ({
           : {}
       }
       onMouseDown={(e) => onBlockMouseDown(e, block)}
+      onContextMenu={(e) => onContextMenu(e, block)}
     >
       {!isChild && (
         <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -410,6 +413,7 @@ const CanvasGroupBlock = ({
   onBlockMouseDown,
   onDuplicate,
   onDelete,
+  onContextMenu,
   isSelected,
   setSelectedBlockId,
   dropIndicator,
@@ -423,6 +427,7 @@ const CanvasGroupBlock = ({
   onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
   onDuplicate: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent) => void;
+  onContextMenu: (e: React.MouseEvent, block: CanvasBlock) => void;
   isSelected: boolean;
   setSelectedBlockId: (id: number | null) => void;
   dropIndicator: DropIndicator;
@@ -438,6 +443,7 @@ const CanvasGroupBlock = ({
       transform: `translate(${block.position.x}px, ${block.position.y}px)`,
     }}
     onMouseDown={(e) => onBlockMouseDown(e, block)}
+    onContextMenu={(e) => onContextMenu(e, block)}
   >
     <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
       <Button
@@ -485,6 +491,7 @@ const CanvasGroupBlock = ({
                 e.stopPropagation();
                 deleteBlock(child.id);
               }}
+              onContextMenu={(e, block) => onContextMenu(e, block)}
               isSelected={selectedBlockId === child.id}
               setSelectedBlockId={setSelectedBlockId}
               isChild={true}
@@ -499,6 +506,41 @@ const CanvasGroupBlock = ({
 );
 
 const DropPlaceholder = () => <div data-testid="drop-placeholder" className="h-10 w-full rounded-md border-2 border-dashed border-orange-500 bg-orange-500/10" />;
+
+const ContextMenu = ({
+  x,
+  y,
+  onDuplicate,
+  onDelete,
+}: {
+  x: number;
+  y: number;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) => {
+  return (
+    <div
+      className="absolute z-50 w-40 rounded-lg bg-[#262626] p-2 shadow-lg"
+      style={{ top: y, left: x }}
+    >
+      <Button
+        variant="ghost"
+        className="w-full justify-start gap-2 text-sm font-normal text-white/80 hover:bg-[#3f3f46] hover:text-white"
+        onClick={onDuplicate}
+      >
+        <Copy size={14} /> Duplicate
+      </Button>
+      <Button
+        variant="ghost"
+        className="w-full justify-start gap-2 text-sm font-normal text-red-500 hover:bg-red-500/10 hover:text-red-500"
+        onClick={onDelete}
+      >
+        <Trash2 size={14} /> Delete
+      </Button>
+    </div>
+  );
+};
+
 
 export function TypebotEditor({
   funnel,
@@ -517,6 +559,12 @@ export function TypebotEditor({
   const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    blockId: number | null;
+  }>({ visible: false, x: 0, y: 0, blockId: null });
 
   const [draggingState, setDraggingState] = useState<{
     blockId: number | null;
@@ -631,6 +679,31 @@ export function TypebotEditor({
     setCanvasBlocks(updateRecursively);
   };
 
+  const handleContextMenu = (e: React.MouseEvent, block: CanvasBlock) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      blockId: block.id,
+    });
+  };
+
+  const handleDuplicateFromMenu = () => {
+    if (contextMenu.blockId) {
+      duplicateBlock(contextMenu.blockId);
+    }
+    setContextMenu({ visible: false, x: 0, y: 0, blockId: null });
+  };
+
+  const handleDeleteFromMenu = () => {
+    if (contextMenu.blockId) {
+      deleteBlock(contextMenu.blockId);
+    }
+    setContextMenu({ visible: false, x: 0, y: 0, blockId: null });
+  };
+
   const blocks = {
     Bubbles: [
       { name: 'Text', icon: <MessageCircle size={16} />, type: 'text' },
@@ -675,6 +748,7 @@ export function TypebotEditor({
       startPanPosition.current = { x: e.clientX, y: e.clientY };
       e.currentTarget.style.cursor = 'grabbing';
       setSelectedBlockId(null);
+      setContextMenu({ ...contextMenu, visible: false });
     }
   };
 
@@ -905,6 +979,7 @@ export function TypebotEditor({
 
   const handleBlockMouseDown = (e: React.MouseEvent, block: CanvasBlock) => {
     e.stopPropagation();
+    setContextMenu({ ...contextMenu, visible: false });
 
     if (!canvasRef.current) return;
 
@@ -1040,6 +1115,7 @@ export function TypebotEditor({
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          onContextMenu={(e) => e.preventDefault()}
         >
           <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
             <div className="flex items-center gap-1 rounded-md bg-[#181818] p-1">
@@ -1095,6 +1171,7 @@ export function TypebotEditor({
                       e.stopPropagation();
                       deleteBlock(block.id);
                     }}
+                    onContextMenu={handleContextMenu}
                     isSelected={selectedBlockId === block.id}
                     setSelectedBlockId={setSelectedBlockId}
                     dropIndicator={dropIndicator}
@@ -1107,9 +1184,17 @@ export function TypebotEditor({
               })}
             {selectedBlock && selectedBlock.type === 'image' && <ImageBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
             {selectedBlock && selectedBlock.type === 'video' && <VideoBlockSettings block={selectedBlock} onUpdate={updateBlockProps} position={selectedBlockPosition} />}
+            {contextMenu.visible && (
+              <ContextMenu
+                x={contextMenu.x}
+                y={contextMenu.y}
+                onDuplicate={handleDuplicateFromMenu}
+                onDelete={handleDeleteFromMenu}
+              />
+            )}
           </div>
         </main>
       </div>
     </div>
   );
-};
+}
