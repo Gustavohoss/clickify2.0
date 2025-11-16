@@ -69,6 +69,8 @@ export default function MemberAreaEditorPage() {
   const [newModuleName, setNewModuleName] = useState('');
   const [newModuleCoverUrl, setNewModuleCoverUrl] = useState('');
 
+  const [editingModule, setEditingModule] = useState<Module | null>(null);
+
 
   const areaRef = useMemoFirebase(
     () => (firestore && areaId ? doc(firestore, 'memberAreas', areaId) : null),
@@ -111,6 +113,49 @@ export default function MemberAreaEditorPage() {
       setIsAddModuleOpen(false);
     } catch (error) {
        toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível adicionar o módulo.'})
+    }
+  };
+
+  const handleOpenEditDialog = (module: Module) => {
+    setEditingModule(module);
+    setNewModuleName(module.name);
+    setNewModuleCoverUrl(module.coverImageUrl || '');
+    setIsAddModuleOpen(true);
+  };
+
+  const handleUpdateModule = async () => {
+    if (!areaRef || !editingModule || !newModuleName.trim()) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'O nome do módulo é obrigatório.' });
+      return;
+    }
+
+    const updatedModules = areaData?.modules?.map(m => 
+      m.id === editingModule.id 
+        ? { ...m, name: newModuleName, coverImageUrl: newModuleCoverUrl }
+        : m
+    );
+
+    try {
+      await updateDoc(areaRef, { modules: updatedModules });
+      toast({ title: 'Sucesso!', description: 'Módulo atualizado.' });
+      closeAndResetDialog();
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar o módulo.' });
+    }
+  };
+
+  const closeAndResetDialog = () => {
+    setIsAddModuleOpen(false);
+    setEditingModule(null);
+    setNewModuleName('');
+    setNewModuleCoverUrl('');
+  };
+
+  const handleDialogSave = () => {
+    if (editingModule) {
+      handleUpdateModule();
+    } else {
+      handleAddModule();
     }
   };
 
@@ -230,13 +275,13 @@ export default function MemberAreaEditorPage() {
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
-                                            <DropdownMenuItem className="focus:bg-gray-600">Editar</DropdownMenuItem>
+                                            <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditDialog(module)}>Editar</DropdownMenuItem>
                                             <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
-                                    <AccordionTrigger className="p-0">
+                                    <div className="p-0">
                                         <ChevronDown className="h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" />
-                                    </AccordionTrigger>
+                                    </div>
                                 </div>
                             </div>
                             <AccordionContent className="p-4 pt-0">
@@ -261,7 +306,7 @@ export default function MemberAreaEditorPage() {
                         <Expand size={16} />
                         Expandir
                     </Button>
-                    <Dialog open={isAddModuleOpen} onOpenChange={setIsAddModuleOpen}>
+                    <Dialog open={isAddModuleOpen} onOpenChange={closeAndResetDialog}>
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
@@ -285,14 +330,14 @@ export default function MemberAreaEditorPage() {
                                     <Folder size={20} />
                                 </div>
                                 <div>
-                                    <DialogTitle className="text-xl">Módulos</DialogTitle>
+                                    <DialogTitle className="text-xl">{editingModule ? 'Editar Módulo' : 'Adicionar Módulo'}</DialogTitle>
                                     <DialogDescription className="text-gray-400">
                                         Preencha os campos abaixo
                                     </DialogDescription>
                                 </div>
                                 </div>
                                 <DialogClose asChild>
-                                    <button className="absolute right-6 top-6 text-gray-400 hover:text-white">
+                                    <button className="absolute right-6 top-6 text-gray-400 hover:text-white" onClick={closeAndResetDialog}>
                                         <X size={20} />
                                     </button>
                                 </DialogClose>
@@ -367,8 +412,8 @@ export default function MemberAreaEditorPage() {
                                 </div>
                             </Tabs>
                             <DialogFooter className="px-6 py-4 bg-gray-800/50 border-t border-gray-700">
-                                <Button variant="ghost" onClick={() => setIsAddModuleOpen(false)}>Cancelar</Button>
-                                <Button className="bg-green-600 hover:bg-green-700" onClick={handleAddModule}>Salvar</Button>
+                                <Button variant="ghost" onClick={closeAndResetDialog}>Cancelar</Button>
+                                <Button className="bg-green-600 hover:bg-green-700" onClick={handleDialogSave}>Salvar</Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
@@ -392,3 +437,4 @@ export default function MemberAreaEditorPage() {
     
 
     
+
