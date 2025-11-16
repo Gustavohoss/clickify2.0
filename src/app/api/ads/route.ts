@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const FB_GRAPH_VERSION = 'v19.0';
-const ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
+// Guarde o token diretamente aqui para garantir que ele esteja disponível no ambiente do servidor.
+const ACCESS_TOKEN = "EAAQZBL4qStBIBPZCcRbRypj1OIpeTLfZCkB0j48JEV73a5u8OS3NqrU98rGFULZB3LbCDTi8H54eL3anZCkJmamomOXAXi6Ngmoi9ZBE1HC870C35ZCIzAEjR0lZB90cdCsJ83IEFpt4bcYCtZAueyk1WZBSfDEZCmIlg7rG3UFOYAGoUJyYnMOKr2oaKJVnhlnMCEGtDAjY9p7TbnQsAcs0fP4R7pv3fncwyIwikZChzf6uwm2MA7rU";
 
 export async function GET(req: NextRequest) {
   if (!ACCESS_TOKEN) {
