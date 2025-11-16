@@ -9,7 +9,8 @@ import {
   Expand,
   PlusCircle,
   Eye,
-  BookCopy,
+  Info,
+  Link,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,16 +18,23 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter, useParams } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Label } from '@/components/ui/label';
+import Image from 'next/image';
 
 type MemberArea = {
   name: string;
+  headerImageUrl?: string;
 };
 
 export default function MemberAreaEditorPage() {
   const router = useRouter();
   const { areaId } = useParams() as { areaId: string };
   const firestore = useFirestore();
+  const [headerUrl, setHeaderUrl] = useState('');
 
   const areaRef = useMemoFirebase(
     () => (firestore && areaId ? doc(firestore, 'memberAreas', areaId) : null),
@@ -34,6 +42,12 @@ export default function MemberAreaEditorPage() {
   );
 
   const { data: areaData, isLoading } = useDoc<MemberArea>(areaRef);
+
+  const handleSaveHeaderImage = async () => {
+    if (areaRef) {
+      await updateDoc(areaRef, { headerImageUrl: headerUrl });
+    }
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-900 text-gray-200">
@@ -68,11 +82,48 @@ export default function MemberAreaEditorPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="content" className="space-y-6">
-              <div className="relative flex min-h-[200px] items-center justify-center rounded-lg border border-gray-700 bg-gray-800/50">
-                <Button variant="outline" className="gap-2 border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700">
-                  <Pencil size={16} />
-                  Editar Header
-                </Button>
+              <div className="relative flex min-h-[200px] items-center justify-center overflow-hidden rounded-lg border border-gray-700 bg-gray-800/50">
+                {areaData?.headerImageUrl && (
+                    <Image src={areaData.headerImageUrl} layout="fill" objectFit="cover" alt="Header da área de membros" />
+                )}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="gap-2 border-gray-600 bg-gray-800/50 text-gray-300 hover:bg-gray-700 backdrop-blur-sm">
+                      <Pencil size={16} />
+                      Editar Header
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-96 bg-gray-800 border-gray-700 text-white" side="bottom">
+                    <div className="space-y-4">
+                        <div className="space-y-1">
+                            <h4 className="font-semibold">Editar Header</h4>
+                            <p className="text-sm text-gray-400">Escolha uma imagem para o cabeçalho da sua área de membros.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="header-url">URL da imagem</Label>
+                            <div className="flex items-center gap-2">
+                                <Link size={16} className="text-gray-500" />
+                                <Input 
+                                    id="header-url"
+                                    placeholder="https://sua-imagem.com/header.jpg"
+                                    className="border-gray-600 bg-gray-900"
+                                    value={headerUrl}
+                                    onChange={(e) => setHeaderUrl(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <Alert className="bg-blue-900/50 border-blue-800">
+                          <Info className="h-4 w-4 text-blue-400" />
+                          <AlertDescription className="text-blue-300">
+                            Tamanho recomendado: 1920x1080
+                          </AlertDescription>
+                        </Alert>
+                         <Button onClick={handleSaveHeaderImage} className="w-full bg-green-600 hover:bg-green-700">
+                            Salvar Imagem
+                        </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>
