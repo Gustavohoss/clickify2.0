@@ -22,7 +22,7 @@ export const ConfettiCanvasComponent = ({ component }: { component: CanvasCompon
   }, [fire]);
 
   return (
-    <div className="relative flex items-center justify-center gap-4 border-dashed bg-card p-4">
+    <div className="relative flex items-center justify-center gap-4 border-dashed bg-card/80 p-4">
       <div className="text-primary">
         <Sparkles />
       </div>
