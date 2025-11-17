@@ -1,6 +1,39 @@
+'use client';
 
 import { ReactNode } from 'react';
-import { CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
+import {
+  AlertTriangle,
+  MessageSquareText,
+  MousePointerClick,
+  Loader,
+  View,
+  TrendingUp,
+  GitCompareArrows,
+  Sparkles,
+  Star,
+  Quote,
+  TextCursorInput,
+  SlidersHorizontal,
+  Rows,
+  DollarSign,
+  FileCode,
+  FileText as FileTextIcon,
+  Heading1,
+  Check,
+  XCircle,
+  CheckCircle,
+  Info,
+  AudioWaveform,
+  CheckSquare,
+  ChevronsRight,
+  HelpCircle,
+  BarChart2,
+  ImageIcon,
+  List as ListIcon,
+  Video,
+} from 'lucide-react';
+import { Text as TextIcon } from 'lucide-react';
+
 
 export type ComponentType = {
   name: string;
@@ -258,3 +291,31 @@ export type CanvasConnection = {
   from: number | 'start';
   to: number;
 };
+
+export const components: ComponentType[] = [
+  { name: 'Alerta', icon: <AlertTriangle /> },
+  { name: 'Argumentos', icon: <MessageSquareText /> },
+  { name: 'Audio', icon: <AudioWaveform /> },
+  { name: 'Botão', icon: <MousePointerClick /> },
+  { name: 'Carregando', icon: <Loader /> },
+  { name: 'Carrosel', icon: <View /> },
+  { name: 'Cartesiano', icon: <TrendingUp /> },
+  { name: 'Comparar', icon: <GitCompareArrows />, isNew: true },
+  { name: 'Confetti', icon: <Sparkles />, isNew: true },
+  { name: 'Depoimentos', icon: <Quote /> },
+  { name: 'Entrada', icon: <TextCursorInput /> },
+  { name: 'Espaçador', icon: <Rows /> },
+  { name: 'FAQ', icon: <HelpCircle />, isNew: true },
+  { name: 'Gráficos', icon: <BarChart2 /> },
+  { name: 'Imagem', icon: <ImageIcon /> },
+  { name: 'Lista', icon: <ListIcon />, isNew: true },
+  { name: 'Marquise', icon: <ChevronsRight />, isNew: true },
+  { name: 'Nível', icon: <SlidersHorizontal />, isNew: true },
+  { name: 'Opções', icon: <CheckSquare /> },
+  { name: 'Preço', icon: <DollarSign />, isNew: true },
+  { name: 'Script', icon: <FileCode /> },
+  { name: 'Termos', icon: <FileTextIcon />, isNew: true },
+  { name: 'Texto', icon: <TextIcon /> },
+  { name: 'Título', icon: <Heading1 /> },
+  { name: 'Video', icon: <Video /> },
+];
