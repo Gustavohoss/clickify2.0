@@ -2,13 +2,15 @@
 
 import { Input } from '@/components/ui/input';
 import { Label as UILabel } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, Trash2, Grip } from 'lucide-react';
+import { Plus, Trash2, Grip, AlignCenter, AlignLeft, AlignRight, Bold, Italic, Link, List, ListOrdered, Underline, Baseline, Highlighter, Strikethrough, AlignJustify, RemoveFormatting } from 'lucide-react';
 import type { CanvasComponentData, ComponentProps, ArgumentItem } from '../types';
 import { Textarea } from '@/components/ui/textarea';
+import React, { useState, useRef } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { RichTextToolbar } from './RichTextToolbar';
 
 export const ArgumentosSettings = ({
   component,
@@ -18,7 +20,7 @@ export const ArgumentosSettings = ({
   onUpdate: (props: ComponentProps) => void;
 }) => {
   const items = component.props.items || [];
-
+  
   const handleUpdateItem = (
     itemId: number,
     key: keyof ArgumentItem,
@@ -34,8 +36,8 @@ export const ArgumentosSettings = ({
     const newItem: ArgumentItem = {
       id: Date.now(),
       icon: '💬',
-      title: 'Novo Argumento',
-      description: 'Descreva o argumento aqui.',
+      title: 'Argumento',
+      description: 'Lorem ipsum dolor sit amet.',
     };
     onUpdate({ ...component.props, items: [...items, newItem] });
   };
@@ -44,83 +46,73 @@ export const ArgumentosSettings = ({
     const newItems = items.filter((item) => item.id !== itemId);
     onUpdate({ ...component.props, items: newItems });
   };
+  
+  const handleContentChange = (itemId: number, newContent: { title: string, description: string }) => {
+      const newItems = items.map((item) =>
+      item.id === itemId ? { ...item, ...newContent } : item
+    );
+    onUpdate({ ...component.props, items: newItems });
+  }
 
   return (
-    <div className="space-y-6">
-      <Card className="border-border/50 bg-card p-4">
-        <h3 className="mb-4 text-sm font-medium text-muted-foreground">Layout</h3>
-        <div className="space-y-4">
-          <div>
-            <UILabel htmlFor="layout" className="text-xs">Layout</UILabel>
-            <Select
-              value={component.props.layout || 'list'}
-              onValueChange={(value: 'list' | '2-cols' | '3-cols' | '4-cols') => onUpdate({ ...component.props, layout: value })}
-            >
-              <SelectTrigger id="layout" className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="list">Em Lista</SelectItem>
-                <SelectItem value="2-cols">2 Colunas</SelectItem>
-                <SelectItem value="3-cols">3 Colunas</SelectItem>
-                <SelectItem value="4-cols">4 Colunas</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </Card>
+    <div className="space-y-4">
+      <div className="space-y-3">
+        {items.map((item: ArgumentItem) => (
+           <Card key={item.id} className="relative bg-[#1e1e1e] border-[#333] p-4 space-y-4">
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 text-muted-foreground">
+                <Grip className="h-5 w-5 cursor-grab text-gray-500" />
+              </div>
 
-      <Card className="border-border/50 bg-card p-4">
-        <h3 className="mb-4 text-sm font-medium text-muted-foreground">Argumentos</h3>
-        <ScrollArea className="h-[30rem]">
-          <div className="space-y-3 pr-4">
-            {items.map((item: ArgumentItem) => (
-              <Card key={item.id} className="relative bg-card p-3 space-y-3">
-                <div className="absolute top-2 left-2 flex items-center justify-center text-muted-foreground">
-                  <Grip className="h-4 w-4 cursor-grab" />
+              <div className="flex justify-center pt-6">
+                <div className="relative">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-800 text-3xl">
+                        {item.icon}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      {/* Emoji picker can go here */}
+                      <p className="p-4">Emoji picker placeholder</p>
+                    </PopoverContent>
+                  </Popover>
+                   <button className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white">
+                      <Trash2 className="h-3 w-3" />
+                    </button>
                 </div>
-                <div className="absolute top-2 right-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => handleDeleteItem(item.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+              </div>
+              
+              <div className='bg-white/5 rounded-md'>
+                <RichTextToolbar onFormat={() => {}} />
+                <div className="p-4 text-center">
+                    <div
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) => handleContentChange(item.id, { 
+                            title: e.currentTarget.querySelector('strong')?.innerText || item.title,
+                            description: e.currentTarget.querySelector('p')?.innerText || item.description
+                        })}
+                        className='text-white focus:outline-none'
+                    >
+                      <strong className="text-lg font-bold">{item.title}</strong>
+                      <p className="text-sm text-gray-400">{item.description}</p>
+                    </div>
                 </div>
-                <div className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-2 pt-8">
-                  <UILabel htmlFor={`icon-${item.id}`} className="text-xs">Ícone</UILabel>
-                  <Input
-                    id={`icon-${item.id}`}
-                    value={item.icon}
-                    onChange={(e) => handleUpdateItem(item.id, 'icon', e.target.value)}
-                    className="h-8"
-                  />
-                  <UILabel htmlFor={`title-${item.id}`} className="text-xs">Título</UILabel>
-                  <Input
-                    id={`title-${item.id}`}
-                    value={item.title}
-                    onChange={(e) => handleUpdateItem(item.id, 'title', e.target.value)}
-                    className="h-8"
-                  />
-                  <UILabel htmlFor={`description-${item.id}`} className="text-xs self-start">Descrição</UILabel>
-                  <Textarea
-                    id={`description-${item.id}`}
-                    value={item.description}
-                    onChange={(e) => handleUpdateItem(item.id, 'description', e.target.value)}
-                    className="h-20"
-                  />
-                </div>
-              </Card>
-            ))}
-          </div>
-        </ScrollArea>
-        <Button variant="outline" className="mt-4 w-full" onClick={handleAddItem}>
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar Argumento
-        </Button>
-      </Card>
+              </div>
+               
+              <div className="flex justify-center">
+                <Button variant="ghost" className="h-8 w-8 p-0 text-red-500 hover:bg-red-500/10 hover:text-red-500" onClick={() => handleDeleteItem(item.id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+
+           </Card>
+        ))}
+      </div>
+      <Button variant="link" className="text-white/70" onClick={handleAddItem}>
+        <Plus className="mr-2 h-4 w-4" />
+        Adicionar Argumento
+      </Button>
     </div>
   );
 };
