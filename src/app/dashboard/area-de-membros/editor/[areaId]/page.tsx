@@ -258,19 +258,15 @@ export default function MemberAreaEditorPage() {
                 {areaData?.modules && areaData.modules.length > 0 ? (
                     <Accordion type="multiple" className="w-full space-y-2">
                         {areaData.modules.map((module) => (
-                        <AccordionItem key={module.id} value={`module-${module.id}`} className="rounded-lg bg-gray-800 border-none">
-                            <div className="flex items-center justify-between w-full p-4">
-                                <AccordionTrigger className="flex-1 hover:no-underline p-0">
-                                    <div className="flex items-center gap-4">
-                                        <GripVertical className="cursor-grab text-gray-500" />
-                                        <span className="font-semibold">{module.name}</span>
-                                    </div>
-                                </AccordionTrigger>
-                                <div className="flex items-center gap-4 ml-4">
-                                    <Badge className="bg-blue-900/50 text-blue-300">{module.lessons?.length || 0} Conteúdo</Badge>
+                        <AccordionItem key={module.id} value={`module-${module.id}`} className="rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
+                            <div className="flex items-center p-4">
+                                <GripVertical className="cursor-grab text-gray-500 mr-4" />
+                                <div className="flex-1 rounded-md bg-gray-800 p-3 flex items-center">
+                                    <span className="font-semibold flex-1">{module.name}</span>
+                                    <Badge className="bg-blue-900/50 text-blue-300 border-blue-800">{module.lessons?.length || 0} Conteúdo</Badge>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 ml-2">
                                                 <MoreVertical size={16} />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -279,17 +275,25 @@ export default function MemberAreaEditorPage() {
                                             <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
-                                    <div className="p-0">
-                                        <ChevronDown className="h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" />
-                                    </div>
                                 </div>
                             </div>
+                             <div className="px-4 pb-2 flex items-center gap-4">
+                               <div className="h-px flex-1 bg-gray-700"></div>
+                               <AccordionTrigger className="hover:no-underline p-0">
+                                   <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gray-700 hover:bg-gray-600">
+                                        <ChevronDown className="h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200" />
+                                   </div>
+                                </AccordionTrigger>
+                                <div className="h-px flex-1 bg-gray-700"></div>
+                             </div>
                             <AccordionContent className="p-4 pt-0">
                                 <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 py-4 space-y-4">
+                                    <div className="relative">
+                                     <button className="absolute -left-[45px] top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700">
+                                        <PlusCircle size={16} />
+                                     </button>
+                                    </div>
                                     <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
-                                    <Button variant="ghost" className="gap-2 text-green-400">
-                                        <PlusCircle size={16} /> Adicionar Conteúdo
-                                    </Button>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
@@ -433,8 +437,3 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
-
-    
-
-    
-
