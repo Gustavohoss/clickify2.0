@@ -11,7 +11,9 @@ import type { CanvasComponentData, ComponentProps, ListItem } from '../types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const emojis = [
-  '✅', '🚀', '💡', '🔥', '⭐', '❤️', '👍', '🎉', '💰', '📈', '🎯', '🤔'
+  '✅', '🚀', '💡', '🔥', '⭐', '❤️', '👍', '🎉', '💰', '📈', '🎯', '🤔',
+  '✍️', '💼', '📊', '⚙️', '🛠️', '🔗', '🔒', '🔔', '📚', '💻', '📱',
+  '🎁', '🏆', '🔑', '👉', '➡️', '📌', '⚠️', '❌', '✔️', '❓', '❗'
 ];
 
 
@@ -103,12 +105,12 @@ export const ListaSettings = ({
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-2">
-                       <div className="grid grid-cols-4 gap-2">
+                       <div className="grid grid-cols-6 gap-1">
                           {emojis.map((emoji) => (
                             <Button
                               key={emoji}
                               variant="ghost"
-                              className="text-lg"
+                              className="text-lg p-1 h-8 w-8"
                               onClick={() => handleUpdateItem(item.id, 'icon', emoji)}
                             >
                               {emoji}
