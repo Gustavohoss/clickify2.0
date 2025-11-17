@@ -111,7 +111,11 @@ export const AudioCanvasComponent = ({ component }: { component: CanvasComponent
           disabled={!isReady}
           className="w-full [&>span:first-child]:h-1 [&>span:first-child>span]:bg-transparent"
           style={
-            { '--slider-track': progressColor, '--slider-thumb': progressColor } as React.CSSProperties
+            {
+              '--slider-track': progressColor,
+              '--slider-thumb': progressColor,
+              '--slider-track-bg': 'white',
+            } as React.CSSProperties
           }
         />
         <div className="mt-1 flex justify-between text-xs" style={{ color: iconColor }}>
