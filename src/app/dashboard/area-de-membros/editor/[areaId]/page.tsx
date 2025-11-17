@@ -367,33 +367,34 @@ export default function MemberAreaEditorPage() {
 
               <div className="space-y-4">
                 {areaData?.modules && areaData.modules.length > 0 ? (
-                    <Accordion type="multiple" className="w-full space-y-2">
-                        {areaData.modules.map((module) => (
-                        <AccordionItem key={module.id} value={`module-${module.id}`} className="rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
-                           <div className="flex justify-between items-center p-4">
-                                <div className="flex items-center gap-4 flex-1">
-                                    <GripVertical className="cursor-grab text-gray-500" />
-                                    <span className="font-semibold">{module.name}</span>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <Badge className="bg-blue-900/50 text-blue-300 border-blue-800">{module.lessons?.length || 0} Conteúdo</Badge>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
-                                                <MoreVertical size={16} />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
-                                            <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditDialog(module)}>Editar</DropdownMenuItem>
-                                            <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
+                  <div className="w-full space-y-4">
+                    {areaData.modules.map((module) => (
+                      <div key={module.id} className="rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
+                        <div className="flex justify-between items-center p-4">
+                            <div className="flex items-center gap-4 flex-1">
+                                <GripVertical className="cursor-grab text-gray-500" />
+                                <span className="font-semibold">{module.name}</span>
                             </div>
-                            <div className="border-t border-gray-900 py-2 relative">
+                            <div className="flex items-center gap-4">
+                                <Badge className="bg-blue-900/50 text-blue-300 border-blue-800">{(module.lessons?.length || 0) + (module.products?.length || 0)} Conteúdo</Badge>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
+                                            <MoreVertical size={16} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="bg-gray-700 border-gray-600 text-white">
+                                        <DropdownMenuItem className="focus:bg-gray-600" onClick={() => handleOpenEditDialog(module)}>Editar</DropdownMenuItem>
+                                        <DropdownMenuItem className="text-red-400 focus:bg-red-900/50 focus:text-red-300">Excluir</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        </div>
+                        <div className="border-t border-gray-700 px-4 pt-4 pb-2">
+                            <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 pb-4 space-y-4 relative">
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <button className="absolute left-4 -top-4 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
+                                        <button className="absolute -left-4 -top-4 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
                                             <PlusCircle size={16} />
                                         </button>
                                     </PopoverTrigger>
@@ -408,94 +409,90 @@ export default function MemberAreaEditorPage() {
                                         </Button>
                                     </PopoverContent>
                                 </Popover>
-                                <AccordionTrigger className="w-full flex justify-center hover:no-underline p-0 [&>svg]:text-gray-400">
-                                </AccordionTrigger>
-                            </div>
-                            <AccordionContent className="p-4 pt-0">
-                                <div className="ml-10 border-l-2 border-dashed border-gray-700 pl-8 py-4 space-y-4">
-                                   {(!module.lessons || module.lessons.length === 0) && (!module.products || module.products.length === 0) ? (
-                                        <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
-                                    ) : (
-                                      <>
-                                        {module.lessons?.map(lesson => (
-                                            <div key={lesson.id} className="flex items-center gap-4 bg-gray-800/50 p-3 rounded-md">
-                                                <GripVertical className="cursor-grab text-gray-500" />
-                                                <Video size={16} className="text-gray-400" />
-                                                <span className="flex-1 text-sm font-medium">{lesson.title}</span>
-                                                <Badge className="bg-green-900/50 text-green-300 border-green-800 text-xs">Publicado</Badge>
+                                
+                               {(!module.lessons || module.lessons.length === 0) && (!module.products || module.products.length === 0) ? (
+                                    <p className="text-gray-500">Nenhum conteúdo adicionado ainda.</p>
+                                ) : (
+                                  <>
+                                    {module.lessons?.map(lesson => (
+                                        <div key={lesson.id} className="flex items-center gap-4 bg-gray-800/50 p-3 rounded-md">
+                                            <GripVertical className="cursor-grab text-gray-500" />
+                                            <Video size={16} className="text-gray-400" />
+                                            <span className="flex-1 text-sm font-medium">{lesson.title}</span>
+                                            <Badge className="bg-green-900/50 text-green-300 border-green-800 text-xs">Publicado</Badge>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                                <ExternalLink size={16} />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => router.push(`/dashboard/area-de-membros/editor/${areaId}/novo-conteudo?moduleId=${module.id}&lessonId=${lesson.id}`)}>
+                                                <Pencil size={16} />
+                                            </Button>
+                                            <Dialog>
+                                              <DialogTrigger asChild>
+                                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:text-red-400">
+                                                      <Trash2 size={16} />
+                                                  </Button>
+                                              </DialogTrigger>
+                                              <DialogContent className="bg-[#2D3748] border-gray-700 text-white">
+                                                <DialogHeader>
+                                                  <DialogTitle>Confirmar exclusão</DialogTitle>
+                                                  <DialogDescription className="text-gray-400">
+                                                    Tem certeza que deseja excluir a aula "{lesson.title}"? Essa ação não pode ser desfeita.
+                                                  </DialogDescription>
+                                                </DialogHeader>
+                                                <DialogFooter>
+                                                  <DialogClose asChild>
+                                                    <Button variant="ghost">Cancelar</Button>
+                                                  </DialogClose>
+                                                  <Button variant="destructive" onClick={() => handleDeleteLesson(module.id, lesson.id)}>Excluir</Button>
+                                                </DialogFooter>
+                                              </DialogContent>
+                                            </Dialog>
+                                        </div>
+                                    ))}
+                                    {module.products?.map(product => (
+                                        <div key={product.id} className="flex items-center gap-4 bg-gray-800/50 p-3 rounded-md">
+                                            <GripVertical className="cursor-grab text-gray-500" />
+                                            <ShoppingBag size={16} className="text-gray-400" />
+                                            <span className="flex-1 text-sm font-medium">{product.title}</span>
+                                            <Badge className="bg-green-900/50 text-green-300 border-green-800 text-xs">Publicado</Badge>
+                                            <a href={product.url} target="_blank" rel="noopener noreferrer">
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
                                                     <ExternalLink size={16} />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => router.push(`/dashboard/area-de-membros/editor/${areaId}/novo-conteudo?moduleId=${module.id}&lessonId=${lesson.id}`)}>
-                                                    <Pencil size={16} />
-                                                </Button>
-                                                <Dialog>
-                                                  <DialogTrigger asChild>
-                                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:text-red-400">
-                                                          <Trash2 size={16} />
-                                                      </Button>
-                                                  </DialogTrigger>
-                                                  <DialogContent className="bg-[#2D3748] border-gray-700 text-white">
-                                                    <DialogHeader>
-                                                      <DialogTitle>Confirmar exclusão</DialogTitle>
-                                                      <DialogDescription className="text-gray-400">
-                                                        Tem certeza que deseja excluir a aula "{lesson.title}"? Essa ação não pode ser desfeita.
-                                                      </DialogDescription>
-                                                    </DialogHeader>
-                                                    <DialogFooter>
-                                                      <DialogClose asChild>
-                                                        <Button variant="ghost">Cancelar</Button>
-                                                      </DialogClose>
-                                                      <Button variant="destructive" onClick={() => handleDeleteLesson(module.id, lesson.id)}>Excluir</Button>
-                                                    </DialogFooter>
-                                                  </DialogContent>
-                                                </Dialog>
-                                            </div>
-                                        ))}
-                                        {module.products?.map(product => (
-                                            <div key={product.id} className="flex items-center gap-4 bg-gray-800/50 p-3 rounded-md">
-                                                <GripVertical className="cursor-grab text-gray-500" />
-                                                <ShoppingBag size={16} className="text-gray-400" />
-                                                <span className="flex-1 text-sm font-medium">{product.title}</span>
-                                                <Badge className="bg-green-900/50 text-green-300 border-green-800 text-xs">Publicado</Badge>
-                                                <a href={product.url} target="_blank" rel="noopener noreferrer">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
-                                                        <ExternalLink size={16} />
-                                                    </Button>
-                                                </a>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => { /* TODO: edit product */ }}>
-                                                    <Pencil size={16} />
-                                                </Button>
-                                                <Dialog>
-                                                  <DialogTrigger asChild>
-                                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:text-red-400">
-                                                          <Trash2 size={16} />
-                                                      </Button>
-                                                  </DialogTrigger>
-                                                  <DialogContent className="bg-[#2D3748] border-gray-700 text-white">
-                                                    <DialogHeader>
-                                                      <DialogTitle>Confirmar exclusão</DialogTitle>
-                                                      <DialogDescription className="text-gray-400">
-                                                        Tem certeza que deseja excluir o produto "{product.title}"? Essa ação não pode ser desfeita.
-                                                      </DialogDescription>
-                                                    </DialogHeader>
-                                                    <DialogFooter>
-                                                      <DialogClose asChild>
-                                                        <Button variant="ghost">Cancelar</Button>
-                                                      </DialogClose>
-                                                      <Button variant="destructive" onClick={() => handleDeleteProduct(module.id, product.id)}>Excluir</Button>
-                                                    </DialogFooter>
-                                                  </DialogContent>
-                                                </Dialog>
-                                            </div>
-                                        ))}
-                                      </>
-                                    )}
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                        ))}
-                    </Accordion>
+                                            </a>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => { /* TODO: edit product */ }}>
+                                                <Pencil size={16} />
+                                            </Button>
+                                            <Dialog>
+                                              <DialogTrigger asChild>
+                                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:text-red-400">
+                                                      <Trash2 size={16} />
+                                                  </Button>
+                                              </DialogTrigger>
+                                              <DialogContent className="bg-[#2D3748] border-gray-700 text-white">
+                                                <DialogHeader>
+                                                  <DialogTitle>Confirmar exclusão</DialogTitle>
+                                                  <DialogDescription className="text-gray-400">
+                                                    Tem certeza que deseja excluir o produto "{product.title}"? Essa ação não pode ser desfeita.
+                                                  </DialogDescription>
+                                                </DialogHeader>
+                                                <DialogFooter>
+                                                  <DialogClose asChild>
+                                                    <Button variant="ghost">Cancelar</Button>
+                                                  </DialogClose>
+                                                  <Button variant="destructive" onClick={() => handleDeleteProduct(module.id, product.id)}>Excluir</Button>
+                                                </DialogFooter>
+                                              </DialogContent>
+                                            </Dialog>
+                                        </div>
+                                    ))}
+                                  </>
+                                )}
+                            </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-gray-700 py-16">
                      <p className="text-gray-400">Você ainda não adicionou nenhum módulo.</p>
@@ -503,10 +500,6 @@ export default function MemberAreaEditorPage() {
                 )}
                  
                  <div className="flex items-center justify-center gap-4">
-                    <Button variant="outline" className="gap-2 border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700">
-                        <Expand size={16} />
-                        Expandir
-                    </Button>
                     <Dialog open={isAddModuleOpen} onOpenChange={(open) => { if (!open) closeAndResetDialog(); else setIsAddModuleOpen(true);}}>
                         <DialogTrigger asChild>
                              <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
@@ -619,5 +612,7 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
+
+    
 
     
