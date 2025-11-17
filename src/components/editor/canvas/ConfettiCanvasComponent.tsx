@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useCallback, useEffect } from 'react';
@@ -27,7 +28,7 @@ export const ConfettiCanvasComponent = ({ component }: { component: CanvasCompon
         <Sparkles />
       </div>
       <p className="font-semibold text-black">Efeito Confete</p>
-      <Badge variant="outline">Invisível</Badge>
+      <Badge variant="outline" className="bg-white text-black hover:bg-gray-200">Invisível</Badge>
     </div>
   );
 };
