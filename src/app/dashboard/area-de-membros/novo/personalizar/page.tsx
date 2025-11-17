@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -5,16 +6,18 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Upload, Users, BookCopy, Settings, CheckCircle, Folder } from 'lucide-react';
+import { ArrowLeft, Upload, Users, BookCopy, Settings, CheckCircle, Folder, Link as LinkIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/landing/logo';
+import { Input } from '@/components/ui/input';
 
 type MemberArea = {
   name: string;
   description: string;
+  logoUrl?: string;
 }
 
 export default function PersonalizarWorkspacePage() {
@@ -23,10 +26,8 @@ export default function PersonalizarWorkspacePage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const areaId = searchParams.get('id');
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState('');
 
   const areaRef = useMemoFirebase(
     () => (areaId && firestore ? doc(firestore, 'memberAreas', areaId) : null),
@@ -35,34 +36,32 @@ export default function PersonalizarWorkspacePage() {
   
   const { data: areaData, isLoading } = useDoc<MemberArea>(areaRef);
 
+  useEffect(() => {
+    if (areaData?.logoUrl) {
+      setLogoUrl(areaData.logoUrl);
+    }
+  }, [areaData]);
+
   const [isFinishing, setIsFinishing] = useState(false);
 
   const handleContinue = async () => {
     setIsFinishing(true);
-    // Here you would typically save the logo/customization settings
-    toast({
-      title: 'Workspace Personalizado!',
-      description: 'Sua área de membros está quase pronta.',
-    });
-    router.push(`/dashboard/area-de-membros/novo/confirmacao?id=${areaId}`);
-  };
-
-  const handleLogoUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-        // In a real app, you'd upload this file to a storage service
-        // and get a URL to save in Firestore.
-        // For now, we'll just use the local preview URL.
-        setLogoUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if(areaRef) {
+        try {
+            await updateDoc(areaRef, { logoUrl });
+            toast({
+                title: 'Workspace Personalizado!',
+                description: 'Sua área de membros está quase pronta.',
+            });
+            router.push(`/dashboard/area-de-membros/novo/confirmacao?id=${areaId}`);
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Erro',
+                description: 'Não foi possível salvar o logo.'
+            });
+            setIsFinishing(false);
+        }
     }
   };
 
@@ -120,30 +119,15 @@ export default function PersonalizarWorkspacePage() {
             <p className="text-sm text-muted-foreground">
               Adicione um logo personalizado para seu workspace (opcional).
             </p>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-              accept="image/png, image/jpeg, image/gif"
-            />
-            <div 
-              className="mt-2 flex justify-center rounded-lg border border-dashed border-border px-6 py-10 hover:border-primary cursor-pointer transition-colors"
-              onClick={handleLogoUploadClick}
-            >
-              <div className="text-center">
-                {logoPreview ? (
-                   <Image src={logoPreview} alt="Preview do Logo" width={100} height={100} className="mx-auto h-24 w-24 rounded-lg object-contain" />
-                ) : (
-                  <>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted/50 mx-auto">
-                        <Upload className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <p className='mt-4 text-sm font-semibold'>Clique para enviar</p>
-                    <p className='text-xs text-muted-foreground mt-1'>PNG, JPG, GIF até 5MB</p>
-                  </>
-                )}
-              </div>
+             <div className="flex items-center gap-2">
+                <LinkIcon size={16} className="text-gray-500" />
+                <Input
+                    id="logo-url"
+                    placeholder="Cole a URL da sua imagem aqui"
+                    className="border-gray-600 bg-gray-900"
+                    value={logoUrl}
+                    onChange={(e) => setLogoUrl(e.target.value)}
+                />
             </div>
           </div>
 
@@ -158,8 +142,8 @@ export default function PersonalizarWorkspacePage() {
               </div>
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  {logoPreview ? (
-                    <Image src={logoPreview} alt="Preview do Logo" width={48} height={48} className="rounded-md object-contain" />
+                  {logoUrl ? (
+                    <Image src={logoUrl} alt="Preview do Logo" width={48} height={48} className="rounded-md object-contain" />
                   ) : (
                     <Folder className="h-6 w-6" />
                   )}
@@ -204,3 +188,5 @@ export default function PersonalizarWorkspacePage() {
     </div>
   );
 }
+
+    
