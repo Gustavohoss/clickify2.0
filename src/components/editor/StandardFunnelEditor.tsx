@@ -6445,7 +6445,7 @@ export function StandardFunnelEditor(
             className="flex-1 overflow-y-auto bg-white p-4 md:p-8"
             onClick={() => setSelectedComponentId(null)}
           >
-            <div className="mx-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
               <div className="relative mb-4 h-10">
                 <div className="absolute top-1/2 left-0 h-px w-full bg-black" />
                 <div className="absolute top-0 left-1/2 z-10 flex -translate-x-1/2 justify-center bg-white px-2">
