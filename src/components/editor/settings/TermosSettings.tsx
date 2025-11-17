@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, Trash2, Grip } from 'lucide-react';
 import type { CanvasComponentData, ComponentProps, TermosLinkItem } from '../types';
+import { Switch } from '@/components/ui/switch';
 
 export const TermosSettings = ({
   component,
@@ -22,7 +23,7 @@ export const TermosSettings = ({
   const handleUpdateLink = (
     linkId: number,
     key: keyof TermosLinkItem,
-    value: string
+    value: string | boolean
   ) => {
     const newLinks = links.map((link) =>
       link.id === linkId ? { ...link, [key]: value } : link
@@ -35,6 +36,7 @@ export const TermosSettings = ({
       id: Date.now(),
       text: 'Novo Link',
       url: '#',
+      enabled: false,
     };
     onUpdate({ ...component.props, links: [...links, newLink] });
   };
@@ -82,7 +84,7 @@ export const TermosSettings = ({
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 gap-2 pt-8">
+                <div className="space-y-2 pt-8">
                   <Input
                     value={link.text}
                     onChange={(e) => handleUpdateLink(link.id, 'text', e.target.value)}
@@ -95,6 +97,14 @@ export const TermosSettings = ({
                     className="h-9"
                     placeholder="URL"
                   />
+                  <div className="flex items-center justify-between pt-1">
+                    <UILabel htmlFor={`enabled-${link.id}`} className='text-xs'>Ativo</UILabel>
+                    <Switch
+                      id={`enabled-${link.id}`}
+                      checked={link.enabled}
+                      onCheckedChange={(checked) => handleUpdateLink(link.id, 'enabled', checked)}
+                    />
+                  </div>
                 </div>
               </Card>
             ))}

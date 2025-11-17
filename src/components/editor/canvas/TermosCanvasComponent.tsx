@@ -20,22 +20,31 @@ export const TermosCanvasComponent = ({ component }: { component: CanvasComponen
     lg: 'text-lg',
   };
 
+  const renderLink = (link: any) => {
+    if (link.enabled) {
+      return (
+        <a
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-bold underline"
+        >
+          {link.text}
+        </a>
+      );
+    }
+    return <span className="font-bold underline cursor-default">{link.text}</span>;
+  };
+
   return (
     <p
       className={cn('w-full', `text-${termosTextAlign}`, fontSizeClasses[termosFontSize])}
       style={{ color: termosTextColor }}
     >
       {mainText}{' '}
-      {links.map((link, index) => (
+      {links.map((link: any, index: number) => (
         <React.Fragment key={link.id}>
-          <a
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold underline"
-          >
-            {link.text}
-          </a>
+          {renderLink(link)}
           {index < links.length - 2 ? ', ' : index === links.length - 2 ? ' e ' : ''}
         </React.Fragment>
       ))}

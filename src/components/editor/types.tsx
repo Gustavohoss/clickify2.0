@@ -128,6 +128,7 @@ export type TermosLinkItem = {
   id: number;
   text: string;
   url: string;
+  enabled: boolean;
 };
 
 export type ComponentProps = {
