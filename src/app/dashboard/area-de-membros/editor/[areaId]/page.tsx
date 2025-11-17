@@ -12,7 +12,7 @@ import {
   PlusCircle,
   Eye,
   Info,
-  Link,
+  Link as LinkIcon,
   Folder,
   X,
   ImageIcon,
@@ -22,6 +22,7 @@ import {
   ShoppingBag,
   ExternalLink,
   Trash2,
+  Share2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,6 +71,7 @@ type Module = {
 
 type MemberArea = {
   name: string;
+  slug: string;
   headerImageUrl?: string;
   modules?: Module[];
 };
@@ -96,6 +98,24 @@ export default function MemberAreaEditorPage() {
   );
 
   const { data: areaData, isLoading } = useDoc<MemberArea>(areaRef);
+
+  const handleShare = () => {
+    if (!areaData) return;
+    const shareUrl = `${window.location.origin}/membros/${areaData.slug}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        toast({
+            title: "Link copiado!",
+            description: "O link da sua área de membros foi copiado para a área de transferência.",
+        });
+    }).catch(err => {
+        toast({
+            variant: "destructive",
+            title: "Erro ao copiar",
+            description: "Não foi possível copiar o link.",
+        });
+        console.error('Failed to copy: ', err);
+    });
+  };
 
   const handleSaveHeaderImage = async () => {
     if (areaRef && headerUrl) {
@@ -263,6 +283,10 @@ export default function MemberAreaEditorPage() {
               {areaData && <MemberAreaPreview area={areaData} />}
             </DialogContent>
           </Dialog>
+           <Button variant="outline" className="gap-2 border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 hover:text-white" onClick={handleShare}>
+                <Share2 size={16} />
+                Compartilhar
+            </Button>
         </div>
       </header>
 
@@ -305,7 +329,7 @@ export default function MemberAreaEditorPage() {
                         <div className="space-y-2">
                             <Label htmlFor="header-url">URL da imagem</Label>
                             <div className="flex items-center gap-2">
-                                <Link size={16} className="text-gray-500" />
+                                <LinkIcon size={16} className="text-gray-500" />
                                 <Input 
                                     id="header-url"
                                     placeholder="https://sua-imagem.com/header.jpg"
@@ -540,7 +564,7 @@ export default function MemberAreaEditorPage() {
                                             <div className="space-y-2">
                                                 <Label htmlFor="cover-url">URL da imagem de capa</Label>
                                                 <div className="flex items-center gap-2">
-                                                    <Link size={16} className="text-gray-500" />
+                                                    <LinkIcon size={16} className="text-gray-500" />
                                                     <Input 
                                                         id="cover-url"
                                                         placeholder="https://sua-imagem.com/capa.jpg"
@@ -595,3 +619,5 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
+
+    
