@@ -483,9 +483,9 @@ export default function MemberAreaEditorPage() {
                         <Expand size={16} />
                         Expandir
                     </Button>
-                    <Dialog open={isAddModuleOpen} onOpenChange={closeAndResetDialog}>
+                    <Dialog open={isAddModuleOpen} onOpenChange={(open) => { if (!open) closeAndResetDialog(); else setIsAddModuleOpen(true);}}>
                         <DialogTrigger asChild>
-                             <Button className="gap-2 bg-green-600 text-white hover:bg-green-700" onClick={() => setIsAddModuleOpen(true)}>
+                             <Button className="gap-2 bg-green-600 text-white hover:bg-green-700">
                                 <PlusCircle size={16} />
                                 Adicionar Módulo
                             </Button>
