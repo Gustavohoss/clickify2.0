@@ -3,15 +3,20 @@
 import { useEffect, useState } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
+
+type Lesson = {
+  id: string;
+  title: string;
+};
 
 type Module = {
   id: string;
   name: string;
   coverImageUrl?: string;
-  lessons?: { id: string }[];
+  lessons?: Lesson[];
 };
 
 type MemberArea = {
@@ -23,6 +28,7 @@ type MemberArea = {
 
 export default function MemberAreaPublicPage() {
   const { slug } = useParams() as { slug: string };
+  const router = useRouter();
   const firestore = useFirestore();
 
   const areasQuery = useMemoFirebase(
@@ -42,6 +48,19 @@ export default function MemberAreaPublicPage() {
       setArea(memberAreas[0]);
     }
   }, [memberAreas]);
+
+  const handleModuleClick = (moduleId: string) => {
+    if (!area) return;
+    const module = area.modules?.find(m => m.id === moduleId);
+    const firstLessonId = module?.lessons?.[0]?.id;
+    if (firstLessonId) {
+      router.push(`/membros/${slug}/${firstLessonId}`);
+    } else {
+      // Opcional: lidar com módulos sem aulas
+      console.log("Este módulo não tem aulas.");
+    }
+  };
+
 
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white">Carregando área de membros...</div>;
@@ -83,7 +102,7 @@ export default function MemberAreaPublicPage() {
             <h2 className="text-xl font-bold mb-4">Meus cursos</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {area.modules?.map(module => (
-                <div key={module.id} className="group cursor-pointer">
+                <div key={module.id} className="group cursor-pointer" onClick={() => handleModuleClick(module.id)}>
                 <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-gray-800 transition-transform group-hover:scale-105">
                     {module.coverImageUrl ? (
                     <Image
