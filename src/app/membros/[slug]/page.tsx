@@ -64,9 +64,15 @@ export default function MemberAreaPublicPage() {
   }, [memberAreas]);
 
   const handleModuleClick = (module: Module) => {
-    if (module.lessons && module.lessons.length > 0) {
-      setSelectedModule(module);
-      setActiveLesson(module.lessons[0]);
+    // Only open modal if there are lessons or products
+    if ((module.lessons && module.lessons.length > 0) || (module.products && module.products.length > 0)) {
+        setSelectedModule(module);
+        // Set the first lesson as active if it exists
+        if (module.lessons && module.lessons.length > 0) {
+            setActiveLesson(module.lessons[0]);
+        } else {
+            setActiveLesson(null); // No lessons, so no active lesson
+        }
     }
   };
 
@@ -85,7 +91,7 @@ export default function MemberAreaPublicPage() {
   };
 
 
-  const isModalOpen = !!selectedModule && !!activeLesson;
+  const isModalOpen = !!selectedModule;
   const closeModal = () => {
     setSelectedModule(null);
     setActiveLesson(null);
@@ -160,7 +166,7 @@ export default function MemberAreaPublicPage() {
       
       <Dialog open={isModalOpen} onOpenChange={(isOpen) => !isOpen && closeModal()}>
         <DialogContent className="max-w-6xl w-full p-0 bg-[#171923] border-gray-700 shadow-2xl text-white flex flex-col h-[90vh] overflow-hidden">
-           {selectedModule && activeLesson && (
+           {selectedModule && (
             <>
               <DialogHeader className='p-4 border-b border-gray-700 shrink-0'>
                 <DialogTitle>{selectedModule.name}</DialogTitle>
@@ -169,7 +175,7 @@ export default function MemberAreaPublicPage() {
               <div className="flex-1 flex overflow-hidden">
                 <div className="flex-[3] flex flex-col">
                   <div className="flex-1 relative bg-black">
-                    {activeLesson.videoUrl ? (
+                    {activeLesson && activeLesson.videoUrl ? (
                       <ReactPlayer
                         url={activeLesson.videoUrl}
                         width="100%"
@@ -180,29 +186,31 @@ export default function MemberAreaPublicPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/50">
-                        <p>Vídeo não disponível.</p>
+                        <p>Selecione uma aula para começar.</p>
                       </div>
                     )}
                   </div>
-                   <footer className="bg-[#2D3748] p-4 flex justify-between items-center border-t border-gray-700 shrink-0">
-                        <div>
-                            <h3 className="font-semibold">{activeLesson.title}</h3>
-                            <p className="text-xs text-gray-400">
-                                Aula {selectedModule.lessons!.findIndex(l => l.id === activeLesson.id) + 1} de {selectedModule.lessons!.length}
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                             <Button variant="outline" className="text-white border-gray-500 hover:bg-gray-600 gap-2">
-                                <CheckCircle size={16} /> Marcar como concluída
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleNavigation('prev')}>
-                                <ChevronLeft />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleNavigation('next')}>
-                                <ChevronRight />
-                            </Button>
-                        </div>
-                   </footer>
+                   {activeLesson && (
+                    <footer className="bg-[#2D3748] p-4 flex justify-between items-center border-t border-gray-700 shrink-0">
+                          <div>
+                              <h3 className="font-semibold">{activeLesson.title}</h3>
+                              <p className="text-xs text-gray-400">
+                                  Aula {selectedModule.lessons!.findIndex(l => l.id === activeLesson.id) + 1} de {selectedModule.lessons!.length}
+                              </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                               <Button variant="outline" className="text-white border-gray-500 hover:bg-gray-600 gap-2">
+                                  <CheckCircle size={16} /> Marcar como concluída
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleNavigation('prev')}>
+                                  <ChevronLeft />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleNavigation('next')}>
+                                  <ChevronRight />
+                              </Button>
+                          </div>
+                    </footer>
+                   )}
                 </div>
                 <aside className='flex-[1] border-l border-gray-700 bg-[#1A202C]'>
                     <ScrollArea className="h-full">
@@ -210,9 +218,9 @@ export default function MemberAreaPublicPage() {
                             {selectedModule.lessons?.map((lesson, index) => (
                                 <button key={lesson.id} onClick={() => handleLessonSelect(lesson)} className={cn(
                                     "w-full text-left p-3 rounded-md flex items-center gap-3 transition-colors",
-                                    activeLesson.id === lesson.id ? "bg-white/10" : "hover:bg-white/5"
+                                    activeLesson?.id === lesson.id ? "bg-white/10" : "hover:bg-white/5"
                                 )}>
-                                    <PlayCircle className={cn("h-5 w-5", activeLesson.id === lesson.id ? "text-green-400" : "text-gray-500")} />
+                                    <PlayCircle className={cn("h-5 w-5", activeLesson?.id === lesson.id ? "text-green-400" : "text-gray-500")} />
                                     <div className='flex-1'>
                                         <p className="text-sm font-medium">{lesson.title}</p>
                                         <p className="text-xs text-gray-400">Aula {index + 1}</p>
