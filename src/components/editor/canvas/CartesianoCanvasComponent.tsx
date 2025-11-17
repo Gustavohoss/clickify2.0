@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -83,15 +84,15 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
               key={index}
               x={indicator.name}
               y={indicator.value}
-              r={6}
-              fill={gradientStartColor}
-              stroke="#ffffff"
+              r={8}
+              fill="#FFFFFF"
+              stroke="#A0AEC0"
               strokeWidth={2}
             >
               <ChartLabel
                 value={indicator.indicatorLabel}
                 position="top"
-                offset={-15}
+                offset={-20}
                 style={{
                   fill: '#000000',
                   backgroundColor: '#ffffff',
