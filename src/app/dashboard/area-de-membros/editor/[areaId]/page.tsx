@@ -503,11 +503,6 @@ export default function MemberAreaEditorPage() {
                                     </DialogDescription>
                                 </div>
                                 </div>
-                                <DialogClose asChild>
-                                    <button className="absolute right-6 top-6 text-gray-400 hover:text-white" onClick={closeAndResetDialog}>
-                                        <X size={20} />
-                                    </button>
-                                </DialogClose>
                             </DialogHeader>
                             <Tabs defaultValue="general" className="w-full">
                                 <div className="px-6 border-b border-gray-700">
