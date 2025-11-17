@@ -22,11 +22,11 @@ export const ConfettiCanvasComponent = ({ component }: { component: CanvasCompon
   }, [fire]);
 
   return (
-    <div className="relative flex items-center justify-center gap-4 border-dashed bg-card/80 p-4">
+    <div className="relative flex items-center justify-center gap-4 rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4">
       <div className="text-primary">
         <Sparkles />
       </div>
-      <p className="font-semibold">Efeito Confete</p>
+      <p className="font-semibold text-black">Efeito Confete</p>
       <Badge variant="outline">Invisível</Badge>
     </div>
   );
