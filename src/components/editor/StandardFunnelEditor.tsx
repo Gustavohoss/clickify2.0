@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -140,9 +141,9 @@ export function StandardFunnelEditor({
     if (component.name === 'Cartesiano') {
       defaultProps = {
         chartData: [
-          { id: 1, name: 'A', value: 20, indicatorLabel: 'PRIMEIRO' },
-          { id: 2, name: 'C', value: 50, indicatorLabel: 'DO MEIO' },
-          { id: 3, name: 'A', value: 80, indicatorLabel: 'ULTIMO' },
+          { id: 1, name: 'A', value: 20, indicatorLabel: '' },
+          { id: 2, name: 'B', value: 40, indicatorLabel: 'Você' },
+          { id: 3, name: 'C', value: 75, indicatorLabel: 'Objetivo' },
         ],
       };
     }
