@@ -6,7 +6,7 @@ import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft, BookOpen, CheckCircle } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -15,11 +15,18 @@ type Lesson = {
   title: string;
 };
 
+type Product = {
+    id: string;
+    title: string;
+    url: string;
+}
+
 type Module = {
   id: string;
   name: string;
   coverImageUrl?: string;
   lessons?: Lesson[];
+  products?: Product[];
 };
 
 type MemberArea = {
@@ -64,6 +71,10 @@ export default function ModulePage() {
     return <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white">Módulo não encontrado.</div>;
   }
 
+  const hasLessons = module.lessons && module.lessons.length > 0;
+  const hasProducts = module.products && module.products.length > 0;
+  const hasContent = hasLessons || hasProducts;
+
   return (
     <div className="w-full min-h-screen bg-[#1A202C] text-white">
       <header className="p-4 flex items-center gap-4">
@@ -93,31 +104,50 @@ export default function ModulePage() {
             <div className="w-full md:w-2/3">
                 <h1 className="text-3xl font-bold">{module.name}</h1>
                 <p className="text-gray-400 mt-2">
-                    {module.lessons?.length || 0} aulas neste módulo.
+                    {(module.lessons?.length || 0) + (module.products?.length || 0)} conteúdos neste módulo.
                 </p>
 
                 <div className="mt-8 space-y-3">
-                    {module.lessons && module.lessons.length > 0 ? (
-                        module.lessons.map((lesson, index) => (
+                    {hasContent ? (
+                      <>
+                        {hasLessons && module.lessons?.map((lesson, index) => (
                             <button 
                                 key={lesson.id}
-                                onClick={() => router.push(`/membros/${slug}/aulas/${lesson.id}`)}
+                                onClick={() => router.push(`/membros/${slug}/${lesson.id}`)}
                                 className="w-full text-left flex items-center gap-4 p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
                             >
                                 <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-400">
-                                    {index + 1}
+                                    <BookOpen size={16} />
                                 </div>
                                 <div className="flex-grow">
                                     <h3 className="font-medium">{lesson.title}</h3>
                                 </div>
                                 <CheckCircle className="h-5 w-5 text-green-500 opacity-50" />
                             </button>
-                        ))
+                        ))}
+                         {hasProducts && module.products?.map((product, index) => (
+                            <a 
+                                key={product.id}
+                                href={product.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full text-left flex items-center gap-4 p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
+                            >
+                                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-400">
+                                    <ShoppingBag size={16} />
+                                </div>
+                                <div className="flex-grow">
+                                    <h3 className="font-medium">{product.title}</h3>
+                                </div>
+                                <CheckCircle className="h-5 w-5 text-green-500 opacity-50" />
+                            </a>
+                        ))}
+                      </>
                     ) : (
                         <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-gray-700 py-16 text-center">
                             <BookOpen size={40} className="text-gray-600" />
                             <h3 className="text-lg font-semibold">Nenhum conteúdo aqui</h3>
-                            <p className="text-gray-500">Ainda não há aulas neste módulo.</p>
+                            <p className="text-gray-500">Ainda não há aulas ou produtos neste módulo.</p>
                         </div>
                     )}
                 </div>
