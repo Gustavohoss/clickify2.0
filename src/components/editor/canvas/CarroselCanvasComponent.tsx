@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -65,7 +66,6 @@ export const CarroselCanvasComponent = ({ component }: { component: CanvasCompon
     <Carousel className="w-full" opts={carouselOptions}>
       <CarouselContent>
         {renderSlides()}
-        {loop && renderSlides()}
       </CarouselContent>
       <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2" />
       <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2" />
