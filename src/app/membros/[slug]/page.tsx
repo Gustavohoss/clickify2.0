@@ -7,6 +7,7 @@ import { collection, query, where, limit } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
+import { Play } from 'lucide-react';
 
 type Lesson = {
   id: string;
@@ -53,14 +54,7 @@ export default function MemberAreaPublicPage() {
 
   const handleModuleClick = (moduleId: string) => {
     if (!area) return;
-    const module = area.modules?.find(m => m.id === moduleId);
-    const firstLessonId = module?.lessons?.[0]?.id;
-    if (firstLessonId) {
-      router.push(`/membros/${area.slug}/${firstLessonId}`);
-    } else {
-      // Opcional: lidar com módulos sem aulas
-      console.log("Este módulo não tem aulas.");
-    }
+    router.push(`/membros/${area.slug}/modulos/${moduleId}`);
   };
 
 
@@ -104,24 +98,27 @@ export default function MemberAreaPublicPage() {
             <h2 className="text-xl font-bold mb-4">Meus cursos</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {area.modules?.map(module => (
-                <div key={module.id} className="group cursor-pointer" onClick={() => handleModuleClick(module.id)}>
-                <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-gray-800 transition-transform group-hover:scale-105">
-                    {module.coverImageUrl ? (
-                    <Image
-                        src={module.coverImageUrl}
-                        alt={`Capa do ${module.name}`}
-                        layout="fill"
-                        objectFit="cover"
-                    />
-                    ) : (
-                        <div className="flex h-full w-full items-center justify-center text-gray-500">
-                        <span>{module.name}</span>
+                 <div key={module.id} className="group cursor-pointer" onClick={() => handleModuleClick(module.id)}>
+                    <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-gray-800 transition-transform group-hover:scale-105">
+                        {module.coverImageUrl ? (
+                        <Image
+                            src={module.coverImageUrl}
+                            alt={`Capa do ${module.name}`}
+                            layout="fill"
+                            objectFit="cover"
+                        />
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center text-gray-500">
+                            <span>{module.name}</span>
+                            </div>
+                        )}
+                         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Play className="h-12 w-12 text-white" />
                         </div>
-                    )}
-                    <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
-                        {module.lessons?.length || 0} Aula{module.lessons?.length !== 1 ? 's' : ''}
+                        <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                            {module.lessons?.length || 0} Aula{module.lessons?.length !== 1 ? 's' : ''}
+                        </div>
                     </div>
-                </div>
                 </div>
             ))}
             </div>
