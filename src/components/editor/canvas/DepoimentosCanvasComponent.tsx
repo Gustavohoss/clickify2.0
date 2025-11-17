@@ -44,7 +44,7 @@ export const DepoimentosCanvasComponent = ({ component }: { component: CanvasCom
       {testimonials.map((item) => (
         <div
           key={item.id}
-          className="p-4 border"
+          className="p-4 border rounded-lg"
           style={{
             backgroundColor: cardBackgroundColor,
             borderColor: cardBorderColor,
