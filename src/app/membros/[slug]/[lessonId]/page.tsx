@@ -92,6 +92,7 @@ export default function LessonPage() {
                     height="100%"
                     controls
                     playing
+                    key={lessonId}
                 />
             ) : (
                 <div className="w-full h-full flex items-center justify-center bg-black">
