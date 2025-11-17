@@ -24,6 +24,7 @@ import {
   DollarSign,
   EyeOff,
   Palette,
+  Undo2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,8 +122,8 @@ export default function MemberAreaEditorPage() {
   const [newUpsell, setNewUpsell] = useState<Partial<Upsell>>({showPrice: true, compareAtPrice: ''});
   const [editingUpsell, setEditingUpsell] = useState<Upsell | null>(null);
 
-  const [primaryColor, setPrimaryColor] = useState('#0EA5FF');
-  const [backgroundColor, setBackgroundColor] = useState('#0B0F13');
+  const [primaryColor, setPrimaryColor] = useState('#0EA5E9');
+  const [backgroundColor, setBackgroundColor] = useState('#0F172A');
 
 
   const areaRef = useMemoFirebase(
@@ -395,6 +396,25 @@ export default function MemberAreaEditorPage() {
     setNewUpsell({...newUpsell, [field]: formattedValue});
   };
 
+  const handleResetColors = () => {
+    const defaultPrimary = '#0EA5E9';
+    const defaultBackground = '#0F172A';
+    setPrimaryColor(defaultPrimary);
+    setBackgroundColor(defaultBackground);
+    if (areaRef) {
+        startTransition(async () => {
+            try {
+              await updateDoc(areaRef, { 
+                  primaryColor: defaultPrimary,
+                  backgroundColor: defaultBackground 
+              });
+              toast({ title: 'Sucesso!', description: 'Cores redefinidas para o padrão.' });
+            } catch (error) {
+              toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível redefinir as cores.'})
+            }
+        });
+    }
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-900 text-gray-200">
@@ -941,6 +961,9 @@ export default function MemberAreaEditorPage() {
                                 Cor de fundo da área de membros
                             </p>
                         </div>
+                        <Button variant="outline" onClick={handleResetColors} className="gap-2 border-gray-600 text-gray-300">
+                          <Undo2 size={16} /> Redefinir cores
+                        </Button>
                      </div>
                 </div>
             </TabsContent>
