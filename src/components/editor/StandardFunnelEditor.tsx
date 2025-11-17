@@ -6188,13 +6188,13 @@ export function StandardFunnelEditor(
         debouncedUpdateFunnel,
     } : {
         funnel: Funnel,
-        setFunnel: (updater: (prev: Funnel) => Funnel) => void,
+        setFunnel: (updater: (prev: Funnel | null) => Funnel | null) => void,
         debouncedUpdateFunnel: any,
     }
 ) {
     const router = useRouter();
     const [activeView, setActiveView] = useState<EditorView>('construtor');
-    const [activeStepId, setActiveStepId] = useState<number | null>(() => funnel.steps[0]?.id || null);
+    const [activeStepId, setActiveStepId] = useState<number | null>(() => (funnel.steps as Step[])[0]?.id || null);
     const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
 
     const updateFunnel = (updater: (prev: Funnel) => Funnel) => {
@@ -6205,35 +6205,35 @@ export function StandardFunnelEditor(
         const newStepId = Date.now();
         const newStep: Step = {
             id: newStepId,
-            name: `Etapa ${funnel.steps.length + 1}`,
+            name: `Etapa ${(funnel.steps as Step[]).length + 1}`,
             components: [],
         };
-        updateFunnel(prev => ({ ...prev, steps: [...prev.steps, newStep] }));
+        updateFunnel(prev => ({ ...prev, steps: [...prev.steps, newStep] as Step[]}));
         setActiveStepId(newStepId);
     };
 
     const updateStepName = (id: number, name: string) => {
         updateFunnel(prev => ({
             ...prev,
-            steps: prev.steps.map(step =>
+            steps: (prev.steps as Step[]).map(step =>
                 step.id === id ? { ...step, name } : step
             ),
         }));
     };
 
     const deleteStep = (id: number) => {
-        if (funnel.steps.length === 1) return;
+        if ((funnel.steps as Step[]).length === 1) return;
 
         let newActiveStepId = activeStepId;
         if (activeStepId === id) {
-            const currentIndex = funnel.steps.findIndex(s => s.id === id);
+            const currentIndex = (funnel.steps as Step[]).findIndex(s => s.id === id);
             newActiveStepId =
-                funnel.steps[currentIndex - 1]?.id || funnel.steps[currentIndex + 1]?.id;
+                (funnel.steps as Step[])[currentIndex - 1]?.id || (funnel.steps as Step[])[currentIndex + 1]?.id;
         }
 
         updateFunnel(prev => ({
             ...prev,
-            steps: prev.steps.filter(step => step.id !== id),
+            steps: (prev.steps as Step[]).filter(step => step.id !== id),
         }));
 
         setActiveStepId(newActiveStepId);
@@ -6259,7 +6259,7 @@ export function StandardFunnelEditor(
         };
         updateFunnel(prev => ({
             ...prev,
-            steps: prev.steps.map(step =>
+            steps: (prev.steps as Step[]).map(step =>
                 step.id === activeStepId
                     ? { ...step, components: [...step.components, newComponent] }
                     : step
@@ -6270,7 +6270,7 @@ export function StandardFunnelEditor(
     const updateComponentProps = (componentId: number, props: ComponentProps) => {
         updateFunnel(prev => ({
             ...prev,
-            steps: prev.steps.map(step =>
+            steps: (prev.steps as Step[]).map(step =>
                 step.id === activeStepId
                     ? {
                         ...step,
@@ -6284,7 +6284,7 @@ export function StandardFunnelEditor(
     };
 
     const duplicateComponent = (id: number) => {
-        const activeStep = funnel.steps.find(s => s.id === activeStepId);
+        const activeStep = (funnel.steps as Step[]).find(s => s.id === activeStepId);
         if (!activeStep) return;
         const componentToDuplicate = activeStep.components.find(c => c.id === id);
         if (!componentToDuplicate) return;
@@ -6294,7 +6294,7 @@ export function StandardFunnelEditor(
         newComponents.splice(index + 1, 0, newComponent);
         updateFunnel(prev => ({
             ...prev,
-            steps: prev.steps.map(step =>
+            steps: (prev.steps as Step[]).map(step =>
                 step.id === activeStepId ? { ...step, components: newComponents } : step
             ),
         }));
@@ -6303,7 +6303,7 @@ export function StandardFunnelEditor(
     const deleteComponent = (id: number) => {
         updateFunnel(prev => ({
             ...prev,
-            steps: prev.steps.map(step =>
+            steps: (prev.steps as Step[]).map(step =>
                 step.id === activeStepId
                     ? { ...step, components: step.components.filter(c => c.id !== id) }
                     : step
@@ -6314,7 +6314,7 @@ export function StandardFunnelEditor(
         }
     };
     
-    const activeStep = funnel.steps.find((s) => s.id === activeStepId);
+    const activeStep = (funnel.steps as Step[]).find((s) => s.id === activeStepId);
     const activeStepComponents = activeStep?.components || [];
     const selectedComponent = activeStepComponents.find((c) => c.id === selectedComponentId) || null;
 
@@ -6381,7 +6381,7 @@ export function StandardFunnelEditor(
               </div>
               <ScrollArea className="flex-1">
                 <div className="space-y-1 p-2">
-                  {funnel.steps.map((step) => (
+                  {(funnel.steps as Step[]).map((step) => (
                     <div key={step.id} className="group relative">
                       <Button
                         variant={activeStepId === step.id ? 'secondary' : 'ghost'}
@@ -6403,7 +6403,7 @@ export function StandardFunnelEditor(
                               variant="ghost"
                               className="w-full justify-start text-sm font-normal"
                               onClick={() => deleteStep(step.id)}
-                              disabled={funnel.steps.length <= 1}
+                              disabled={(funnel.steps as Step[]).length <= 1}
                             >
                               <Trash2 className="mr-2 h-4 w-4" /> Excluir
                             </Button>
@@ -6497,14 +6497,14 @@ export function StandardFunnelEditor(
                     <ComponentSettings
                       component={selectedComponent}
                       onUpdate={updateComponentProps}
-                      steps={funnel.steps}
+                      steps={(funnel.steps as Step[])}
                       activeStepId={activeStepId!}
                     />
                   ) : activeStep ? (
                     <StepSettings
                       step={activeStep}
                       onUpdateStep={updateStepName}
-                      steps={funnel.steps}
+                      steps={(funnel.steps as Step[])}
                     />
                   ) : (
                     <div className="text-sm text-muted-foreground">
