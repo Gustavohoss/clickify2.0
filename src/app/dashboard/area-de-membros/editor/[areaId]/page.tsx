@@ -279,11 +279,8 @@ export default function MemberAreaEditorPage() {
                             </div>
                              <div className="px-4 pb-2 flex items-center gap-4">
                                <div className="h-px flex-1 bg-gray-700"></div>
-                               <AccordionTrigger className="hover:no-underline p-0">
-                                   <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gray-700 hover:bg-gray-600">
-                                        <ChevronDown className="h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200" />
-                                   </div>
-                                </AccordionTrigger>
+                               <AccordionTrigger className="hover:no-underline p-0 [&>svg]:text-gray-400">
+                               </AccordionTrigger>
                                 <div className="h-px flex-1 bg-gray-700"></div>
                              </div>
                             <AccordionContent className="p-4 pt-0">
