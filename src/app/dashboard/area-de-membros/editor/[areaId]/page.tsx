@@ -45,6 +45,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { MemberAreaPreview } from '@/components/dashboard/area-de-membros/MemberAreaPreview';
 
 
 type Lesson = {
@@ -81,6 +82,7 @@ export default function MemberAreaEditorPage() {
   
   const [headerUrl, setHeaderUrl] = useState('');
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
   const [newModuleName, setNewModuleName] = useState('');
   const [newModuleCoverUrl, setNewModuleCoverUrl] = useState('');
@@ -197,6 +199,27 @@ export default function MemberAreaEditorPage() {
     }
   };
 
+  const handleDeleteProduct = async (moduleId: string, productId: string) => {
+    if (!areaRef || !areaData) return;
+
+    const updatedModules = areaData.modules?.map(m => {
+      if (m.id === moduleId) {
+        return {
+          ...m,
+          products: m.products?.filter(p => p.id !== productId),
+        };
+      }
+      return m;
+    });
+
+    try {
+      await updateDoc(areaRef, { modules: updatedModules });
+      toast({ title: 'Sucesso!', description: 'Produto excluído.' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível excluir o produto.' });
+    }
+  };
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-900 text-gray-200">
@@ -210,10 +233,17 @@ export default function MemberAreaEditorPage() {
           Voltar
         </Button>
         <div className="flex items-center gap-4">
-          <Button variant="outline" className="gap-2 border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 hover:text-white">
-            <Eye size={16} />
-            Pré-Visualizar Curso
-          </Button>
+           <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2 border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 hover:text-white">
+                    <Eye size={16} />
+                    Pré-Visualizar Curso
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl w-full p-0 bg-transparent border-none shadow-none">
+              {areaData && <MemberAreaPreview area={areaData} />}
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
 
@@ -410,7 +440,7 @@ export default function MemberAreaEditorPage() {
                                                       <DialogClose asChild>
                                                         <Button variant="ghost">Cancelar</Button>
                                                       </DialogClose>
-                                                      <Button variant="destructive" onClick={() => { /* TODO: delete product */ }}>Excluir</Button>
+                                                      <Button variant="destructive" onClick={() => handleDeleteProduct(module.id, product.id)}>Excluir</Button>
                                                     </DialogFooter>
                                                   </DialogContent>
                                                 </Dialog>
