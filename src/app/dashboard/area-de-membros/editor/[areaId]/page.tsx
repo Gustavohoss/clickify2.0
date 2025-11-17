@@ -241,6 +241,12 @@ export default function MemberAreaEditorPage() {
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl w-full p-0 bg-transparent border-none shadow-none">
+              <DialogHeader className="sr-only">
+                  <DialogTitle>Pré-visualização da Área de Membros</DialogTitle>
+                  <DialogDescription>
+                    Esta é uma pré-visualização de como sua área de membros aparecerá para seus alunos.
+                  </DialogDescription>
+              </DialogHeader>
               {areaData && <MemberAreaPreview area={areaData} />}
             </DialogContent>
           </Dialog>
@@ -350,11 +356,11 @@ export default function MemberAreaEditorPage() {
                             <div className="border-t border-gray-900 py-2 relative">
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <button className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
+                                        <button className="absolute left-1/2 -translate-x-1/2 -top-4 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
                                             <PlusCircle size={16} />
                                         </button>
                                     </PopoverTrigger>
-                                    <PopoverContent side="right" align="start" className="bg-[#2D3748] border-gray-700 text-white w-auto p-2">
+                                    <PopoverContent side="bottom" align="center" className="bg-[#2D3748] border-gray-700 text-white w-auto p-2">
                                         <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => router.push(`/dashboard/area-de-membros/editor/${areaId}/novo-conteudo?moduleId=${module.id}`)}>
                                             <Video size={16}/>
                                             Video Aula
