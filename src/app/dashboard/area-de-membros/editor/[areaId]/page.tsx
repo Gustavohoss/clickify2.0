@@ -278,7 +278,7 @@ export default function MemberAreaEditorPage() {
                                         </DropdownMenu>
                                     </div>
                                 </div>
-                                <div className="border-t border-gray-700 py-6 relative">
+                                <div className="border-t border-gray-800 py-2 relative">
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <button className="absolute left-4 top-0 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
