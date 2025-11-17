@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -14,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, BookUser, MoreVertical, Trash2, Play } from 'lucide-react';
+import { PlusCircle, BookUser, MoreVertical, Trash2, Play, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
@@ -133,13 +134,18 @@ export default function AreaDeMembrosPage() {
                    <h3 className="font-semibold text-lg">{area.name}</h3>
                 </CardContent>
                 
-                <CardFooter className="p-4 pt-0">
-                  <Button asChild className="w-full" onClick={() => router.push(`/dashboard/area-de-membros/editor/${area.id}`)}>
-                     <Link href={`/dashboard/area-de-membros/editor/${area.id}`}>
-                        Começar
-                        <Play className="ml-2 h-4 w-4 fill-current" />
-                     </Link>
-                  </Button>
+                <CardFooter className="p-4 pt-0 grid grid-cols-2 gap-2">
+                    <Button asChild variant="outline">
+                        <Link href={`/dashboard/area-de-membros/editor/${area.id}`}>
+                            Editar
+                        </Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href={`/membros/${area.slug}/${area.id}`} target="_blank">
+                            Acessar
+                            <ExternalLink className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
                 </CardFooter>
             </Card>
           ))}
