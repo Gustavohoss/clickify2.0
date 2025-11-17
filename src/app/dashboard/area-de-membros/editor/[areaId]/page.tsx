@@ -278,7 +278,7 @@ export default function MemberAreaEditorPage() {
                                         </DropdownMenu>
                                     </div>
                                 </div>
-                                <div className="border-t border-gray-800 py-2 relative">
+                                <div className="border-t border-gray-700 py-2 relative">
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <button className="absolute left-4 top-0 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
@@ -363,7 +363,7 @@ export default function MemberAreaEditorPage() {
                                                     <Image src={newModuleCoverUrl} layout="fill" objectFit="cover" alt="Capa do módulo" />
                                                 ) : (
                                                     <div className="flex flex-col h-full items-center justify-center text-gray-500">
-                                                        Apareça aqui tambem
+                                                        A imagem do link aparecera aqui
                                                     </div>
                                                 )}
                                                 <Badge className="absolute top-2 right-2 bg-green-600 text-white">0 Aulas</Badge>
