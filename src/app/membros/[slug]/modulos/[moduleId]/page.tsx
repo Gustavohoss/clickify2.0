@@ -37,7 +37,6 @@ type MemberArea = {
 };
 
 export default function ModulePage({ params }: { params: { slug: string; moduleId: string }}) {
-  const { slug, moduleId } = params;
   const router = useRouter();
   const firestore = useFirestore();
 
@@ -46,10 +45,10 @@ export default function ModulePage({ params }: { params: { slug: string; moduleI
 
   const areasQuery = useMemoFirebase(
     () =>
-      firestore && slug
-        ? query(collection(firestore, 'memberAreas'), where('slug', '==', slug), limit(1))
+      firestore && params.slug
+        ? query(collection(firestore, 'memberAreas'), where('slug', '==', params.slug), limit(1))
         : null,
-    [firestore, slug]
+    [firestore, params.slug]
   );
 
   const { data: memberAreas, isLoading } = useCollection<MemberArea>(areasQuery);
@@ -58,10 +57,10 @@ export default function ModulePage({ params }: { params: { slug: string; moduleI
     if (memberAreas && memberAreas.length > 0) {
       const currentArea = memberAreas[0];
       setArea(currentArea);
-      const currentModule = currentArea.modules?.find(m => m.id === moduleId);
+      const currentModule = currentArea.modules?.find(m => m.id === params.moduleId);
       setModule(currentModule || null);
     }
-  }, [memberAreas, moduleId]);
+  }, [memberAreas, params.moduleId]);
   
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white">Carregando...</div>;
@@ -78,7 +77,7 @@ export default function ModulePage({ params }: { params: { slug: string; moduleI
   return (
     <div className="w-full min-h-screen bg-[#1A202C] text-white">
       <header className="p-4 flex items-center gap-4">
-        <Button variant="ghost" onClick={() => router.push(`/membros/${slug}`)} className="gap-2">
+        <Button variant="ghost" onClick={() => router.push(`/membros/${params.slug}`)} className="gap-2">
             <ArrowLeft size={16} />
             Voltar
         </Button>
@@ -113,7 +112,7 @@ export default function ModulePage({ params }: { params: { slug: string; moduleI
                         {hasLessons && module.lessons?.map((lesson, index) => (
                             <button 
                                 key={lesson.id}
-                                onClick={() => router.push(`/membros/${slug}/${lesson.id}`)}
+                                onClick={() => router.push(`/membros/${params.slug}/${lesson.id}`)}
                                 className="w-full text-left flex items-center gap-4 p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
                             >
                                 <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-400">
