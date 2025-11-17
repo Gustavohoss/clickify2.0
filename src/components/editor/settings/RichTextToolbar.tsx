@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Bold, Italic, Underline, Strikethrough, Link as LinkIcon, List as ListIcon, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, RemoveFormatting
+  Bold, Italic, Underline, Strikethrough, Link as LinkIcon, List as ListIcon, ListOrdered, AlignLeft, AlignCenter, AlignRight, RemoveFormatting, Baseline, Highlighter
 } from 'lucide-react';
 
 
@@ -29,6 +29,28 @@ export const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, valu
       {icon}
     </Button>
   );
+
+  const ColorButton = ({ icon, command }: { icon: ReactNode; command: 'foreColor' | 'hiliteColor' }) => {
+    const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      onFormat(command, e.target.value);
+    };
+
+    return (
+      <div className="relative h-7 w-7">
+        <label
+          className="flex h-full w-full cursor-pointer items-center justify-center rounded-md text-gray-400 hover:bg-white/10 hover:text-white"
+        >
+          {icon}
+          <input
+            type="color"
+            className="absolute h-full w-full cursor-pointer opacity-0"
+            onChange={handleColorChange}
+            onMouseDown={(e) => e.preventDefault()}
+          />
+        </label>
+      </div>
+    );
+  }
 
   const handleFormatBlockChange = (value: string) => {
     onFormat('formatBlock', value);
@@ -62,16 +84,18 @@ export const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, valu
           <SelectValue />
         </SelectTrigger>
         <SelectContent className='bg-gray-800 text-white border-gray-700'>
-          <SelectItem value="1">Small</SelectItem>
+          <SelectItem value="1">Pequeno</SelectItem>
           <SelectItem value="3">Normal</SelectItem>
-          <SelectItem value="5">Large</SelectItem>
-          <SelectItem value="7">Huge</SelectItem>
+          <SelectItem value="5">Grande</SelectItem>
+          <SelectItem value="7">Enorme</SelectItem>
         </SelectContent>
       </Select>
       <ToolbarButton icon={<Bold size={16} />} command="bold" />
       <ToolbarButton icon={<Italic size={16} />} command="italic" />
       <ToolbarButton icon={<Underline size={16} />} command="underline" />
       <ToolbarButton icon={<Strikethrough size={16} />} command="strikeThrough" />
+      <ColorButton icon={<Baseline size={16} />} command="foreColor" />
+      <ColorButton icon={<Highlighter size={16} />} command="hiliteColor" />
       <ToolbarButton icon={<ListIcon size={16} />} command="insertUnorderedList" />
       <ToolbarButton icon={<ListOrdered size={16} />} command="insertOrderedList" />
       <ToolbarButton icon={<AlignLeft size={16} />} command="justifyLeft" />
