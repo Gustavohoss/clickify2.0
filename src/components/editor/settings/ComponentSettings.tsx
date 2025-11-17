@@ -3,6 +3,7 @@
 
 import type { CanvasComponentData, ComponentProps, Step } from '../types';
 import { AlertSettings } from './AlertSettings';
+import { ArgumentosSettings } from './ArgumentosSettings';
 import { AudioSettings } from './AudioSettings';
 import { BotaoSettings } from './BotaoSettings';
 import { CarregandoSettings } from './CarregandoSettings';
@@ -47,8 +48,8 @@ export const ComponentSettings = ({
     switch (component.name) {
       case 'Alerta':
         return <AlertSettings component={component} onUpdate={handleUpdate} />;
-      // case 'Argumentos':
-      //   return <ArgumentosSettings component={component} onUpdate={handleUpdate} />;
+      case 'Argumentos':
+        return <ArgumentosSettings component={component} onUpdate={handleUpdate} />;
       case 'Audio':
         return <AudioSettings component={component} onUpdate={handleUpdate} />;
       case 'Botão':
