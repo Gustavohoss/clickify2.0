@@ -23,6 +23,7 @@ import {
   Share2,
   DollarSign,
   EyeOff,
+  Palette,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRouter, useParams } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
@@ -89,6 +90,8 @@ type MemberArea = {
   modules?: Module[];
   upsellsTitle?: string;
   upsells?: Upsell[];
+  primaryColor?: string;
+  backgroundColor?: string;
 };
 
 export default function MemberAreaEditorPage() {
@@ -112,6 +115,9 @@ export default function MemberAreaEditorPage() {
   const [newUpsell, setNewUpsell] = useState<Partial<Upsell>>({showPrice: true, compareAtPrice: ''});
   const [editingUpsell, setEditingUpsell] = useState<Upsell | null>(null);
 
+  const [primaryColor, setPrimaryColor] = useState('#0EA5FF');
+  const [backgroundColor, setBackgroundColor] = useState('#0B0F13');
+
 
   const areaRef = useMemoFirebase(
     () => (firestore && areaId ? doc(firestore, 'memberAreas', areaId) : null),
@@ -119,15 +125,22 @@ export default function MemberAreaEditorPage() {
   );
 
   const { data: areaData, isLoading } = useDoc<MemberArea>(areaRef);
+
+  useEffect(() => {
+    if (areaData) {
+      setPrimaryColor(areaData.primaryColor || '#0EA5FF');
+      setBackgroundColor(areaData.backgroundColor || '#0B0F13');
+    }
+  }, [areaData]);
   
-  const debouncedUpdate = useDebouncedCallback((field: string, value: any) => {
+  const debouncedUpdate = useDebouncedCallback(async (field: string, value: any) => {
     if (areaRef) {
       startTransition(async () => {
         try {
           await updateDoc(areaRef, { [field]: value });
-          toast({ title: 'Sucesso!', description: 'Título atualizado.' });
+          toast({ title: 'Sucesso!', description: 'Alteração salva.' });
         } catch (error) {
-          toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar o título.'})
+          toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível salvar a alteração.'})
         }
       });
     }
@@ -420,6 +433,10 @@ export default function MemberAreaEditorPage() {
               <TabsTrigger value="content" className="gap-2 data-[state=active]:bg-gray-700 data-[state=active]:text-white">
                 <BookOpen size={16} />
                 Conteúdo
+              </TabsTrigger>
+              <TabsTrigger value="personalization" className="gap-2 data-[state=active]:bg-gray-700 data-[state=active]:text-white">
+                <Palette size={16} />
+                Personalização
               </TabsTrigger>
               <TabsTrigger value="students" className="gap-2 data-[state=active]:bg-gray-700 data-[state=active]:text-white">
                 <Users size={16} />
@@ -833,6 +850,52 @@ export default function MemberAreaEditorPage() {
                  </div>
               </div>
             </TabsContent>
+            <TabsContent value="personalization">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <div className="space-y-6">
+                        <div className="space-y-2">
+                            <Label>Cor Principal</Label>
+                            <div className="mt-2 flex items-center gap-2">
+                                <div
+                                className="h-10 w-10 rounded-md border"
+                                style={{ backgroundColor: primaryColor }}
+                                />
+                                <Input
+                                value={primaryColor}
+                                onChange={(e) => {
+                                    setPrimaryColor(e.target.value)
+                                    debouncedUpdate('primaryColor', e.target.value)
+                                }}
+                                className="w-32 bg-gray-800 border-gray-700"
+                                />
+                            </div>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Cor de botões, links e destaques
+                            </p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Cor de Fundo</Label>
+                            <div className="mt-2 flex items-center gap-2">
+                                <div
+                                className="h-10 w-10 rounded-md border"
+                                style={{ backgroundColor: backgroundColor }}
+                                />
+                                <Input
+                                value={backgroundColor}
+                                onChange={(e) => {
+                                    setBackgroundColor(e.target.value)
+                                    debouncedUpdate('backgroundColor', e.target.value)
+                                }}
+                                className="w-32 bg-gray-800 border-gray-700"
+                                />
+                            </div>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Cor de fundo da área de membros
+                            </p>
+                        </div>
+                     </div>
+                </div>
+            </TabsContent>
             <TabsContent value="students">
                 <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-gray-700 py-20">
                     <Users size={48} className="text-gray-600" />
@@ -846,3 +909,5 @@ export default function MemberAreaEditorPage() {
     </div>
   );
 }
+
+    
