@@ -141,14 +141,30 @@ export function StandardFunnelEditor({
     if (component.name === 'Cartesiano') {
       defaultProps = {
         chartData: [
-          { id: 1, name: 'A', value: 20, indicatorLabel: '' },
-          { id: 2, name: 'B', value: 40, indicatorLabel: 'Você' },
-          { id: 3, name: 'C', value: 75, indicatorLabel: 'Objetivo' },
+          { id: 1, name: 'A', value: 20, indicatorLabel: '', isFeatured: false },
+          { id: 2, name: 'B', value: 40, indicatorLabel: 'Você', isFeatured: true },
+          { id: 3, name: 'C', value: 75, indicatorLabel: 'Objetivo', isFeatured: false },
         ],
         gradientStartColor: '#16A34A',
         gradientEndColor: '#EF4444',
       };
     }
+
+    if (component.name === 'Depoimentos') {
+      defaultProps = {
+        testimonials: [
+          {
+            id: Date.now(),
+            imageUrl: `https://picsum.photos/seed/${Date.now()}/48/48`,
+            name: 'Nome da Pessoa',
+            handle: '@usuario',
+            rating: 5,
+            testimonial: 'Este é um depoimento de exemplo. Você pode editar o texto, a imagem e a avaliação nas configurações.',
+          },
+        ],
+      };
+    }
+
 
     const newComponent: CanvasComponentData = {
       ...component,
