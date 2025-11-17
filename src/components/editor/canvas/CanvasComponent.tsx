@@ -7,6 +7,7 @@ import { Grip, Pencil, Copy, Trash2 } from 'lucide-react';
 import type { CanvasComponentData } from '../types';
 import { GenericCanvasComponent } from './GenericCanvasComponent';
 import { AlertCanvasComponent } from './AlertCanvasComponent';
+import { ArgumentoCanvasComponent } from './ArgumentoCanvasComponent';
 import { AudioCanvasComponent } from './AudioCanvasComponent';
 import { BotaoCanvasComponent } from './BotaoCanvasComponent';
 import { CarregandoCanvasComponent } from './CarregandoCanvasComponent';
@@ -46,8 +47,8 @@ export const CanvasComponent = ({
     switch (component.name) {
       case 'Alerta':
         return <AlertCanvasComponent component={component} />;
-      // case 'Argumentos':
-      //   return <ArgumentoCanvasComponent component={component} />;
+      case 'Argumentos':
+        return <ArgumentoCanvasComponent component={component} />;
       case 'Audio':
         return <AudioCanvasComponent component={component} />;
       case 'Botão':
