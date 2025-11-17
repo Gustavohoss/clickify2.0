@@ -37,7 +37,6 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
     );
   }
 
-  const indicators = chartData.filter((d) => d.indicatorLabel);
   const uniqueId = React.useId();
 
   return (
@@ -78,29 +77,31 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
             strokeWidth={2}
           />
 
-          {indicators.map((indicator, index) => (
+          {chartData.map((point, index) => (
             <ReferenceDot
               key={index}
-              x={indicator.name}
-              y={indicator.value}
+              x={point.name}
+              y={point.value}
               r={8}
               fill="#FFFFFF"
               stroke="#A0AEC0"
               strokeWidth={2}
             >
-              <ChartLabel
-                value={indicator.indicatorLabel}
-                position="top"
-                offset={-20}
-                style={{
-                  fill: '#000000',
-                  backgroundColor: '#ffffff',
-                  padding: '2px 8px',
-                  borderRadius: '1rem',
-                  fontSize: 12,
-                  border: '1px solid #e5e7eb',
-                }}
-              />
+              {point.indicatorLabel && (
+                <ChartLabel
+                  value={point.indicatorLabel}
+                  position="top"
+                  offset={-20}
+                  style={{
+                    fill: '#000000',
+                    backgroundColor: '#ffffff',
+                    padding: '2px 8px',
+                    borderRadius: '1rem',
+                    fontSize: 12,
+                    border: '1px solid #e5e7eb',
+                  }}
+                />
+              )}
             </ReferenceDot>
           ))}
         </AreaChart>
