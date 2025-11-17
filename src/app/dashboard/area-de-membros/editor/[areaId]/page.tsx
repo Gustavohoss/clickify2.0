@@ -279,9 +279,19 @@ export default function MemberAreaEditorPage() {
                                     </div>
                                 </div>
                                 <div className="border-t border-gray-700 py-6 relative">
-                                     <button className="absolute left-4 top-0 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
-                                        <PlusCircle size={16} />
-                                    </button>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <button className="absolute left-4 top-0 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-green-600 text-white hover:bg-green-700 z-10">
+                                                <PlusCircle size={16} />
+                                            </button>
+                                        </PopoverTrigger>
+                                        <PopoverContent side="right" align="start" className="bg-[#2D3748] border-gray-700 text-white w-auto p-2">
+                                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                                <Video size={16}/>
+                                                Novo conteúdo
+                                            </Button>
+                                        </PopoverContent>
+                                    </Popover>
                                     <AccordionTrigger className="w-full flex justify-center hover:no-underline p-0 [&>svg]:text-gray-400">
                                     </AccordionTrigger>
                                 </div>
