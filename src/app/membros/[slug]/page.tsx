@@ -69,7 +69,7 @@ export default function MemberAreaPublicPage() {
   const totalModules = area.modules?.length || 0;
 
   return (
-    <div className="w-full min-h-screen bg-[#1A202C] text-white">
+    <div className="w-full h-full overflow-y-auto">
         <div className="relative h-60 w-full">
         {area.headerImageUrl ? (
             <Image
@@ -96,7 +96,7 @@ export default function MemberAreaPublicPage() {
 
         <div className="mt-12">
             <h2 className="text-xl font-bold mb-4">Meus cursos</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
             {area.modules?.map(module => (
                  <div key={module.id} className="group cursor-pointer" onClick={() => handleModuleClick(module.id)}>
                     <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-gray-800 transition-transform group-hover:scale-105">
