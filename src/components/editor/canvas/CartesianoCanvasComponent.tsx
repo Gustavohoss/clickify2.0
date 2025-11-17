@@ -12,8 +12,30 @@ import {
   ReferenceDot,
   Label as ChartLabel,
 } from 'recharts';
-import type { CanvasComponentData } from '../types';
+import type { CanvasComponentData, CartesianChartDataPoint } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
+
+
+const CustomLabel = (props: any) => {
+  const { x, y, value } = props;
+  
+  if (!value) return null;
+
+  // Simple approximation for text width
+  const textWidth = value.length * 7;
+  const boxWidth = textWidth + 16;
+
+  return (
+    <g transform={`translate(${x - boxWidth / 2}, ${y - 45})`}>
+      <rect x="0" y="0" width={boxWidth} height="28" rx="8" fill="white" stroke="#e5e7eb" strokeWidth="1" />
+      <text x={boxWidth/2} y="18" textAnchor="middle" fill="#000000" fontSize="12">
+        {value}
+      </text>
+      <path d={`M ${boxWidth/2 - 5} 28 L ${boxWidth/2} 33 L ${boxWidth/2 + 5} 28 Z`} fill="white" stroke="#e5e7eb" strokeWidth="1" />
+    </g>
+  );
+};
+
 
 export const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const {
@@ -46,7 +68,7 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
         <AreaChart
           data={chartData}
           margin={{
-            top: 20,
+            top: 40,
             right: 20,
             left: -20,
             bottom: 5,
@@ -77,7 +99,7 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
             strokeWidth={2}
           />
 
-          {chartData.map((point, index) => (
+          {chartData.map((point: CartesianChartDataPoint, index: number) => (
             <ReferenceDot
               key={index}
               x={point.name}
@@ -86,22 +108,9 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
               fill="#FFFFFF"
               stroke="#A0AEC0"
               strokeWidth={2}
+              ifOverflow="extendDomain"
             >
-              {point.indicatorLabel && (
-                <ChartLabel
-                  value={point.indicatorLabel}
-                  position="top"
-                  offset={-20}
-                  style={{
-                    fill: '#000000',
-                    backgroundColor: '#ffffff',
-                    padding: '2px 8px',
-                    borderRadius: '1rem',
-                    fontSize: 12,
-                    border: '1px solid #e5e7eb',
-                  }}
-                />
-              )}
+              {point.indicatorLabel && <CustomLabel value={point.indicatorLabel} />}
             </ReferenceDot>
           ))}
         </AreaChart>
