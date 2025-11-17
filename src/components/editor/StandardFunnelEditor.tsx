@@ -255,6 +255,23 @@ export function StandardFunnelEditor({
       };
     }
 
+    if (component.name === 'Opções') {
+      defaultProps = {
+        opcoesItems: [
+          {
+            id: Date.now(),
+            icon: '💬',
+            text: 'Opção 1',
+          },
+          {
+            id: Date.now() + 1,
+            icon: '✅',
+            text: 'Opção 2',
+          },
+        ],
+      };
+    }
+
 
     const newComponent: CanvasComponentData = {
       ...component,
