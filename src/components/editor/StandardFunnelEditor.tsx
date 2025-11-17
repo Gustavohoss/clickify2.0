@@ -181,6 +181,23 @@ export function StandardFunnelEditor({
         ],
       };
     }
+    
+    if (component.name === 'Gráficos') {
+      defaultProps = {
+        graficosItems: [
+          {
+            id: Date.now(),
+            label: 'Item 1',
+            value: 75,
+          },
+          {
+            id: Date.now() + 1,
+            label: 'Item 2',
+            value: 50,
+          },
+        ],
+      };
+    }
 
 
     const newComponent: CanvasComponentData = {
