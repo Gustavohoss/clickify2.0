@@ -141,7 +141,7 @@ export default function AreaDeMembrosPage() {
                         </Link>
                     </Button>
                     <Button asChild>
-                        <Link href={`/membros/${area.slug}/${area.id}`} target="_blank">
+                        <Link href={`/membros/${area.slug}`} target="_blank">
                             Acessar
                             <ExternalLink className="ml-2 h-4 w-4" />
                         </Link>
