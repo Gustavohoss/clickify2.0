@@ -181,13 +181,18 @@ export default function NewLessonPage() {
 
           <div>
             <h2 className="text-xl font-semibold">Thumbnail</h2>
-            <div className="mt-4 flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-gray-700 p-8 text-center">
-              <div className="rounded-full bg-gray-700 p-4">
-                <FileImage size={24} className="text-gray-400" />
-              </div>
-              <p className="font-semibold">Arraste ou selecione o arquivo</p>
-              <p className="text-sm text-gray-500">Solte os arquivos aqui ou clique para <button className="font-semibold text-green-400 hover:underline">buscar</button> em seu computador</p>
-              <p className="text-xs text-gray-500">Formatos aceitos: JPG ou PNG. Tamanho máximo: 10MB</p>
+             <div className="mt-4 space-y-2">
+                <Label htmlFor="thumbnail-url">URL da Thumbnail</Label>
+                <div className="flex items-center gap-2">
+                    <LinkIcon size={16} className="text-gray-500" />
+                    <Input
+                        id="thumbnail-url"
+                        placeholder="Cole a URL da sua imagem aqui"
+                        className="border-gray-600 bg-gray-900"
+                        value={thumbnailUrl}
+                        onChange={(e) => setThumbnailUrl(e.target.value)}
+                    />
+                </div>
             </div>
              <Alert className="mt-4 bg-blue-900/50 border-blue-800">
                 <Info className="h-4 w-4 text-blue-400" />
