@@ -20,7 +20,7 @@ import { useAuth } from '@/firebase';
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/produtos', label: 'Produtos', icon: ShoppingBag },
+  { href: '/dashboard/produtos', label: 'Produtos Para Vender', icon: ShoppingBag },
   { href: '/dashboard/area-de-membros', label: 'Área de Membros', icon: BookUser },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
   { href: '/dashboard/social', label: 'Social', icon: Users },
