@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, Trash2, Grip, Star } from 'lucide-react';
 import type { CanvasComponentData, ComponentProps } from '../types';
+import { cn } from '@/lib/utils';
 
 export const CartesianoSettings = ({
   component,
@@ -21,8 +22,8 @@ export const CartesianoSettings = ({
 
   const handleUpdateDataPoint = (
     id: number,
-    key: 'name' | 'value' | 'indicatorLabel',
-    value: string | number
+    key: 'name' | 'value' | 'indicatorLabel' | 'isFeatured',
+    value: string | number | boolean
   ) => {
     const newData = data.map((item) => (item.id === id ? { ...item, [key]: value } : item));
     onUpdate({ ...component.props, chartData: newData });
@@ -34,6 +35,7 @@ export const CartesianoSettings = ({
       name: `Ponto ${data.length + 1}`,
       value: Math.floor(Math.random() * 100),
       indicatorLabel: '',
+      isFeatured: false,
     };
     onUpdate({ ...component.props, chartData: [...data, newPoint] });
   };
@@ -96,7 +98,15 @@ export const CartesianoSettings = ({
                   />
                 </div>
                 <div className="relative">
-                  <Star className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                   <button
+                    onClick={() => handleUpdateDataPoint(point.id, 'isFeatured', !point.isFeatured)}
+                    className={cn(
+                        "absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors",
+                        point.isFeatured && "text-yellow-400"
+                    )}
+                   >
+                    <Star className={cn("h-4 w-4", point.isFeatured && "fill-current")} />
+                   </button>
                   <Input
                     value={point.indicatorLabel}
                     onChange={(e) =>

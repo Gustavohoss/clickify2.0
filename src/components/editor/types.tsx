@@ -78,6 +78,7 @@ export type CartesianChartDataPoint = {
   name: string;
   value: number;
   indicatorLabel: string;
+  isFeatured?: boolean;
 };
 
 export type TestimonialItem = {

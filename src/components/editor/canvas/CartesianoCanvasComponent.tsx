@@ -10,28 +10,32 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceDot,
-  Label as ChartLabel,
 } from 'recharts';
 import type { CanvasComponentData, CartesianChartDataPoint } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
 
 
 const CustomLabel = (props: any) => {
-  const { x, y, value } = props;
+  const { x, y, value, isFeatured } = props;
   
   if (!value) return null;
 
   // Simple approximation for text width
   const textWidth = value.length * 7;
   const boxWidth = textWidth + 16;
+  
+  const bgColor = isFeatured ? '#000000' : '#FFFFFF';
+  const textColor = isFeatured ? '#FFFFFF' : '#000000';
+  const borderColor = isFeatured ? '#000000' : '#e5e7eb';
+
 
   return (
     <g transform={`translate(${x - boxWidth / 2}, ${y - 45})`}>
-      <rect x="0" y="0" width={boxWidth} height="28" rx="8" fill="white" stroke="#e5e7eb" strokeWidth="1" />
-      <text x={boxWidth/2} y="18" textAnchor="middle" fill="#000000" fontSize="12">
+      <rect x="0" y="0" width={boxWidth} height="28" rx="8" fill={bgColor} stroke={borderColor} strokeWidth="1" />
+      <text x={boxWidth/2} y="18" textAnchor="middle" fill={textColor} fontSize="12">
         {value}
       </text>
-      <path d={`M ${boxWidth/2 - 5} 28 L ${boxWidth/2} 33 L ${boxWidth/2 + 5} 28 Z`} fill="white" stroke="#e5e7eb" strokeWidth="1" />
+      <path d={`M ${boxWidth/2 - 5} 28 L ${boxWidth/2} 33 L ${boxWidth/2 + 5} 28 Z`} fill={bgColor} stroke={borderColor} strokeWidth="1" />
     </g>
   );
 };
@@ -106,11 +110,11 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
               y={point.value}
               r={8}
               fill="#FFFFFF"
-              stroke="#A0AEC0"
+              stroke={point.isFeatured ? '#000000' : '#A0AEC0'}
               strokeWidth={2}
               ifOverflow="extendDomain"
             >
-              {point.indicatorLabel && <CustomLabel value={point.indicatorLabel} />}
+              <CustomLabel value={point.indicatorLabel} isFeatured={point.isFeatured} />
             </ReferenceDot>
           ))}
         </AreaChart>
