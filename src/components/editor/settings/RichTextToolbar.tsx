@@ -30,14 +30,21 @@ export const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, valu
     </Button>
   );
 
+  const handleFormatBlockChange = (value: string) => {
+    onFormat('formatBlock', value);
+  };
+
   const handleFontSizeChange = (value: string) => {
     onFormat('fontSize', value);
   };
 
   return (
     <div className="flex flex-wrap items-center gap-1 rounded-t-md border-b border-white/10 bg-transparent p-1">
-      <Select defaultValue="p" onValueChange={(value) => onFormat('formatBlock', value)}>
-        <SelectTrigger className="h-7 w-[80px] border-none bg-transparent text-xs text-gray-300 focus:ring-0">
+      <Select defaultValue="p" onValueChange={handleFormatBlockChange}>
+        <SelectTrigger 
+          className="h-7 w-[80px] border-none bg-transparent text-xs text-gray-300 focus:ring-0"
+          onMouseDown={(e) => e.preventDefault()}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent className='bg-gray-800 text-white border-gray-700'>
@@ -48,7 +55,10 @@ export const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, valu
         </SelectContent>
       </Select>
        <Select defaultValue="3" onValueChange={handleFontSizeChange}>
-        <SelectTrigger className="h-7 w-[80px] border-none bg-transparent text-xs text-gray-300 focus:ring-0">
+        <SelectTrigger 
+            className="h-7 w-[80px] border-none bg-transparent text-xs text-gray-300 focus:ring-0"
+            onMouseDown={(e) => e.preventDefault()}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent className='bg-gray-800 text-white border-gray-700'>
