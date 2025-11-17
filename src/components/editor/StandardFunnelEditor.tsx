@@ -132,7 +132,8 @@ export function StandardFunnelEditor({
             imageUrl: `https://picsum.photos/seed/${Date.now()}/400/300`,
             caption: 'Nova Legenda',
           }
-        ]
+        ],
+        loop: true,
       }
     }
 
