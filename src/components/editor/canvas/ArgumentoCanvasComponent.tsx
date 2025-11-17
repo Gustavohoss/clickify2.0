@@ -34,7 +34,7 @@ export const ArgumentoCanvasComponent = ({ component }: { component: CanvasCompo
           <div className="text-2xl mt-1">{item.icon}</div>
           <div>
             <h4 className="font-bold">{item.title}</h4>
-            <p className="text-sm text-gray-600">{item.description}</p>
+            <div className="text-sm text-gray-600" dangerouslySetInnerHTML={{ __html: item.description }} />
           </div>
         </div>
       ))}

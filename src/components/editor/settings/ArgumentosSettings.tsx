@@ -22,7 +22,11 @@ const ArgumentEditor = ({
   onDelete: (id: number) => void;
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  
   const [content, setContent] = useState(item.description);
+  const [title, setTitle] = useState(item.title);
+
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -30,6 +34,13 @@ const ArgumentEditor = ({
       editor.innerHTML = content;
     }
   }, [content]);
+
+  useEffect(() => {
+    const titleEl = titleRef.current;
+    if (titleEl && titleEl.innerText !== title) {
+      titleEl.innerText = title;
+    }
+  }, [title]);
 
   const handleContentChange = () => {
     if (editorRef.current) {
@@ -74,16 +85,25 @@ const ArgumentEditor = ({
         </div>
         </div>
         
-        <div className='bg-white/5 rounded-md'>
-        <RichTextToolbar onFormat={handleFormat} />
-        <div className="p-4 text-white focus:outline-none"
-             ref={editorRef}
-             contentEditable
-             suppressContentEditableWarning
-             onBlur={handleContentChange}
-             dangerouslySetInnerHTML={{ __html: item.description }}
-        >
-        </div>
+        <div className='bg-white/5 rounded-md p-2'>
+            <h4
+                ref={titleRef}
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={handleTitleChange}
+                className="text-lg font-bold text-white mb-2 px-2 focus:outline-none focus:bg-white/10 rounded-md"
+            >
+                {item.title}
+            </h4>
+            <RichTextToolbar onFormat={handleFormat} />
+            <div className="p-2 text-white focus:outline-none min-h-[80px]"
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={handleContentChange}
+                dangerouslySetInnerHTML={{ __html: item.description }}
+            >
+            </div>
         </div>
         
         <div className="flex justify-center">
@@ -120,7 +140,7 @@ export const ArgumentosSettings = ({
       id: Date.now(),
       icon: '💬',
       title: 'Argumento',
-      description: '<strong>Argumento</strong><p>Lorem ipsum dolor sit amet.</p>',
+      description: 'Lorem ipsum dolor sit amet.',
     };
     onUpdate({ ...component.props, items: [...items, newItem] });
   };
