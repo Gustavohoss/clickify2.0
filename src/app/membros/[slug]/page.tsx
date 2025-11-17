@@ -53,6 +53,7 @@ type MemberArea = {
   modules?: Module[];
   upsellsTitle?: string;
   upsells?: Upsell[];
+  backgroundColor?: string;
 };
 
 export default function MemberAreaPublicPage() {
@@ -121,7 +122,7 @@ export default function MemberAreaPublicPage() {
   const totalModules = area.modules?.length || 0;
 
   return (
-    <div className="w-full h-screen bg-[#1A202C] text-white overflow-y-auto">
+    <div className="w-full h-screen text-white overflow-y-auto" style={{ backgroundColor: area.backgroundColor || '#1A202C' }}>
       <div className="relative h-60 w-full">
         {area.headerImageUrl ? (
           <Image
@@ -134,7 +135,7 @@ export default function MemberAreaPublicPage() {
         ) : (
           <div className="bg-gray-800 h-full w-full" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1A202C] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--background-color)] to-transparent" style={{ '--background-color': area.backgroundColor || '#1A202C' } as React.CSSProperties} />
       </div>
 
       <div className="p-8 -mt-20 relative z-10">
@@ -303,3 +304,5 @@ export default function MemberAreaPublicPage() {
     </div>
   );
 }
+
+    

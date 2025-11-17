@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -87,6 +88,7 @@ export default function WorkspaceSettingsPage() {
   const [workspaceName, setWorkspaceName] = useState('');
   const [supportEmail, setSupportEmail] = useState('');
   const [primaryColor, setPrimaryColor] = useState('#6366F1');
+  const [backgroundColor, setBackgroundColor] = useState('#1A202C');
   const [logoUrl, setLogoUrl] = useState('');
   const [commentsEnabled, setCommentsEnabled] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -97,6 +99,7 @@ export default function WorkspaceSettingsPage() {
       setWorkspaceName(areaData.name || '');
       setSupportEmail(areaData.supportEmail || '');
       setPrimaryColor(areaData.primaryColor || '#6366F1');
+      setBackgroundColor(areaData.backgroundColor || '#1A202C');
       setLogoUrl(areaData.logoUrl || '');
       setMenuItems(areaData.menuItems || []);
     }
@@ -132,6 +135,7 @@ export default function WorkspaceSettingsPage() {
         name: workspaceName,
         supportEmail,
         primaryColor,
+        backgroundColor,
         logoUrl,
         commentsEnabled,
         menuItems,
@@ -264,22 +268,41 @@ export default function WorkspaceSettingsPage() {
             Personalize a aparência visual da sua área de membros
           </p>
           <div className="mt-6 space-y-6">
-            <div>
-              <Label>Cor Principal</Label>
-              <div className="mt-2 flex items-center gap-2">
-                <div
-                  className="h-10 w-10 rounded-md border"
-                  style={{ backgroundColor: primaryColor }}
-                />
-                <Input
-                  value={primaryColor}
-                  onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="w-32"
-                />
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Cor principal usada para botões, links e elementos destacados
-              </p>
+            <div className="grid grid-cols-2 gap-4">
+                 <div>
+                    <Label>Cor Principal</Label>
+                    <div className="mt-2 flex items-center gap-2">
+                        <div
+                        className="h-10 w-10 rounded-md border"
+                        style={{ backgroundColor: primaryColor }}
+                        />
+                        <Input
+                        value={primaryColor}
+                        onChange={(e) => setPrimaryColor(e.target.value)}
+                        className="w-32"
+                        />
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                        Cor de botões, links e destaques
+                    </p>
+                </div>
+                 <div>
+                    <Label>Cor de Fundo</Label>
+                    <div className="mt-2 flex items-center gap-2">
+                        <div
+                        className="h-10 w-10 rounded-md border"
+                        style={{ backgroundColor: backgroundColor }}
+                        />
+                        <Input
+                        value={backgroundColor}
+                        onChange={(e) => setBackgroundColor(e.target.value)}
+                        className="w-32"
+                        />
+                    </div>
+                     <p className="mt-1 text-xs text-muted-foreground">
+                        Cor de fundo da área de membros
+                    </p>
+                </div>
             </div>
             <div>
               <Label htmlFor="logoUrl">URL do Logo</Label>
@@ -421,3 +444,5 @@ export default function WorkspaceSettingsPage() {
     </div>
   );
 }
+
+    
