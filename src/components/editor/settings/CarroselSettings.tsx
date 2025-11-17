@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Input } from '@/components/ui/input';
@@ -96,7 +97,7 @@ export const CarroselSettings = ({
             <UILabel htmlFor="loop">Loop</UILabel>
             <Switch
               id="loop"
-              checked={component.props.loop}
+              checked={component.props.loop ?? true}
               onCheckedChange={(checked) => onUpdate({ ...component.props, loop: checked })}
             />
           </div>
