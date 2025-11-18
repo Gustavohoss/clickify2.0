@@ -2,29 +2,34 @@
 'use client';
 
 import { BarChart, BookUser, BrainCircuit, DollarSign, Milestone, Settings, ShoppingBag, Users, Zap } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { Bar, BarChart as RechartsBarChart, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart as RechartsAreaChart, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 
 const chartData = [
-  { month: 'Jan', desktop: 0 },
-  { month: 'Feb', desktop: 0 },
-  { month: 'Mar', desktop: 0 },
-  { month: 'Apr', desktop: 0 },
-  { month: 'May', desktop: 0 },
-  { month: 'Jun', desktop: 0 },
+    { date: '19 out', revenue: 0 },
+    { date: '22 out', revenue: 0 },
+    { date: '25 out', revenue: 0 },
+    { date: '28 out', revenue: 0 },
+    { date: '31 out', revenue: 0 },
+    { date: '03 nov', revenue: 0 },
+    { date: '06 nov', revenue: 0 },
+    { date: '09 nov', revenue: 0 },
+    { date: '12 nov', revenue: 0 },
+    { date: '15 nov', revenue: 0 },
+    { date: '18 nov', revenue: 0 },
 ];
 
 const chartConfig = {
-  desktop: {
-    label: 'Progresso',
+  revenue: {
+    label: 'Receita',
     color: 'hsl(var(--primary))',
   },
 };
@@ -115,25 +120,41 @@ export default function DashboardPage() {
       
       <Card>
         <CardHeader>
-          <CardTitle>Evolução Semanal</CardTitle>
+          <CardTitle>R$ 0,00</CardTitle>
+          <CardDescription>Receita líquida</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[200px] w-full">
-            <RechartsBarChart accessibilityLayer data={chartData}>
+            <RechartsAreaChart accessibilityLayer data={chartData}>
+               <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+              <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="date"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
               />
-              <YAxis tickLine={false} axisLine={false} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => `R$ ${value}`}
+                hide
+              />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="dot" />}
+                content={<ChartTooltipContent 
+                    indicator="dot"
+                    formatter={(value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value as number)}
+                />}
               />
-              <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-            </RechartsBarChart>
+              <Area dataKey="revenue" type="monotone" fill="url(#colorRevenue)" stroke="var(--color-revenue)" stackId="a" />
+            </RechartsAreaChart>
           </ChartContainer>
         </CardContent>
       </Card>
