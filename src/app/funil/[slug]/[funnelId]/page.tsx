@@ -1,7 +1,3 @@
-
-
-
-
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -19,7 +15,7 @@ function FunnelPublicContent() {
     () => (funnelId ? doc(firestore, 'funnels', funnelId) : null),
     [firestore, funnelId]
   );
-  const { data: funnelData, isLoading } = useDoc<Omit<Funnel, 'id'>>(funnelRef);
+  const { data: funnelData, isLoading } = useDoc<Funnel>(funnelRef);
 
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
@@ -31,10 +27,10 @@ function FunnelPublicContent() {
     );
   }
 
-  if (!funnelData) {
+  if (!funnelData || !funnelData.isPublished) {
     return (
       <div className="flex h-screen items-center justify-center">
-        Funil não encontrado.
+        Funil não encontrado ou está offline.
       </div>
     );
   }
