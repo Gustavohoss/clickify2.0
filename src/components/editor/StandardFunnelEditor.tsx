@@ -35,7 +35,7 @@ import { ComponentSettings } from './settings/ComponentSettings';
 import { DesignSettings } from './settings/DesignSettings';
 import { CanvasComponent } from './canvas/CanvasComponent';
 import { components, type ComponentType, type Funnel, type Step, type EditorView, type CanvasComponentData, type ComponentProps, modelColors, modelIcons } from './types.tsx';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog.tsx';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog.tsx';
 
 function QuizPreview({ funnel, activeStepId }: { funnel: Funnel, activeStepId: number | null }) {
     const activeStep = funnel.steps.find(step => step.id === activeStepId) as Step | undefined;
@@ -431,6 +431,12 @@ export function StandardFunnelEditor({
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="p-0 bg-transparent border-none max-w-fit shadow-none">
+                        <DialogHeader className="sr-only">
+                          <DialogTitle>Pré-visualização do Quiz</DialogTitle>
+                          <DialogDescription>
+                            Veja como seu quiz aparecerá em um dispositivo móvel.
+                          </DialogDescription>
+                        </DialogHeader>
                         <QuizPreview funnel={funnel} activeStepId={activeStepId}/>
                     </DialogContent>
                 </Dialog>
