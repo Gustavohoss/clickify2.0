@@ -52,10 +52,6 @@ export function Topbar() {
         </h1>
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" className="gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-          <Zap className="h-4 w-4" />
-          Upgrade de Plano
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">

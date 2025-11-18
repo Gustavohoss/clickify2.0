@@ -102,7 +102,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8">
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -120,23 +120,6 @@ export default function DashboardPage() {
                <Button size="lg" className="w-full justify-start gap-2">
                 <Users className="h-5 w-5" />
                 <span>Criar Perfil Social</span>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="lg:col-span-1">
-           <Card className="bg-primary/10 border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-primary">
-                <Zap className="h-5 w-5" />
-                <span>Upgrade de Plano</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-primary/80">Desbloqueie automações avançadas com o plano Pro.</p>
-              <Button variant="outline" className="mt-4 w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                Ver Planos
               </Button>
             </CardContent>
           </Card>
