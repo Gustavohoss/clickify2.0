@@ -59,17 +59,19 @@ function FunnelPublicContent() {
   const backgroundColor = funnelData.backgroundColor || '#FFFFFF';
 
   return (
-    <main className="flex-1 overflow-y-auto p-4 md:p-8" style={{ backgroundColor }}>
-      <div className="mx-auto w-full max-w-sm space-y-4">
-        {activeStep.components.map((comp) => (
-          <PreviewCanvasComponent
-            key={comp.id}
-            component={comp}
-            onNextStep={handleNextStep}
-          />
-        ))}
-      </div>
-    </main>
+    <div className="flex min-h-screen flex-col" style={{ backgroundColor }}>
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <div className="mx-auto w-full max-w-sm space-y-4">
+            {activeStep.components.map((comp) => (
+            <PreviewCanvasComponent
+                key={comp.id}
+                component={comp}
+                onNextStep={handleNextStep}
+            />
+            ))}
+        </div>
+        </main>
+    </div>
   );
 }
 
