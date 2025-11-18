@@ -101,30 +101,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      <div className="grid grid-cols-1 gap-8">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ações Rápidas</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Button size="lg" className="w-full justify-start gap-2">
-                <BrainCircuit className="h-5 w-5" />
-                <span>Criar Produto com IA</span>
-              </Button>
-              <Button size="lg" className="w-full justify-start gap-2">
-                <Milestone className="h-5 w-5" />
-                <span>Gerar Funil Inteligente</span>
-              </Button>
-               <Button size="lg" className="w-full justify-start gap-2">
-                <Users className="h-5 w-5" />
-                <span>Criar Perfil Social</span>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
       
       <Card>
         <CardHeader>
