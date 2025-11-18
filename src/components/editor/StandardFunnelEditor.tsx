@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { StepSettings } from './settings/StepSettings';
 import { ComponentSettings } from './settings/ComponentSettings';
 import { DesignSettings } from './settings/DesignSettings';
+import { FunnelSettings } from './settings/FunnelSettings';
 import { CanvasComponent } from './canvas/CanvasComponent';
 import { components, type ComponentType, type Funnel, type Step, type EditorView, type CanvasComponentData, type ComponentProps, modelColors, modelIcons } from './types.tsx';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog.tsx';
@@ -696,6 +697,8 @@ export function StandardFunnelEditor({
                 </div>
               </div>
            </main>
+        ) : activeView === 'configuracoes' ? (
+          <FunnelSettings />
         ) : (
           <main
             className={cn(
@@ -706,8 +709,8 @@ export function StandardFunnelEditor({
             onClick={() => setSelectedComponentId(null)}
           >
             {funnel.type === 'quiz' && (
-              <div className="mx-auto w-full max-w-sm mb-8">
-                <header className="flex flex-col items-center p-4 rounded-t-lg">
+              <div className="mx-auto w-full max-w-sm">
+                <header className="flex flex-col items-center p-4 rounded-t-lg bg-transparent">
                   <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
                   <Progress value={progressValue} className="w-full mt-4 h-2" />
                 </header>
