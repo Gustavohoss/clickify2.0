@@ -1,6 +1,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -57,6 +58,14 @@ function FunnelPublicContent() {
     }
   };
 
+  const handleGoToStep = (stepId: number) => {
+    const stepIndex = steps.findIndex(step => step.id === stepId);
+    if (stepIndex !== -1) {
+      setActiveStepIndex(stepIndex);
+    }
+  };
+
+
   const backgroundColor = funnelData.backgroundColor || '#FFFFFF';
 
   return (
@@ -68,6 +77,7 @@ function FunnelPublicContent() {
                 key={comp.id}
                 component={comp}
                 onNextStep={handleNextStep}
+                onGoToStep={handleGoToStep}
             />
             ))}
         </div>

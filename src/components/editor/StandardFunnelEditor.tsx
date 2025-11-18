@@ -6,6 +6,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -79,16 +80,18 @@ import { useToast } from '@/hooks/use-toast';
 export const PreviewCanvasComponent = ({
   component,
   onNextStep,
+  onGoToStep,
 }: {
   component: CanvasComponentData;
   onNextStep?: () => void;
+  onGoToStep?: (stepId: number) => void;
 }) => {
   const renderComponent = () => {
     switch (component.name) {
       case 'Alerta': return <AlertCanvasComponent component={component} />;
       case 'Argumentos': return <ArgumentoCanvasComponent component={component} />;
       case 'Audio': return <AudioCanvasComponent component={component} />;
-      case 'Botão': return <BotaoCanvasComponent component={component} onClick={component.props.action === 'next_step' ? onNextStep : undefined} />;
+      case 'Botão': return <BotaoCanvasComponent component={component} onNextStep={onNextStep} onGoToStep={onGoToStep} />;
       case 'Carregando': return <CarregandoCanvasComponent component={component} />;
       case 'Carrosel': return <CarroselCanvasComponent component={component} />;
       case 'Cartesiano': return <CartesianoCanvasComponent component={component} />;
