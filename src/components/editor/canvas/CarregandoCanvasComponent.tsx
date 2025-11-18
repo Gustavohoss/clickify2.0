@@ -1,10 +1,18 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import type { CanvasComponentData } from '../types';
+import { Button } from '@/components/ui/button';
 
-export const CarregandoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+export const CarregandoCanvasComponent = ({
+  component,
+  onNextStep,
+}: {
+  component: CanvasComponentData;
+  onNextStep?: () => void;
+}) => {
   const {
     loadingText = 'Carregando...',
     loadingDescription = 'Lorem ipsum dollor sit amet.',
@@ -16,6 +24,8 @@ export const CarregandoCanvasComponent = ({ component }: { component: CanvasComp
     limit = 100,
     showTitle = true,
     showProgress = true,
+    showSkipButton = true,
+    skipButtonText = 'Pular',
   } = component.props;
 
   const [animatedProgress, setAnimatedProgress] = useState(0);
@@ -37,6 +47,7 @@ export const CarregandoCanvasComponent = ({ component }: { component: CanvasComp
         const nextProgress = prev + increment;
         if (nextProgress >= limit) {
           clearInterval(timer);
+          onNextStep?.();
           return limit;
         }
         return nextProgress;
@@ -44,12 +55,12 @@ export const CarregandoCanvasComponent = ({ component }: { component: CanvasComp
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [duration, limit, showProgress]);
+  }, [duration, limit, showProgress, onNextStep]);
 
   const displayProgress = Math.floor(animatedProgress);
 
   return (
-    <div className="w-full space-y-2 text-center">
+    <div className="w-full space-y-4 text-center">
       {showTitle && (
         <div className="flex items-center justify-between text-sm font-medium">
           <span style={{ color: titleColor }} className="text-black">
@@ -77,6 +88,13 @@ export const CarregandoCanvasComponent = ({ component }: { component: CanvasComp
       <p className="pt-1 text-sm" style={{ color: descriptionColor }}>
         {loadingDescription}
       </p>
+      {showSkipButton && (
+        <div className="pt-2">
+          <Button variant="link" onClick={onNextStep}>
+            {skipButtonText}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

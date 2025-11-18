@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -85,7 +86,7 @@ export const PreviewCanvasComponent = ({
       case 'Argumentos': return <ArgumentoCanvasComponent component={component} />;
       case 'Audio': return <AudioCanvasComponent component={component} />;
       case 'Botão': return <BotaoCanvasComponent component={component} onNextStep={onNextStep} onGoToStep={onGoToStep} />;
-      case 'Carregando': return <CarregandoCanvasComponent component={component} />;
+      case 'Carregando': return <CarregandoCanvasComponent component={component} onNextStep={onNextStep} />;
       case 'Carrosel': return <CarroselCanvasComponent component={component} />;
       case 'Cartesiano': return <CartesianoCanvasComponent component={component} />;
       case 'Comparar': return <CompararCanvasComponent component={component} />;
