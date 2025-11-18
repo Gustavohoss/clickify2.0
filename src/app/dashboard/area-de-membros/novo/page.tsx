@@ -67,7 +67,8 @@ export default function NovaAreaDeMembrosPage() {
         title: 'Erro ao criar',
         description: 'Não foi possível criar a área de membros. Tente novamente.',
       });
-      setIsCreating(false);
+    } finally {
+        setIsCreating(false);
     }
   };
 
