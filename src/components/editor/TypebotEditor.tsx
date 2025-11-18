@@ -40,8 +40,6 @@ import {
   Italic,
   Underline,
   Strikethrough,
-  Heading2,
-  Heading3,
   Link as LinkIcon,
   ListOrdered,
   AlignLeft,
@@ -1772,15 +1770,24 @@ export function TypebotEditor({
             if (!parentGroup) return;
 
             const newBlockId = Date.now();
+            
+            const blockElement = document.getElementById(`block-${draggingState.originalBlock.id}`);
+            if(!blockElement) return;
 
+            const blockRect = blockElement.getBoundingClientRect();
+            const parentElement = document.getElementById(`block-${parentGroup.id}`);
+            const parentRect = parentElement?.getBoundingClientRect();
+
+            const positionInCanvas = {
+                x: ((parentRect?.left ?? 0) + (blockRect?.left - (parentRect?.left ?? 0)) - canvasRect.left - panOffset.x) / zoom,
+                y: ((parentRect?.top ?? 0) + (blockRect?.top - (parentRect?.top ?? 0)) - canvasRect.top - panOffset.y) / zoom
+            };
+            
             const detachedBlock: CanvasBlock = {
                 ...draggingState.originalBlock,
                 id: newBlockId,
                 parentId: undefined,
-                position: {
-                  x: parentGroup.position.x + draggingState.dragStartOffset.x,
-                  y: parentGroup.position.y + draggingState.dragStartOffset.y,
-                },
+                position: positionInCanvas,
                 props: draggingState.originalBlock.props,
             };
 
@@ -1867,33 +1874,32 @@ export function TypebotEditor({
     e.stopPropagation();
     if (e.button !== 0) return;
     setContextMenu({ ...contextMenu, visible: false });
-
+  
     if (!canvasRef.current) return;
-
+    const canvasRect = canvasRef.current.getBoundingClientRect();
     const blockToDrag = findBlock(block.id);
     if (!blockToDrag) return;
-
+  
     let dragStartOffset;
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-    
+  
     if (blockToDrag.parentId) {
-        const blockElement = document.getElementById(`block-${blockToDrag.id}`);
-        if(blockElement) {
-          const blockRect = blockElement.getBoundingClientRect();
-          dragStartOffset = {
-            x: (e.clientX - blockRect.left) / zoom,
-            y: (e.clientY - blockRect.top) / zoom,
-          };
-        } else {
-          dragStartOffset = { x: 0, y: 0 };
-        }
-    } else {
+      const blockElement = document.getElementById(`block-${blockToDrag.id}`);
+      if (blockElement) {
+        const blockRect = blockElement.getBoundingClientRect();
         dragStartOffset = {
-            x: (e.clientX - canvasRect.left - panOffset.x) / zoom - blockToDrag.position.x,
-            y: (e.clientY - canvasRect.top - panOffset.y) / zoom - blockToDrag.position.y,
+          x: (e.clientX - blockRect.left) / zoom,
+          y: (e.clientY - blockRect.top) / zoom,
         };
+      } else {
+        dragStartOffset = { x: 0, y: 0 };
+      }
+    } else {
+      dragStartOffset = {
+        x: (e.clientX - canvasRect.left - panOffset.x) / zoom - blockToDrag.position.x,
+        y: (e.clientY - canvasRect.top - panOffset.y) / zoom - blockToDrag.position.y,
+      };
     }
-
+  
     setDraggingState({
       blockId: block.id,
       isDragging: false,
