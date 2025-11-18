@@ -36,7 +36,7 @@ export const BotaoCanvasComponent = ({ component, onNextStep, onGoToStep }: Bota
         }
         break;
       case 'go_to_step':
-        if (stepId && onGoToStep) {
+        if (stepId !== undefined && onGoToStep) {
           onGoToStep(stepId);
         }
         break;
