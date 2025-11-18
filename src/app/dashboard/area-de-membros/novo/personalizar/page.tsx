@@ -46,7 +46,7 @@ export default function PersonalizarWorkspacePage() {
 
   const handleContinue = async () => {
     setIsFinishing(true);
-    if(areaRef) {
+    if(areaRef && areaId) {
         try {
             await updateDoc(areaRef, { logoUrl });
             toast({
@@ -62,6 +62,13 @@ export default function PersonalizarWorkspacePage() {
             });
             setIsFinishing(false);
         }
+    } else {
+        toast({
+            variant: 'destructive',
+            title: 'Erro',
+            description: 'ID da área de membros não encontrado.'
+        });
+        setIsFinishing(false);
     }
   };
 
@@ -188,5 +195,3 @@ export default function PersonalizarWorkspacePage() {
     </div>
   );
 }
-
-    

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -38,6 +39,9 @@ export default function NovaAreaDeMembrosPage() {
 
     setIsCreating(true);
     try {
+      if (!firestore) {
+        throw new Error('Firestore is not initialized');
+      }
       const memberAreasCol = collection(firestore, 'memberAreas');
       const newAreaDoc = await addDoc(memberAreasCol, {
         name: workspaceName.trim(),
