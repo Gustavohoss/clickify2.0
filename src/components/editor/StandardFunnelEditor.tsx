@@ -9,6 +9,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -77,6 +78,7 @@ import { VideoCanvasComponent } from './canvas/VideoCanvasComponent';
 import Image from 'next/image';
 import { Progress } from '../ui/progress.tsx';
 import { useToast } from '@/hooks/use-toast';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu.tsx';
 
 // Read-only version of CanvasComponent for the preview
 export const PreviewCanvasComponent = ({
@@ -523,13 +525,13 @@ export function StandardFunnelEditor({
     setPanOffset({x: newPanX, y: newPanY});
   }
 
-  const handlePublish = () => {
-    updateFunnel(prev => ({ ...prev, isPublished: true }));
-    setIsPublished(true);
+  const handlePublishToggle = (publish: boolean) => {
+    updateFunnel(prev => ({ ...prev, isPublished: publish }));
+    setIsPublished(publish);
     debouncedUpdateFunnel.flush();
     toast({
-      title: 'Funil Publicado!',
-      description: `Seu funil agora está ativo.`,
+      title: publish ? 'Funil Publicado!' : 'Funil agora é um rascunho.',
+      description: publish ? 'Seu funil agora está ativo.' : 'Seu funil não está mais visível publicamente.',
     });
   };
   
@@ -614,20 +616,29 @@ export function StandardFunnelEditor({
             Salvar
           </Button>
           {isPublished ? (
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="secondary" className="cursor-default">
-                <span className="relative mr-2 flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
-                </span>
-                Publicado
-              </Button>
-              <Button size="icon" variant="outline" onClick={handleCopyUrl}>
-                <ClipboardCopy className="h-4 w-4" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="secondary">
+                  <span className="relative mr-2 flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                  </span>
+                  Publicado
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleCopyUrl}>
+                  <ClipboardCopy className="mr-2 h-4 w-4" />
+                  Copiar Link
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePublishToggle(false)}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Tornar Rascunho
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <Button size="sm" onClick={handlePublish}>
+            <Button size="sm" onClick={() => handlePublishToggle(true)}>
               <Rocket className="mr-2 h-4 w-4" />
               Publicar
             </Button>
