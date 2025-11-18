@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,12 +14,23 @@ import Image from 'next/image';
 type Product = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   imageUrl: string;
   price: number;
   commission: string;
   affiliateLink: string;
 };
+
+const staticProducts: Product[] = [
+  {
+    id: 'static-1',
+    name: 'Dieta das Celebridades',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/m7r3o42acz47md2cn2iqc4bh?v=1763451610688',
+    price: 97.00,
+    commission: 'R$ 55,83',
+    affiliateLink: 'https://seulinkdeafiliado.com/dieta'
+  }
+];
 
 export default function ProdutosPage() {
   const firestore = useFirestore();
@@ -30,7 +41,23 @@ export default function ProdutosPage() {
     [firestore]
   );
 
-  const { data: products, isLoading } = useCollection<Product>(productsQuery);
+  const { data: dynamicProducts, isLoading } = useCollection<Product>(productsQuery);
+
+  const [allProducts, setAllProducts] = useState<Product[]>(staticProducts);
+
+  useEffect(() => {
+    if (dynamicProducts) {
+      // Combine static and dynamic products, ensuring no duplicates if IDs ever match
+      const combined = [...staticProducts];
+      const staticIds = new Set(staticProducts.map(p => p.id));
+      dynamicProducts.forEach(dp => {
+        if (!staticIds.has(dp.id)) {
+          combined.push(dp);
+        }
+      });
+      setAllProducts(combined);
+    }
+  }, [dynamicProducts]);
 
   const handleCopyLink = (link: string) => {
     navigator.clipboard.writeText(link).then(() => {
@@ -81,9 +108,9 @@ export default function ProdutosPage() {
         </div>
       )}
 
-      {!isLoading && products && products.length > 0 ? (
+      {!isLoading && allProducts && allProducts.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {products.map((product) => (
+          {allProducts.map((product) => (
             <Card key={product.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
               <div className="relative aspect-video w-full">
                 <Image
@@ -100,6 +127,9 @@ export default function ProdutosPage() {
                 <CardTitle className="text-lg">{product.name}</CardTitle>
               </CardHeader>
               <CardContent className="flex-grow">
+                 {product.description && (
+                  <p className="text-sm text-muted-foreground mb-2">{product.description}</p>
+                 )}
                 <p className="text-sm text-muted-foreground">
                   Preço: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
                 </p>
