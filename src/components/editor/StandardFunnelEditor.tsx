@@ -109,7 +109,7 @@ const PreviewCanvasComponent = ({
 };
 
 
-function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void }) {
+function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void, backgroundColor: string }) {
     const activeStep = funnel.steps.find(step => step.id === activeStepId) as Step | undefined;
 
     if (!activeStep) {
@@ -121,7 +121,10 @@ function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, act
     }
 
     return (
-        <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col pointer-events-auto">
+        <div 
+          className="w-[320px] h-[640px] rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col pointer-events-auto"
+          style={{ backgroundColor }}
+        >
             <div className="flex-1 p-4 overflow-y-auto">
                 <div className="flex flex-col gap-4">
                     {activeStep.components.map(comp => (
@@ -154,6 +157,12 @@ export function StandardFunnelEditor({
   const [isPanning, setIsPanning] = useState(false);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const startPanPosition = useRef({ x: 0, y: 0 });
+
+  const [primaryColor, setPrimaryColor] = React.useState('#000000');
+  const [backgroundColor, setBackgroundColor] = React.useState('#FFFFFF');
+  const [titleColor, setTitleColor] = React.useState('#000000');
+  const [textColor, setTextColor] = React.useState('#000000');
+  const [interactiveTextColor, setInteractiveTextColor] = React.useState('#FFFFFF');
 
   useEffect(() => {
     if (!activeStepId && funnel.steps.length > 0) {
@@ -513,7 +522,12 @@ export function StandardFunnelEditor({
                             Veja como seu quiz aparecerá em um dispositivo móvel.
                         </DialogDescription>
                         </DialogHeader>
-                        <QuizPreview funnel={funnel} activeStepId={activeStepId} onNextStep={handleNextStepPreview}/>
+                        <QuizPreview 
+                          funnel={funnel} 
+                          activeStepId={activeStepId} 
+                          onNextStep={handleNextStepPreview}
+                          backgroundColor={backgroundColor}
+                        />
                     </DialogContent>
                 </Dialog>
             )}
@@ -706,7 +720,13 @@ export function StandardFunnelEditor({
                       Selecione uma etapa para editar.
                     </div>
                   ))}
-                {activeView === 'design' && <DesignSettings />}
+                {activeView === 'design' && <DesignSettings 
+                    primaryColor={primaryColor} setPrimaryColor={setPrimaryColor}
+                    backgroundColor={backgroundColor} setBackgroundColor={setBackgroundColor}
+                    titleColor={titleColor} setTitleColor={setTitleColor}
+                    textColor={textColor} setTextColor={setTextColor}
+                    interactiveTextColor={interactiveTextColor} setInteractiveTextColor={setInteractiveTextColor}
+                />}
               </div>
             </ScrollArea>
           </aside>

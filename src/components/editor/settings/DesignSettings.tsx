@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -26,12 +27,19 @@ const ColorPicker = ({ label, color, onChange }: { label: string, color: string,
   </div>
 );
 
-const ColorsContent = () => {
-    const [primaryColor, setPrimaryColor] = React.useState('#000000');
-    const [backgroundColor, setBackgroundColor] = React.useState('#FFFFFF');
-    const [titleColor, setTitleColor] = React.useState('#000000');
-    const [textColor, setTextColor] = React.useState('#000000');
-    const [interactiveTextColor, setInteractiveTextColor] = React.useState('#FFFFFF');
+const ColorsContent = ({
+  primaryColor, setPrimaryColor,
+  backgroundColor, setBackgroundColor,
+  titleColor, setTitleColor,
+  textColor, setTextColor,
+  interactiveTextColor, setInteractiveTextColor
+}: {
+  primaryColor: string, setPrimaryColor: (c: string) => void,
+  backgroundColor: string, setBackgroundColor: (c: string) => void,
+  titleColor: string, setTitleColor: (c: string) => void,
+  textColor: string, setTextColor: (c: string) => void,
+  interactiveTextColor: string, setInteractiveTextColor: (c: string) => void
+}) => {
 
     return (
         <Card className="border-none bg-transparent p-4 shadow-none">
@@ -46,12 +54,24 @@ const ColorsContent = () => {
     );
 }
 
+interface DesignSettingsProps {
+    primaryColor: string;
+    setPrimaryColor: (color: string) => void;
+    backgroundColor: string;
+    setBackgroundColor: (color: string) => void;
+    titleColor: string;
+    setTitleColor: (color: string) => void;
+    textColor: string;
+    setTextColor: (color: string) => void;
+    interactiveTextColor: string;
+    setInteractiveTextColor: (color: string) => void;
+}
 
-export const DesignSettings = () => {
+export const DesignSettings: React.FC<DesignSettingsProps> = (props) => {
   const settings = [
     { title: 'GERAL', content: 'Configurações gerais em breve.' },
     { title: 'HEADER', content: 'Configurações de header em breve.' },
-    { title: 'CORES', content: <ColorsContent /> },
+    { title: 'CORES', content: <ColorsContent {...props} /> },
     { title: 'TIPOGRAFIA', content: 'Configurações de tipografia em breve.' },
     { title: 'ANIMAÇÃO', content: 'Configurações de animação em breve.' },
   ];
