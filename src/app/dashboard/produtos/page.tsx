@@ -151,7 +151,7 @@ export default function ProdutosPage() {
               <CardFooter>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="w-full bg-green-600 hover:bg-green-700">
+                    <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold">
                       <Info className="mr-2 h-4 w-4" />
                       Veja mais
                     </Button>
