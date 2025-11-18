@@ -4,6 +4,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -87,7 +88,6 @@ export const PreviewCanvasComponent = ({
       case 'Argumentos': return <ArgumentoCanvasComponent component={component} />;
       case 'Audio': return <AudioCanvasComponent component={component} />;
       case 'Botão':
-        // The button itself will trigger the onNextStep when clicked.
         return (
           <div onClick={component.props.action === 'next_step' ? onNextStep : undefined}>
             <BotaoCanvasComponent component={component} />
@@ -720,7 +720,7 @@ export function StandardFunnelEditor({
             onWheel={handleWheel}
            >
               <div
-                className="absolute"
+                className="pointer-events-none absolute"
                 style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
               >
                  <svg className="absolute overflow-visible pointer-events-none">
@@ -748,9 +748,9 @@ export function StandardFunnelEditor({
                         />
                     ))}
                  </svg>
-                <div className="flex gap-16 pointer-events-auto">
+                <div className="flex gap-16">
                   {(funnel.steps as Step[]).map((step, index) => (
-                    <div key={step.id} style={{ width: `${stepWidth}px` }} className="rounded-lg bg-gray-900 p-4 shadow-lg text-white">
+                    <div key={step.id} style={{ width: `${stepWidth}px` }} className="pointer-events-auto rounded-lg bg-gray-900 p-4 shadow-lg text-white">
                       <div className="flex items-center justify-between mb-4">
                          <h3 className="font-semibold">{step.name}</h3>
                          <div className="h-3 w-3 rounded-full border-2 border-gray-500"></div>
