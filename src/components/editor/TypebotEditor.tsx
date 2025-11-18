@@ -1201,11 +1201,14 @@ type DropIndicator = {
 const ConnectionHandle = ({
   onMouseDown,
   isInput = false,
+  'data-handle-id': dataHandleId,
 }: {
   onMouseDown: (e: React.MouseEvent) => void;
   isInput?: boolean;
+  'data-handle-id'?: string;
 }) => (
   <div
+    data-handle-id={dataHandleId}
     className={cn(
       'absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-orange-400 bg-[#111111] cursor-pointer z-10',
       isInput ? '-left-[5px]' : '-right-[5px]'
@@ -1267,12 +1270,17 @@ const CanvasGroupBlock = ({
     onContextMenu={(e) => onContextMenu(e, block)}
   >
     <ConnectionHandle
+      data-handle-id={`output-${block.id}`}
       onMouseDown={(e) => {
         e.stopPropagation();
         onConnectionStart(e, block.id, 'output');
       }}
     />
-    <ConnectionHandle isInput onMouseDown={(e) => e.stopPropagation()} />
+    <ConnectionHandle
+      data-handle-id={`input-${block.id}`}
+      isInput
+      onMouseDown={(e) => e.stopPropagation()}
+    />
 
     <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-md bg-[#181818] p-1 opacity-0 transition-opacity group-hover:opacity-100">
       <Button
@@ -1600,10 +1608,17 @@ export function TypebotEditor({
 
   const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
     if (drawingConnection) {
-        const targetBlockIdStr = (e.target as HTMLElement).closest('[id^="block-"]')?.id.split('-')[1];
-  
-        if (targetBlockIdStr) {
-          const toBlockId = parseInt(targetBlockIdStr, 10);
+        let toBlockId: number | undefined;
+        let target = e.target as HTMLElement;
+        while (target && target !== canvasRef.current) {
+          if (target.dataset.handleId?.startsWith('input-')) {
+            toBlockId = parseInt(target.dataset.handleId.split('-')[1], 10);
+            break;
+          }
+          target = target.parentElement as HTMLElement;
+        }
+
+        if (toBlockId) {
           const fromBlockId = drawingConnection.fromBlockId;
           
           if(fromBlockId !== toBlockId) {
@@ -1897,35 +1912,17 @@ export function TypebotEditor({
     e.stopPropagation();
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
-
-    let startPos;
-    if (fromBlockId === 'start') {
-        const startNodeEl = document.getElementById('start-node');
-        if (startNodeEl) {
-            const rect = startNodeEl.getBoundingClientRect();
-            startPos = {
-                x: (rect.right - canvasRect.left - panOffset.x) / zoom,
-                y: (rect.top + rect.height / 2 - canvasRect.top - panOffset.y) / zoom,
-            };
-        }
-    } else {
-        const fromBlock = findBlock(fromBlockId as number);
-        if (fromBlock) {
-             startPos = {
-                x: fromBlock.position.x + 288, // width of group block
-                y: fromBlock.position.y + 50, // approx middle
-            };
-        }
-    }
-
-    if(startPos) {
-        setDrawingConnection({
-            fromBlockId,
-            fromHandle,
-            from: startPos,
-            to: { x: startPos.x, y: startPos.y },
-        });
-    }
+    const startPos = {
+        x: (e.clientX - canvasRect.left - panOffset.x) / zoom,
+        y: (e.clientY - canvasRect.top - panOffset.y) / zoom,
+    };
+    
+    setDrawingConnection({
+        fromBlockId,
+        fromHandle,
+        from: startPos,
+        to: startPos,
+    });
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
@@ -2318,7 +2315,7 @@ export function TypebotEditor({
                   <PlaySquare size={16} className="text-white/60" />
                   <span className="text-sm font-medium">Início</span>
                   <div className="flex-grow" />
-                  <ConnectionHandle onMouseDown={(e) => handleConnectionStart(e, 'start', 'output')} />
+                  <ConnectionHandle onMouseDown={(e) => handleConnectionStart(e, 'start', 'output')} data-handle-id="output-start" />
               </div>
               {canvasBlocks
                   .filter((b) => !b.parentId)
