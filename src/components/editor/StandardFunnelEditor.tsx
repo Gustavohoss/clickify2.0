@@ -114,10 +114,6 @@ function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, act
         )
     }
 
-    const handleOptionClick = () => {
-      onNextStep();
-    }
-
     return (
         <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col pointer-events-auto">
             <div className="flex-1 p-4 overflow-y-auto">
@@ -126,7 +122,7 @@ function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, act
                         <PreviewCanvasComponent
                             key={comp.id}
                             component={comp}
-                            onOptionClick={comp.name === 'Opções' ? handleOptionClick : undefined}
+                            onOptionClick={comp.name === 'Opções' ? onNextStep : undefined}
                         />
                     ))}
                 </div>
@@ -348,9 +344,9 @@ export function StandardFunnelEditor({
       defaultProps = {
         mainText: 'Ao clicar em alguma das opções, você concorda com os',
         links: [
-           { id: Date.now() + 1, text: 'Termos de utilização e serviço', url: '#', enabled: false },
-           { id: Date.now() + 2, text: 'Política de privacidade', url: '#', enabled: false },
-           { id: Date.now() + 3, text: 'Política de subscrição', url: '#', enabled: false },
+           { id: Date.now() + 1, text: 'Termos de utilização e serviço', url: '#', enabled: true },
+           { id: Date.now() + 2, text: 'Política de privacidade', url: '#', enabled: true },
+           { id: Date.now() + 3, text: 'Política de subscrição', url: '#', enabled: true },
            { id: Date.now() + 4, text: 'Política de cookies', url: '#', enabled: false },
         ],
       };
@@ -619,7 +615,7 @@ export function StandardFunnelEditor({
             onMouseLeave={handleMouseUp} 
            >
               <div 
-                className="relative h-full w-full"
+                className="absolute"
                 style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}
                 >
                 <div className="flex gap-8">
