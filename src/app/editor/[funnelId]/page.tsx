@@ -26,13 +26,17 @@ function FunnelEditorContent() {
     if (funnelRef) {
       const funnelToSave = JSON.parse(JSON.stringify(updatedFunnel));
       
-      funnelToSave.steps.forEach((step: Step) => {
-        step.components.forEach((component: any) => {
-          if (component.props && component.props.icon) {
-            delete component.props.icon;
+      if (funnelToSave.steps) {
+        funnelToSave.steps.forEach((step: Step) => {
+          if (step.components) {
+            step.components.forEach((component: any) => {
+              if (component.props && component.props.icon) {
+                delete component.props.icon;
+              }
+            });
           }
         });
-      });
+      }
       
       const { id, ...rest } = funnelToSave;
       updateDoc(funnelRef, rest);
@@ -49,9 +53,7 @@ function FunnelEditorContent() {
     if (funnelData) {
       const initialFunnel: Funnel = {
         id: funnelId,
-        name: funnelData.name,
-        type: funnelData.type,
-        userId: funnelData.userId,
+        ...funnelData,
         steps: funnelData.steps || [{ id: Date.now(), name: 'Etapa 1', components: [] }],
       };
       setFunnel(initialFunnel);

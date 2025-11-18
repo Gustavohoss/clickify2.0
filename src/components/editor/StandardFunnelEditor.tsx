@@ -8,6 +8,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -191,7 +192,11 @@ export function StandardFunnelEditor({
     if (!activeStepId && funnel.steps.length > 0) {
       setActiveStepId((funnel.steps as Step[])[0].id);
     }
-  }, [funnel.steps, activeStepId]);
+    // Sync isPublished state when funnel data changes
+    if (funnel.isPublished !== isPublished) {
+      setIsPublished(funnel.isPublished || false);
+    }
+  }, [funnel, activeStepId, isPublished]);
 
   const updateFunnel = (updater: (prev: Funnel) => Funnel) => {
     setFunnel((prev) => (prev ? updater(prev) : null));
@@ -521,6 +526,7 @@ export function StandardFunnelEditor({
   const handlePublish = () => {
     updateFunnel(prev => ({ ...prev, isPublished: true }));
     setIsPublished(true);
+    debouncedUpdateFunnel.flush();
     toast({
       title: 'Funil Publicado!',
       description: `Seu funil agora está ativo.`,
@@ -734,7 +740,7 @@ export function StandardFunnelEditor({
                         markerHeight="6"
                         orient="auto-start-reverse"
                         >
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#6B7280" />
+                        <path d={`M 0 0 L 10 5 L 0 10 z`} fill="#6B7280" />
                         </marker>
                     </defs>
                     {(funnel.steps as Step[]).slice(0, -1).map((_, index) => (
