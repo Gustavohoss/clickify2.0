@@ -37,6 +37,72 @@ import { CanvasComponent } from './canvas/CanvasComponent';
 import { components, type ComponentType, type Funnel, type Step, type EditorView, type CanvasComponentData, type ComponentProps, modelColors, modelIcons } from './types.tsx';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog.tsx';
 
+import { GenericCanvasComponent } from './canvas/GenericCanvasComponent';
+import { AlertCanvasComponent } from './canvas/AlertCanvasComponent';
+import { ArgumentoCanvasComponent } from './canvas/ArgumentoCanvasComponent';
+import { AudioCanvasComponent } from './canvas/AudioCanvasComponent';
+import { BotaoCanvasComponent } from './canvas/BotaoCanvasComponent';
+import { CarregandoCanvasComponent } from './canvas/CarregandoCanvasComponent';
+import { CarroselCanvasComponent } from './canvas/CarroselCanvasComponent';
+import { CartesianoCanvasComponent } from './canvas/CartesianoCanvasComponent';
+import { CompararCanvasComponent } from './canvas/CompararCanvasComponent';
+import { ConfettiCanvasComponent } from './canvas/ConfettiCanvasComponent';
+import { DepoimentosCanvasComponent } from './canvas/DepoimentosCanvasComponent';
+import { EntradaCanvasComponent } from './canvas/EntradaCanvasComponent';
+import { EspacadorCanvasComponent } from './canvas/EspacadorCanvasComponent';
+import { FaqCanvasComponent } from './canvas/FaqCanvasComponent';
+import { GraficosCanvasComponent } from './canvas/GraficosCanvasComponent';
+import { ImagemCanvasComponent } from './canvas/ImagemCanvasComponent';
+import { ListaCanvasComponent } from './canvas/ListaCanvasComponent';
+import { MarquiseCanvasComponent } from './canvas/MarquiseCanvasComponent';
+import { NivelCanvasComponent } from './canvas/NivelCanvasComponent';
+import { OpcoesCanvasComponent } from './canvas/OpcoesCanvasComponent';
+import { PrecoCanvasComponent } from './canvas/PrecoCanvasComponent';
+import { TermosCanvasComponent } from './canvas/TermosCanvasComponent';
+import { TextoCanvasComponent } from './canvas/TextoCanvasComponent';
+import { VideoCanvasComponent } from './canvas/VideoCanvasComponent';
+
+// Read-only version of CanvasComponent for the preview
+const PreviewCanvasComponent = ({
+  component,
+  onOptionClick,
+}: {
+  component: CanvasComponentData;
+  onOptionClick?: () => void;
+}) => {
+  const renderComponent = () => {
+    switch (component.name) {
+      case 'Alerta': return <AlertCanvasComponent component={component} />;
+      case 'Argumentos': return <ArgumentoCanvasComponent component={component} />;
+      case 'Audio': return <AudioCanvasComponent component={component} />;
+      case 'Botão': return <BotaoCanvasComponent component={component} />;
+      case 'Carregando': return <CarregandoCanvasComponent component={component} />;
+      case 'Carrosel': return <CarroselCanvasComponent component={component} />;
+      case 'Cartesiano': return <CartesianoCanvasComponent component={component} />;
+      case 'Comparar': return <CompararCanvasComponent component={component} />;
+      case 'Confetti': return <ConfettiCanvasComponent component={component} />;
+      case 'Depoimentos': return <DepoimentosCanvasComponent component={component} />;
+      case 'Entrada': return <EntradaCanvasComponent component={component} />;
+      case 'Espaçador': return <EspacadorCanvasComponent component={component} />;
+      case 'FAQ': return <FaqCanvasComponent component={component} />;
+      case 'Gráficos': return <GraficosCanvasComponent component={component} />;
+      case 'Imagem': return <ImagemCanvasComponent component={component} />;
+      case 'Lista': return <ListaCanvasComponent component={component} />;
+      case 'Marquise': return <MarquiseCanvasComponent component={component} />;
+      case 'Nível': return <NivelCanvasComponent component={component} />;
+      case 'Opções': return <OpcoesCanvasComponent component={component} onOptionClick={onOptionClick} />;
+      case 'Preço': return <PrecoCanvasComponent component={component} />;
+      case 'Termos': return <TermosCanvasComponent component={component} />;
+      case 'Texto': return <TextoCanvasComponent component={component} />;
+      case 'Video': return <VideoCanvasComponent component={component} />;
+      default: return <GenericCanvasComponent component={component} />;
+    }
+  };
+
+  return <div className="pointer-events-auto">{renderComponent()}</div>;
+};
+
+
 function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void }) {
     const activeStep = funnel.steps.find(step => step.id === activeStepId) as Step | undefined;
 
@@ -53,17 +119,13 @@ function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, act
     }
 
     return (
-        <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col">
+        <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col pointer-events-none">
             <div className="flex-1 p-4 overflow-y-auto">
                 <div className="flex flex-col gap-4">
                     {activeStep.components.map(comp => (
-                        <CanvasComponent
+                        <PreviewCanvasComponent
                             key={comp.id}
                             component={comp}
-                            isSelected={false}
-                            onClick={() => {}}
-                            onDuplicate={() => {}}
-                            onDelete={() => {}}
                             onOptionClick={comp.name === 'Opções' ? handleOptionClick : undefined}
                         />
                     ))}
