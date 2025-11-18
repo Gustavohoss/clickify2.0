@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -66,6 +67,7 @@ import { TextoCanvasComponent } from './canvas/TextoCanvasComponent';
 import { VideoCanvasComponent } from './canvas/VideoCanvasComponent';
 import Image from 'next/image';
 import { Progress } from '../ui/progress.tsx';
+import { useToast } from '@/hooks/use-toast';
 
 // Read-only version of CanvasComponent for the preview
 const PreviewCanvasComponent = ({
@@ -164,6 +166,7 @@ export function StandardFunnelEditor({
   debouncedUpdateFunnel: any;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [activeView, setActiveView] = useState<EditorView>('construtor');
   const [activeStepId, setActiveStepId] = useState<number | null>(() => (funnel.steps as Step[])[0]?.id || null);
   const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
@@ -509,6 +512,18 @@ export function StandardFunnelEditor({
     setZoom(newZoom);
     setPanOffset({x: newPanX, y: newPanY});
   }
+
+  const handlePublish = () => {
+    if (!funnel) return;
+    // @ts-ignore
+    const funnelSlug = funnel.slug || funnel.name.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-');
+    const publicUrl = `${window.location.origin}/funil/${funnelSlug}/${funnel.id}`;
+    navigator.clipboard.writeText(publicUrl);
+    toast({
+      title: 'Funil Publicado!',
+      description: `Link copiado para a área de transferência: ${publicUrl}`,
+    });
+  };
   
   const currentIndex = funnel.type === 'quiz' && activeStepId ? (funnel.steps as Step[]).findIndex(step => step.id === activeStepId) : -1;
   const progressValue = funnel.type === 'quiz' && activeStepId && (funnel.steps as Step[]).length > 0 ? ((currentIndex + 1) / (funnel.steps as Step[]).length) * 100 : 0;
@@ -579,7 +594,7 @@ export function StandardFunnelEditor({
             <Save className="mr-2 h-4 w-4" />
             Salvar
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={handlePublish}>
             <Rocket className="mr-2 h-4 w-4" />
             Publicar
           </Button>
@@ -677,7 +692,7 @@ export function StandardFunnelEditor({
             onWheel={handleWheel}
            >
               <div
-                className="absolute pointer-events-none"
+                className="absolute"
                 style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
               >
                  <svg className="absolute overflow-visible pointer-events-none">
@@ -813,3 +828,5 @@ export function StandardFunnelEditor({
     </div>
   );
 }
+
+    

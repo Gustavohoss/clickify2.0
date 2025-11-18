@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -42,6 +43,14 @@ const funnelTypes = [
   },
 ];
 
+const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[\s-]+/g, '-');
+};
+
 export default function NovoFunilPage() {
   const router = useRouter();
   const firestore = useFirestore();
@@ -57,7 +66,7 @@ export default function NovoFunilPage() {
   };
 
   const handleCreateFunnel = async () => {
-    if (!funnelName.trim() || !selectedFunnel || !user) {
+    if (!funnelName.trim() || !selectedFunnel || !user || !firestore) {
       // TODO: Add toast notification for empty name or no user
       return;
     }
@@ -66,6 +75,7 @@ export default function NovoFunilPage() {
       const funnelsCol = collection(firestore, 'funnels');
       const newFunnelDoc = await addDoc(funnelsCol, {
         name: funnelName.trim(),
+        slug: generateSlug(funnelName),
         type: selectedFunnel,
         userId: user.uid,
         createdAt: serverTimestamp(),
@@ -156,3 +166,5 @@ export default function NovoFunilPage() {
     </div>
   );
 }
+
+    
