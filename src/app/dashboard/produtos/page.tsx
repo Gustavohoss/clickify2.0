@@ -28,8 +28,8 @@ const staticProducts: Product[] = [
     name: 'Dieta das Celebridades',
     description: 'Descubra os segredos das celebridades para manter a forma com este guia completo. Inclui planos de refeições, rotinas de exercícios e dicas exclusivas.',
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/m7r3o42acz47md2cn2iqc4bh?v=1763451610688',
-    price: 97.00,
-    commission: 'R$ 55,83',
+    price: 29.90,
+    commission: 'R$ 20,93',
     affiliateLink: 'https://seulinkdeafiliado.com/dieta'
   }
 ];
