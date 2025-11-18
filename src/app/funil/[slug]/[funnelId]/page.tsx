@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -68,13 +69,24 @@ function FunnelPublicContent() {
   const progressValue = steps.length > 0 ? ((activeStepIndex + 1) / steps.length) * 100 : 0;
 
 
+  const renderLogo = () => {
+    if (funnelData.headerLogoType === 'emoji') {
+      return <span className="text-4xl">{funnelData.headerLogoValue}</span>;
+    }
+    if (funnelData.headerLogoType === 'image' && funnelData.headerLogoValue) {
+      return <Image src={funnelData.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />;
+    }
+    // Fallback or default logo
+    return <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />;
+  }
+
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor }}>
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <div className="mx-auto w-full max-w-sm">
              {funnelData.type === 'quiz' && (
               <header className="flex flex-col items-center p-4 rounded-t-lg bg-transparent">
-                <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
+                {renderLogo()}
                 <Progress value={progressValue} className="w-full mt-4 h-2" />
               </header>
             )}

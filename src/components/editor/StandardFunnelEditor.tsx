@@ -11,6 +11,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -140,6 +141,16 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { fu
     const currentIndex = steps.findIndex(step => step.id === activeStepId);
     const progressValue = ((currentIndex + 1) / steps.length) * 100;
 
+    const renderLogo = () => {
+      if (funnel.headerLogoType === 'emoji') {
+        return <span className="text-4xl">{funnel.headerLogoValue}</span>;
+      }
+      if (funnel.headerLogoType === 'image' && funnel.headerLogoValue) {
+        return <Image src={funnel.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />;
+      }
+      return <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />;
+    }
+
 
     return (
         <div 
@@ -147,7 +158,7 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { fu
           style={{ backgroundColor }}
         >
             <header className="flex flex-col items-center p-4">
-              <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
+              {renderLogo()}
               <Progress value={progressValue} className="w-full mt-4 h-2 bg-gray-300" />
             </header>
             <div className="flex-1 p-4 overflow-y-auto">
@@ -196,7 +207,6 @@ export function StandardFunnelEditor({
     if (!activeStepId && funnel.steps.length > 0) {
       setActiveStepId((funnel.steps as Step[])[0].id);
     }
-    // Sync isPublished state when funnel data changes
     if (funnel.isPublished !== isPublished) {
       setIsPublished(funnel.isPublished || false);
     }
@@ -205,6 +215,10 @@ export function StandardFunnelEditor({
   const updateFunnel = (updater: (prev: Funnel) => Funnel) => {
     setFunnel((prev) => (prev ? updater(prev) : null));
   };
+  
+  const updateFunnelProps = (props: Partial<Funnel>) => {
+    updateFunnel(prev => ({...prev, ...props}));
+  }
 
   const addStep = () => {
     const newStepId = Date.now();
@@ -866,6 +880,8 @@ export function StandardFunnelEditor({
                     titleColor={titleColor} setTitleColor={setTitleColor}
                     textColor={textColor} setTextColor={setTextColor}
                     interactiveTextColor={interactiveTextColor} setInteractiveTextColor={setInteractiveTextColor}
+                    funnel={funnel}
+                    onUpdateFunnel={updateFunnelProps}
                 />}
               </div>
             </ScrollArea>

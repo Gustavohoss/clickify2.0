@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ReactNode } from 'react';
@@ -278,6 +279,9 @@ export type Funnel = {
   steps: Step[] | CanvasBlock[];
   isPublished?: boolean;
   slug?: string;
+  backgroundColor?: string;
+  headerLogoType?: 'image' | 'emoji';
+  headerLogoValue?: string;
 };
 
 export type EditorView = 'construtor' | 'fluxo' | 'design' | 'leads' | 'configuracoes';
