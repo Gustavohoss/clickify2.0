@@ -5,6 +5,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -87,12 +88,7 @@ export const PreviewCanvasComponent = ({
       case 'Alerta': return <AlertCanvasComponent component={component} />;
       case 'Argumentos': return <ArgumentoCanvasComponent component={component} />;
       case 'Audio': return <AudioCanvasComponent component={component} />;
-      case 'Botão':
-        return (
-          <div onClick={component.props.action === 'next_step' ? onNextStep : undefined}>
-            <BotaoCanvasComponent component={component} />
-          </div>
-        );
+      case 'Botão': return <BotaoCanvasComponent component={component} onClick={component.props.action === 'next_step' ? onNextStep : undefined} />;
       case 'Carregando': return <CarregandoCanvasComponent component={component} />;
       case 'Carrosel': return <CarroselCanvasComponent component={component} />;
       case 'Cartesiano': return <CartesianoCanvasComponent component={component} />;
@@ -720,7 +716,7 @@ export function StandardFunnelEditor({
             onWheel={handleWheel}
            >
               <div
-                className="pointer-events-none absolute"
+                className="absolute"
                 style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
               >
                  <svg className="absolute overflow-visible pointer-events-none">
@@ -748,7 +744,7 @@ export function StandardFunnelEditor({
                         />
                     ))}
                  </svg>
-                <div className="flex gap-16">
+                <div className="flex gap-16 pointer-events-none">
                   {(funnel.steps as Step[]).map((step, index) => (
                     <div key={step.id} style={{ width: `${stepWidth}px` }} className="pointer-events-auto rounded-lg bg-gray-900 p-4 shadow-lg text-white">
                       <div className="flex items-center justify-between mb-4">

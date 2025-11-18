@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { CanvasComponentData } from '../types';
 
-export const BotaoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
+export const BotaoCanvasComponent = ({ component, onClick }: { component: CanvasComponentData, onClick?: () => void }) => {
   const {
     text = 'Continuar',
     fullWidth = true,
@@ -21,6 +21,7 @@ export const BotaoCanvasComponent = ({ component }: { component: CanvasComponent
         backgroundColor: backgroundColor,
         color: textColor,
       }}
+      onClick={onClick}
     >
       {text}
     </Button>
