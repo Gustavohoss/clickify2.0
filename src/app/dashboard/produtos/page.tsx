@@ -17,7 +17,7 @@ type Product = {
   name: string;
   description?: string;
   imageUrl: string;
-  price: number;
+  price: number | string;
   commission: string;
   affiliateLink: string;
 };
@@ -28,8 +28,8 @@ const staticProducts: Product[] = [
     name: 'Dieta das Celebridades',
     description: 'Descubra os segredos das celebridades para manter a forma com este guia completo. Inclui planos de refeições, rotinas de exercícios e dicas exclusivas.',
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/m7r3o42acz47md2cn2iqc4bh?v=1763451610688',
-    price: 29.90,
-    commission: 'de R$ 20,93 à R$ 104,30',
+    price: 'de R$ 19,90 a R$ 59,90',
+    commission: 'de R$ 13,93 à R$ 41,93',
     affiliateLink: 'https://seulinkdeafiliado.com/dieta'
   }
 ];
@@ -76,6 +76,13 @@ export default function ProdutosPage() {
       console.error('Failed to copy link: ', err);
     });
   };
+  
+  const formatPrice = (price: number | string) => {
+    if (typeof price === 'string') {
+        return price;
+    }
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
+  }
 
   return (
     <div className="space-y-8">
@@ -133,7 +140,7 @@ export default function ProdutosPage() {
                   <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
                  )}
                 <p className="text-sm text-muted-foreground">
-                  Preço: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+                  Preço: {formatPrice(product.price)}
                 </p>
               </CardContent>
               <CardFooter>
@@ -157,7 +164,7 @@ export default function ProdutosPage() {
                       </div>
                        <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground">Preço do Produto</span>
-                          <span className="font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}</span>
+                          <span className="font-semibold">{formatPrice(product.price)}</span>
                        </div>
                        <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground">Sua Comissão</span>
