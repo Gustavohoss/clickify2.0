@@ -119,7 +119,7 @@ function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, act
     }
 
     return (
-        <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col pointer-events-none">
+        <div className="w-[320px] h-[640px] bg-gray-900 rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col pointer-events-auto">
             <div className="flex-1 p-4 overflow-y-auto">
                 <div className="flex flex-col gap-4">
                     {activeStep.components.map(comp => (
@@ -477,11 +477,11 @@ export function StandardFunnelEditor({
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="p-0 bg-transparent border-none max-w-fit shadow-none">
-                        <DialogHeader className="sr-only">
-                          <DialogTitle>Pré-visualização do Quiz</DialogTitle>
-                          <DialogDescription>
+                       <DialogHeader className="sr-only">
+                        <DialogTitle>Pré-visualização do Quiz</DialogTitle>
+                        <DialogDescription>
                             Veja como seu quiz aparecerá em um dispositivo móvel.
-                          </DialogDescription>
+                        </DialogDescription>
                         </DialogHeader>
                         <QuizPreview funnel={funnel} activeStepId={activeStepId} onNextStep={handleNextStepPreview}/>
                     </DialogContent>
@@ -502,140 +502,172 @@ export function StandardFunnelEditor({
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside
-          className={cn(
-            'border-r border-border md:flex',
-            activeView === 'construtor' ? 'flex-row' : 'hidden',
-            'w-full md:w-96'
-          )}
-        >
-          <div className="flex w-1/2 flex-col border-r border-border">
-            <div className="flex h-14 items-center justify-between border-b border-border px-4">
-              <h2 className="font-semibold">Etapas</h2>
-              <Button variant="ghost" size="icon" onClick={addStep}>
-                <Plus className="h-4 w-4" />
-              </Button>
+        {activeView === 'construtor' && (
+          <aside
+            className={cn(
+              'border-r border-border md:flex',
+              'flex-row',
+              'w-full md:w-96'
+            )}
+          >
+            <div className="flex w-1/2 flex-col border-r border-border">
+              <div className="flex h-14 items-center justify-between border-b border-border px-4">
+                <h2 className="font-semibold">Etapas</h2>
+                <Button variant="ghost" size="icon" onClick={addStep}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="space-y-1 p-2">
+                  {(funnel.steps as Step[]).map((step) => (
+                    <div key={step.id} className="group relative">
+                      <Button
+                        variant={activeStepId === step.id ? 'secondary' : 'ghost'}
+                        className="w-full justify-start"
+                        onClick={() => setActiveStepId(step.id)}
+                      >
+                        <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span className="flex-1 truncate text-left">{step.name}</span>
+                      </Button>
+                      <div className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 group-hover:opacity-100">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-40 p-1">
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start text-sm font-normal"
+                              onClick={() => deleteStep(step.id)}
+                              disabled={(funnel.steps as Step[]).length <= 1}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                            </Button>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             </div>
-            <ScrollArea className="flex-1">
-              <div className="space-y-1 p-2">
-                {(funnel.steps as Step[]).map((step) => (
-                  <div key={step.id} className="group relative">
-                    <Button
-                      variant={activeStepId === step.id ? 'secondary' : 'ghost'}
-                      className="w-full justify-start"
-                      onClick={() => setActiveStepId(step.id)}
+            <div className="flex w-1/2 flex-col">
+              <div className="flex h-14 items-center border-b border-border px-4">
+                <h2 className="font-semibold">Componentes</h2>
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="grid grid-cols-1 gap-2 p-2">
+                  {components.map((component) => (
+                    <Card
+                      key={component.name}
+                      className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors bg-gray-800 text-white hover:bg-gray-700"
+                      onClick={() => addComponentToCanvas(component)}
                     >
-                      <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
-                      <span className="flex-1 truncate text-left">{step.name}</span>
-                    </Button>
-                    <div className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 group-hover:opacity-100">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-40 p-1">
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start text-sm font-normal"
-                            onClick={() => deleteStep(step.id)}
-                            disabled={(funnel.steps as Step[]).length <= 1}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> Excluir
-                          </Button>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-          <div className="flex w-1/2 flex-col">
-            <div className="flex h-14 items-center border-b border-border px-4">
-              <h2 className="font-semibold">Componentes</h2>
+                      <div className="relative flex-shrink-0">{component.icon}</div>
+                      <div className="flex flex-col">
+                        <span className="flex-grow text-xs font-medium">{component.name}</span>
+                        {component.isNew && <Badge className="mt-1 w-fit scale-90">Novo</Badge>}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
             </div>
-            <ScrollArea className="flex-1">
-              <div className="grid grid-cols-1 gap-2 p-2">
-                {components.map((component) => (
-                  <Card
-                    key={component.name}
-                    className="group flex cursor-pointer items-center justify-start gap-3 p-2 text-left transition-colors bg-gray-800 text-white hover:bg-gray-700"
-                    onClick={() => addComponentToCanvas(component)}
-                  >
-                    <div className="relative flex-shrink-0">{component.icon}</div>
-                    <div className="flex flex-col">
-                      <span className="flex-grow text-xs font-medium">{component.name}</span>
-                      {component.isNew && <Badge className="mt-1 w-fit scale-90">Novo</Badge>}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </aside>
+          </aside>
+        )}
 
-        <main
-          className="flex-1 overflow-y-auto bg-white p-4 md:p-8"
-          onClick={() => setSelectedComponentId(null)}
-        >
-          <div className="mx-auto w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
-            {activeStepComponents.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4 text-center min-h-[400px]">
-                <div>
-                  <p className="text-lg font-semibold text-black">Nada por aqui 😔</p>
-                  <p className="text-sm text-gray-500">Adicione um componente para começar.</p>
+        {activeView === 'fluxo' ? (
+           <main className="flex-1 bg-gray-800 p-4 md:p-8">
+              <div className="relative h-full w-full">
+                <div className="flex gap-8">
+                  {(funnel.steps as Step[]).map((step, index) => (
+                    <div key={step.id} className="w-64 rounded-lg bg-gray-900 p-4 shadow-lg text-white">
+                      <div className="flex items-center justify-between mb-4">
+                         <h3 className="font-semibold">{step.name}</h3>
+                         <div className="h-3 w-3 rounded-full border-2 border-gray-500"></div>
+                      </div>
+                       <div className="space-y-2 text-sm">
+                        {step.components.slice(0, 4).map(comp => (
+                          <div key={comp.id} className="flex items-center justify-between rounded bg-gray-800/50 p-2">
+                            <span>{comp.name}</span>
+                            <div className="h-2 w-2 rounded-full border border-gray-600"></div>
+                          </div>
+                        ))}
+                         {step.components.length > 4 && <p className="text-xs text-gray-500">... e mais {step.components.length - 4}</p>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {activeStepComponents.map((comp) => (
-                  <CanvasComponent
-                    key={comp.id}
-                    component={comp}
-                    isSelected={selectedComponentId === comp.id}
-                    onClick={() => setSelectedComponentId(comp.id)}
-                    onDuplicate={() => duplicateComponent(comp.id)}
-                    onDelete={() => deleteComponent(comp.id)}
-                  />
-                ))}
-              </div>
+           </main>
+        ) : (
+          <main
+            className={cn(
+              'flex-1 overflow-y-auto bg-white p-4 md:p-8',
+              activeView !== 'construtor' && 'hidden md:block'
             )}
-          </div>
-        </main>
-
-        <aside
-          className={cn(
-            'hidden border-l border-border p-6 lg:block',
-            activeView === 'construtor' || activeView === 'design' ? 'w-80' : 'hidden'
-          )}
-        >
-          <ScrollArea className="h-full">
-            <div className="space-y-6 pr-4">
-              {activeView === 'construtor' &&
-                (selectedComponent ? (
-                  <ComponentSettings
-                    component={selectedComponent}
-                    onUpdate={updateComponentProps}
-                    steps={(funnel.steps as Step[])}
-                    activeStepId={activeStepId!}
-                  />
-                ) : activeStep ? (
-                  <StepSettings
-                    step={activeStep}
-                    onUpdateStep={updateStepName}
-                    steps={(funnel.steps as Step[])}
-                  />
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    Selecione uma etapa para editar.
+            onClick={() => setSelectedComponentId(null)}
+          >
+            <div className="mx-auto w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+              {activeStepComponents.length === 0 ? (
+                <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-transparent p-4 text-center min-h-[400px]">
+                  <div>
+                    <p className="text-lg font-semibold text-black">Nada por aqui 😔</p>
+                    <p className="text-sm text-gray-500">Adicione um componente para começar.</p>
                   </div>
-                ))}
-              {activeView === 'design' && <DesignSettings />}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {activeStepComponents.map((comp) => (
+                    <CanvasComponent
+                      key={comp.id}
+                      component={comp}
+                      isSelected={selectedComponentId === comp.id}
+                      onClick={() => setSelectedComponentId(comp.id)}
+                      onDuplicate={() => duplicateComponent(comp.id)}
+                      onDelete={() => deleteComponent(comp.id)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          </ScrollArea>
-        </aside>
+          </main>
+        )}
+        {(activeView === 'construtor' || activeView === 'design') && (
+          <aside
+            className={cn(
+              'hidden border-l border-border p-6 lg:block',
+              'w-80'
+            )}
+          >
+            <ScrollArea className="h-full">
+              <div className="space-y-6 pr-4">
+                {activeView === 'construtor' &&
+                  (selectedComponent ? (
+                    <ComponentSettings
+                      component={selectedComponent}
+                      onUpdate={updateComponentProps}
+                      steps={(funnel.steps as Step[])}
+                      activeStepId={activeStepId!}
+                    />
+                  ) : activeStep ? (
+                    <StepSettings
+                      step={activeStep}
+                      onUpdateStep={updateStepName}
+                      steps={(funnel.steps as Step[])}
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      Selecione uma etapa para editar.
+                    </div>
+                  ))}
+                {activeView === 'design' && <DesignSettings />}
+              </div>
+            </ScrollArea>
+          </aside>
+        )}
       </div>
     </div>
   );
