@@ -169,6 +169,7 @@ export function StandardFunnelEditor({
   const [isPanning, setIsPanning] = useState(false);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const startPanPosition = useRef({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
 
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [backgroundColor, setBackgroundColor] = React.useState('#FFFFFF');
@@ -487,6 +488,25 @@ export function StandardFunnelEditor({
       e.currentTarget.style.cursor = 'default';
     }
   };
+
+  const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
+    e.preventDefault();
+    const zoomFactor = 1.1;
+    const newZoom = e.deltaY > 0 ? zoom / zoomFactor : zoom * zoomFactor;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const mousePointX = (mouseX - panOffset.x) / zoom;
+    const mousePointY = (mouseY - panOffset.y) / zoom;
+    
+    const newPanX = mouseX - mousePointX * newZoom;
+    const newPanY = mouseY - mousePointY * newZoom;
+
+    setZoom(newZoom);
+    setPanOffset({x: newPanX, y: newPanY});
+  }
   
   const currentIndex = funnel.type === 'quiz' && activeStepId ? (funnel.steps as Step[]).findIndex(step => step.id === activeStepId) : -1;
   const progressValue = funnel.type === 'quiz' && activeStepId && (funnel.steps as Step[]).length > 0 ? ((currentIndex + 1) / (funnel.steps as Step[]).length) * 100 : 0;
@@ -649,10 +669,11 @@ export function StandardFunnelEditor({
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp} 
+            onWheel={handleWheel}
            >
               <div
                 className="absolute"
-                style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}
+                style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
               >
                 <div className="flex gap-8">
                   {(funnel.steps as Step[]).map((step, index) => (
@@ -685,7 +706,7 @@ export function StandardFunnelEditor({
             onClick={() => setSelectedComponentId(null)}
           >
             {funnel.type === 'quiz' && (
-              <div className="mx-auto w-full max-w-sm">
+              <div className="mx-auto w-full max-w-sm mb-8">
                 <header className="flex flex-col items-center p-4 rounded-t-lg">
                   <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
                   <Progress value={progressValue} className="w-full mt-4 h-2" />
