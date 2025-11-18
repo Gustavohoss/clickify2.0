@@ -197,6 +197,10 @@
           "format": "date-time",
           "description": "Timestamp when the funnel was created."
         },
+        "isPublished": {
+          "type": "boolean",
+          "description": "Indicates if the funnel is published and publicly accessible."
+        },
         "steps": {
           "type": "array",
           "description": "The steps within the funnel.",

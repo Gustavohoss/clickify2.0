@@ -276,6 +276,8 @@ export type Funnel = {
   type: string;
   userId: string;
   steps: Step[] | CanvasBlock[];
+  isPublished?: boolean;
+  slug?: string;
 };
 
 export type EditorView = 'construtor' | 'fluxo' | 'design' | 'leads' | 'configuracoes';

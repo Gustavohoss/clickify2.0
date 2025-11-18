@@ -1,6 +1,7 @@
 
 
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -21,6 +22,7 @@ import {
   Smartphone,
   ImageIcon,
   ArrowRight,
+  ClipboardCopy,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -170,6 +172,7 @@ export function StandardFunnelEditor({
   const [activeView, setActiveView] = useState<EditorView>('construtor');
   const [activeStepId, setActiveStepId] = useState<number | null>(() => (funnel.steps as Step[])[0]?.id || null);
   const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
+  const [isPublished, setIsPublished] = useState(funnel.isPublished || false);
 
   const [isPanning, setIsPanning] = useState(false);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -514,17 +517,25 @@ export function StandardFunnelEditor({
   }
 
   const handlePublish = () => {
+    updateFunnel(prev => ({ ...prev, isPublished: true }));
+    setIsPublished(true);
+    toast({
+      title: 'Funil Publicado!',
+      description: `Seu funil agora está ativo.`,
+    });
+  };
+  
+  const handleCopyUrl = () => {
     if (!funnel) return;
-    // @ts-ignore
     const funnelSlug = funnel.slug || funnel.name.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-');
     const publicUrl = `${window.location.origin}/funil/${funnelSlug}/${funnel.id}`;
     navigator.clipboard.writeText(publicUrl);
     toast({
-      title: 'Funil Publicado!',
-      description: `Link copiado para a área de transferência: ${publicUrl}`,
+      title: 'URL Copiada!',
+      description: `O link do funil foi copiado para a área de transferência.`,
     });
-  };
-  
+  }
+
   const currentIndex = funnel.type === 'quiz' && activeStepId ? (funnel.steps as Step[]).findIndex(step => step.id === activeStepId) : -1;
   const progressValue = funnel.type === 'quiz' && activeStepId && (funnel.steps as Step[]).length > 0 ? ((currentIndex + 1) / (funnel.steps as Step[]).length) * 100 : 0;
 
@@ -594,10 +605,25 @@ export function StandardFunnelEditor({
             <Save className="mr-2 h-4 w-4" />
             Salvar
           </Button>
-          <Button size="sm" onClick={handlePublish}>
-            <Rocket className="mr-2 h-4 w-4" />
-            Publicar
-          </Button>
+          {isPublished ? (
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="secondary" className="cursor-default">
+                <span className="relative mr-2 flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                </span>
+                Publicado
+              </Button>
+              <Button size="icon" variant="outline" onClick={handleCopyUrl}>
+                <ClipboardCopy className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button size="sm" onClick={handlePublish}>
+              <Rocket className="mr-2 h-4 w-4" />
+              Publicar
+            </Button>
+          )}
         </div>
       </header>
 
