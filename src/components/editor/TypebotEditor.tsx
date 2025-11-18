@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -1412,8 +1413,8 @@ export function TypebotEditor({
     blockId: null,
     isDragging: false,
     isReadyToDrag: false,
-    dragStartMouse: { x: 0, y: 0 },
-    dragStartOffset: { x: 0, y: 0 },
+    dragStartMouse: { x: number, y: number },
+    dragStartOffset: { x: number, y: 0 },
     originalBlock: null
   });
   const [dropIndicator, setDropIndicator] = useState<DropIndicator>(null);
@@ -2209,9 +2210,9 @@ export function TypebotEditor({
 
         <main
           ref={canvasRef}
-          className="relative flex-1 overflow-hidden"
+          className="relative flex-1 overflow-hidden bg-gray-800/50"
           style={{
-            backgroundImage: 'radial-gradient(#3f3f46 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle at center, rgba(128, 128, 128, 0.2) 1px, transparent 1px)',
             backgroundSize: '20px 20px',
           }}
           onMouseDown={handleCanvasMouseDown}
@@ -2457,3 +2458,5 @@ export function TypebotEditor({
     </div>
   );
 }
+
+    
