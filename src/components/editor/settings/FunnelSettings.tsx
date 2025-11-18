@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -45,7 +44,7 @@ const GeneralSettings = () => (
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Bot size={16}/>
-                    <p>Este funil foi gerado pela IA da Clickify</p>
+                    <p>Este funil foi feito na Clickify</p>
                 </div>
             </div>
         </Card>
