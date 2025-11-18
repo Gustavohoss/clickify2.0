@@ -59,12 +59,6 @@ export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component:
     }
   }
 
-  const handleContinue = () => {
-    if (onOptionClick) {
-      onOptionClick();
-    }
-  }
-
   if (opcoesItems.length === 0) {
     return (
       <div className="border-0 bg-transparent p-6 text-center shadow-none">
@@ -105,11 +99,6 @@ export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component:
           </button>
         )
       })}
-      {multipleChoice && (
-        <Button onClick={handleContinue} className="w-full mt-4">
-            Continuar
-        </Button>
-      )}
     </div>
   );
 };
