@@ -307,6 +307,32 @@
         "commission",
         "affiliateLink"
       ]
+    },
+    "Webhook": {
+      "title": "Webhook",
+      "type": "object",
+      "description": "Represents a payment gateway webhook configuration.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "webhookUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "webhookUrl",
+        "userId"
+      ]
     }
   },
   "auth": {
@@ -330,6 +356,26 @@
               "description": "The unique identifier of the user."
             }
           ]
+        }
+      },
+      {
+        "path": "/users/{userId}/webhooks/{webhookId}",
+        "definition": {
+            "entityName": "Webhook",
+            "schema": {
+                "$ref": "#/backend/entities/Webhook"
+            },
+            "description": "Stores user-specific webhook configurations.",
+            "params": [
+                {
+                    "name": "userId",
+                    "description": "The unique identifier of the user."
+                },
+                {
+                    "name": "webhookId",
+                    "description": "The unique identifier of the webhook."
+                }
+            ]
         }
       },
       {

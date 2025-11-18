@@ -5,36 +5,87 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Webhook, PlusCircle, Copy } from 'lucide-react';
+import { Webhook, PlusCircle, Copy, Trash2 } from 'lucide-react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 
 type Gateway = {
   id: string;
   name: string;
   webhookUrl: string;
+  userId: string;
 };
 
 export default function ConfiguracoesPage() {
-  const [gateways, setGateways] = useState<Gateway[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newGatewayName, setNewGatewayName] = useState('');
+  const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
 
-  const handleAddGateway = () => {
-    if (newGatewayName.trim()) {
-      const newId = new Date().toISOString();
-      const newWebhookUrl = `https://api.clickify.com/webhook/${newId}`; // Example URL
-      setGateways([...gateways, { id: newId, name: newGatewayName.trim(), webhookUrl: newWebhookUrl }]);
-      setIsDialogOpen(false);
-      setNewGatewayName('');
-      toast({
-        title: "Webhook Criado!",
-        description: "Seu novo webhook está pronto para ser usado.",
-      });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newGatewayName, setNewGatewayName] = useState('');
+  
+  const webhooksQuery = useMemoFirebase(
+    () =>
+      user && firestore
+        ? query(collection(firestore, 'users', user.uid, 'webhooks'))
+        : null,
+    [firestore, user]
+  );
+  
+  const { data: gateways, isLoading } = useCollection<Gateway>(webhooksQuery);
+
+  const handleAddGateway = async () => {
+    if (newGatewayName.trim() && user && firestore) {
+      const newId = new Date().toISOString(); // Simple unique ID
+      const newWebhookUrl = `https://api.clickify.com/webhook/${user.uid}/${newId}`;
+
+      try {
+        const webhooksCol = collection(firestore, 'users', user.uid, 'webhooks');
+        await addDoc(webhooksCol, {
+          name: newGatewayName.trim(),
+          webhookUrl: newWebhookUrl,
+          userId: user.uid,
+        });
+        
+        setIsDialogOpen(false);
+        setNewGatewayName('');
+        toast({
+          title: "Webhook Criado!",
+          description: "Seu novo webhook está pronto para ser usado.",
+        });
+
+      } catch (error) {
+        console.error("Error adding webhook: ", error);
+        toast({
+          variant: "destructive",
+          title: "Erro ao criar webhook",
+          description: "Não foi possível salvar o webhook. Tente novamente.",
+        });
+      }
     }
   };
   
+  const handleDeleteGateway = async (gatewayId: string) => {
+    if (!user || !firestore) return;
+    try {
+        const gatewayRef = doc(firestore, 'users', user.uid, 'webhooks', gatewayId);
+        await deleteDoc(gatewayRef);
+        toast({
+            title: "Webhook excluído!",
+            description: "O webhook foi removido com sucesso.",
+        });
+    } catch(error) {
+        console.error("Error deleting webhook:", error);
+        toast({
+            variant: "destructive",
+            title: "Erro ao excluir",
+            description: "Não foi possível remover o webhook.",
+        });
+    }
+  }
+
   const handleCopy = (url: string) => {
     navigator.clipboard.writeText(url);
     toast({
@@ -100,7 +151,9 @@ export default function ConfiguracoesPage() {
           </div>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2">
-          {gateways.length > 0 ? (
+          {isLoading ? (
+             <p>Carregando webhooks...</p>
+          ) : gateways && gateways.length > 0 ? (
             gateways.map((gateway) => (
               <Card key={gateway.id} className="flex flex-col">
                 <CardHeader>
@@ -118,7 +171,10 @@ export default function ConfiguracoesPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="destructive" size="sm">Excluir</Button>
+                  <Button variant="destructive" size="sm" onClick={() => handleDeleteGateway(gateway.id)}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Excluir
+                  </Button>
                 </CardFooter>
               </Card>
             ))
