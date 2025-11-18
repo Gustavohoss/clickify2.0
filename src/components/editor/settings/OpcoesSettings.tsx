@@ -45,6 +45,9 @@ export const OpcoesSettings = ({
     onUpdate({ ...component.props, opcoesItems: newItems });
   };
 
+  const isMultipleChoice = component.props.multipleChoice;
+
+
   return (
     <div className="space-y-6">
       <Card className="border-border/50 bg-card p-4">
@@ -60,7 +63,7 @@ export const OpcoesSettings = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                    className="h-7 w-7 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => handleDeleteItem(item.id)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -104,9 +107,9 @@ export const OpcoesSettings = ({
             <UILabel htmlFor="multipleChoice">Múltipla Escolha</UILabel>
             <Switch
               id="multipleChoice"
-              checked={component.props.multipleChoice}
+              checked={isMultipleChoice}
               onCheckedChange={(checked) =>
-                onUpdate({ ...component.props, multipleChoice: checked })
+                onUpdate({ ...component.props, multipleChoice: checked, ...(checked && { autoAdvance: false }) })
               }
             />
           </div>
@@ -120,14 +123,15 @@ export const OpcoesSettings = ({
               }
             />
           </div>
-          <div className="flex items-center justify-between">
-            <UILabel htmlFor="autoAdvance">Avançar Automaticamente</UILabel>
+          <div className="flex items-center justify-between" title={isMultipleChoice ? "Não disponível para múltipla escolha" : ""}>
+            <UILabel htmlFor="autoAdvance" className={isMultipleChoice ? 'text-muted-foreground/50' : ''}>Avançar Automaticamente</UILabel>
             <Switch
               id="autoAdvance"
               checked={component.props.autoAdvance}
               onCheckedChange={(checked) =>
                 onUpdate({ ...component.props, autoAdvance: checked })
               }
+              disabled={isMultipleChoice}
             />
           </div>
         </div>

@@ -3,9 +3,10 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import type { CanvasComponentData } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
+import { Button } from '@/components/ui/button';
 
 export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component: CanvasComponentData, onOptionClick?: () => void; }) => {
   const {
@@ -15,8 +16,10 @@ export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component:
     spacingStyle = 'medio',
     detailStyle = 'nenhum',
     styleType = 'simples',
+    multipleChoice = false,
+    autoAdvance = true,
   } = component.props;
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   const borderClasses: Record<string, string> = {
     pequena: 'rounded-md',
@@ -42,7 +45,21 @@ export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component:
   };
 
   const handleClick = (itemId: number) => {
-    setSelected(itemId);
+    if (multipleChoice) {
+      setSelectedItems(prev => 
+        prev.includes(itemId) 
+          ? prev.filter(id => id !== itemId)
+          : [...prev, itemId]
+      );
+    } else {
+      setSelectedItems([itemId]);
+      if (autoAdvance && onOptionClick) {
+        onOptionClick();
+      }
+    }
+  }
+
+  const handleContinue = () => {
     if (onOptionClick) {
       onOptionClick();
     }
@@ -62,27 +79,37 @@ export const OpcoesCanvasComponent = ({ component, onOptionClick }: { component:
 
   return (
     <div className={cn('w-full', spacingClasses[spacingStyle])}>
-      {opcoesItems.map((item) => (
-        <button
-          key={item.id}
-          className={cn(
-            'flex w-full items-center p-4 text-left transition-all',
-            borderClasses[borderStyle],
-            shadowClasses[shadowStyle],
-            styleClasses[styleType]
-          )}
-          onClick={() => handleClick(item.id)}
-        >
-          <span className="mr-3 text-2xl">{item.icon}</span>
-          <span className="flex-grow font-medium text-black">{item.text}</span>
-          {detailStyle === 'seta' && <ArrowRight className="h-5 w-5 text-gray-400" />}
-          {detailStyle === 'confirmacao' && (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-gray-300">
-              {selected === item.id && <div className="h-3 w-3 rounded-full bg-black" />}
-            </div>
-          )}
-        </button>
-      ))}
+      {opcoesItems.map((item) => {
+        const isSelected = selectedItems.includes(item.id);
+        return (
+          <button
+            key={item.id}
+            className={cn(
+              'flex w-full items-center p-4 text-left transition-all relative',
+              borderClasses[borderStyle],
+              shadowClasses[shadowStyle],
+              styleClasses[styleType],
+              isSelected && 'ring-2 ring-primary border-primary'
+            )}
+            onClick={() => handleClick(item.id)}
+          >
+            <span className="mr-3 text-2xl">{item.icon}</span>
+            <span className="flex-grow font-medium text-black">{item.text}</span>
+            {detailStyle === 'seta' && !isSelected && <ArrowRight className="h-5 w-5 text-gray-400" />}
+            {detailStyle === 'confirmacao' && (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-gray-300 bg-white">
+                {isSelected && <div className="h-3 w-3 rounded-full bg-primary" />}
+              </div>
+            )}
+             {isSelected && detailStyle !== 'nenhum' && <Check className="h-5 w-5 text-primary" />}
+          </button>
+        )
+      })}
+      {multipleChoice && (
+        <Button onClick={handleContinue} className="w-full mt-4">
+            Continuar
+        </Button>
+      )}
     </div>
   );
 };
