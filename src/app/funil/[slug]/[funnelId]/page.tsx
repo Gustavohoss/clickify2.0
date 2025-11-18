@@ -85,7 +85,7 @@ function FunnelPublicContent() {
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <div className="mx-auto w-full max-w-sm">
              {funnelData.type === 'quiz' && (
-              <header className="flex flex-col items-center p-4 rounded-t-lg bg-transparent">
+              <header className="flex flex-col items-center p-4 space-y-4 rounded-t-lg bg-transparent">
                 {renderLogo()}
                 <Progress value={progressValue} className="w-full mt-4 h-2" />
               </header>

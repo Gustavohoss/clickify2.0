@@ -1,17 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -157,9 +143,9 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor }: { fu
           className="w-[320px] h-[640px] rounded-3xl border-4 border-gray-700 shadow-2xl overflow-hidden flex flex-col"
           style={{ backgroundColor }}
         >
-            <header className="flex flex-col items-center p-4">
+            <header className="flex flex-col items-center p-4 space-y-4">
               {renderLogo()}
-              <Progress value={progressValue} className="w-full mt-4 h-2 bg-gray-300" />
+              <Progress value={progressValue} className="w-full h-2 bg-gray-300" />
             </header>
             <div className="flex-1 p-4 overflow-y-auto">
                 <div className="flex flex-col gap-4">
@@ -815,8 +801,12 @@ export function StandardFunnelEditor({
           >
             {funnel.type === 'quiz' && (
               <div className="mx-auto w-full max-w-sm">
-                <header className="flex flex-col items-center p-4 rounded-t-lg bg-transparent">
-                  <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
+                <header className="flex flex-col items-center p-4 space-y-4 rounded-t-lg bg-transparent">
+                  {funnel.headerLogoType === 'emoji' ? (
+                    <span className="text-4xl">{funnel.headerLogoValue}</span>
+                  ) : (
+                    <Image src={funnel.headerLogoValue || 'https://picsum.photos/seed/logo/40/40'} alt="Logo" width={40} height={40} className="rounded-md" />
+                  )}
                   <Progress value={progressValue} className="w-full mt-4 h-2" />
                 </header>
               </div>
