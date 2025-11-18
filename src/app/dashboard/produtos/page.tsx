@@ -5,11 +5,12 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Gift } from 'lucide-react';
+import { Copy, Gift, Info } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 
 type Product = {
   id: string;
@@ -25,6 +26,7 @@ const staticProducts: Product[] = [
   {
     id: 'static-1',
     name: 'Dieta das Celebridades',
+    description: 'Descubra os segredos das celebridades para manter a forma com este guia completo. Inclui planos de refeições, rotinas de exercícios e dicas exclusivas.',
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/m7r3o42acz47md2cn2iqc4bh?v=1763451610688',
     price: 97.00,
     commission: 'R$ 55,83',
@@ -128,17 +130,51 @@ export default function ProdutosPage() {
               </CardHeader>
               <CardContent className="flex-grow">
                  {product.description && (
-                  <p className="text-sm text-muted-foreground mb-2">{product.description}</p>
+                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
                  )}
                 <p className="text-sm text-muted-foreground">
                   Preço: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
                 </p>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" onClick={() => handleCopyLink(product.affiliateLink)}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copiar Link de Afiliado
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-full" variant="outline">
+                      <Info className="mr-2 h-4 w-4" />
+                      Veja mais
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>{product.name}</DialogTitle>
+                      <DialogDescription>
+                        {product.description}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="relative aspect-video w-full rounded-md overflow-hidden">
+                        <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="cover" />
+                      </div>
+                       <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">Preço do Produto</span>
+                          <span className="font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}</span>
+                       </div>
+                       <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">Sua Comissão</span>
+                          <span className="font-semibold text-green-500">{product.commission}</span>
+                       </div>
+                    </div>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="ghost">Fechar</Button>
+                      </DialogClose>
+                      <Button onClick={() => handleCopyLink(product.affiliateLink)}>
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copiar Link de Afiliado
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardFooter>
             </Card>
           ))}
