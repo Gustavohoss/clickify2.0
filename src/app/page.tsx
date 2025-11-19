@@ -57,7 +57,7 @@ export default function Home() {
         }
       `}</style>
 
-      <div className="relative w-full flex flex-col items-center justify-center overflow-hidden rounded-md pt-32 pb-20">
+      <div className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-32 pb-20">
         <BGPattern variant="grid" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         <div className="relative z-20 max-w-4xl px-4 text-center">
@@ -93,10 +93,10 @@ export default function Home() {
               src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/mmudllxka9yrr0ypf1lpqfdh?v=1763540792561"
               alt="Smartphone"
               layout="fill"
-              objectFit="contain"
+              objectFit="cover"
               className="z-0"
             />
-            <div className="absolute inset-0 z-10">
+            <div className="absolute inset-0 z-10 flex items-center justify-center">
               <FallingNotifications />
             </div>
           </div>
