@@ -85,10 +85,6 @@ export default function Home() {
 
       </div>
 
-      <footer className="relative h-40 w-full overflow-hidden bg-black flex items-center justify-center">
-          <MovingRibbon />
-          <MovingRibbon reverse />
-      </footer>
     </main>
   );
 }
