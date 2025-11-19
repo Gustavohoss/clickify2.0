@@ -1,10 +1,7 @@
-
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const lessons = [
@@ -17,24 +14,23 @@ const lessons = [
 ].filter(Boolean) as any[];
 
 export const LessonsCarousel = () => {
-  const [emblaRef] = useEmblaCarousel(
-    {
-      loop: true,
-      align: 'start',
-      dragFree: true,
-    },
-    [Autoplay({ delay: 2000, stopOnInteraction: false, stopOnMouseEnter: true })]
-  );
-
   return (
     <section className="relative py-8 overflow-hidden">
-      <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-background to-transparent z-20" />
+      <style jsx global>{`
+        @keyframes slide {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        .animate-slide {
+          animation: slide 40s linear infinite;
+        }
+      `}</style>
       <div className="container mx-auto px-1 text-center relative z-30">
         <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body mb-10" style={{ textShadow: '0 0 8px hsla(var(--primary), 0.5)' }}>
           Aulas <span className="text-primary">premium</span> e <span className="text-primary"> exclusivas! </span>
         </h1>
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex">
+        <div className="overflow-hidden">
+          <div className="flex animate-slide">
             {[...lessons, ...lessons].map((lesson, index) => (
               <div key={`${lesson.id}-${index}`} className="relative flex-[0_0_280px] shrink-0 px-4">
                 <Image
