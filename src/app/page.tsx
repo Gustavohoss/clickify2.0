@@ -62,7 +62,7 @@ export default function Home() {
       <div className="relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md pt-32 pb-20">
         <div className="relative z-20 max-w-4xl px-4 text-center">
           <h1 className="md:text-5xl text-3xl lg:text-6xl text-white">
-            Automatize suas vendas <span className="text-primary">online</span> e saia na frente de 97% dos <span className="text-primary">concorrentes!</span>
+            <span className="text-primary">Automatize suas vendas online</span> e saia na frente de 97% dos <span className="text-primary">concorrentes!</span>
           </h1>
           <p className="mt-6 text-lg text-neutral-300 max-w-2xl mx-auto">
             A Clickify te dá tudo: funil pronto, área de membros, afiliados e ferramentas completas para vender online.
