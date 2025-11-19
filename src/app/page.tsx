@@ -9,9 +9,17 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
-          <h1 className="md:text-5xl text-3xl lg:text-7xl font-bold text-center text-white relative z-20 max-w-4xl">
-            Crie as etapas do seu produto em 10 minutos e ative suas vendas em menos de 1h
-          </h1>
+          <div className="relative z-20 max-w-4xl px-4 text-center">
+            <h1 className="md:text-5xl text-3xl lg:text-7xl font-bold text-white">
+              <span className="text-primary">Automatize suas</span>{' '}
+              <span className="text-primary">vendas online</span> e saia na{' '}
+              <span className="text-primary">frente de 97% dos</span>{' '}
+              <span className="text-primary">concorrentes!</span>
+            </h1>
+            <p className="mt-6 text-lg text-neutral-300">
+              A Clickify é parceira oficial do Mercado Livre e diversos outros marketplaces.
+            </p>
+          </div>
           <div className="w-[40rem] h-40 relative">
             {/* Gradients */}
             <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-[2px] w-3/4 blur-sm" />
