@@ -111,11 +111,11 @@ export default function Home() {
             <div className="inline-block bg-gray-800 text-gray-300 rounded-full px-6 py-2 mb-6 border border-gray-700">
                 <p className="font-semibold">Preços - Planos flexíveis</p>
             </div>
-            <h2 className="text-4xl lg:text-5xl text-white font-body max-w-3xl mx-auto mb-12">
-                Escolha o plano ideal para você. Comece seu negócio com a liberdade de crescer ainda mais.
-            </h2>
+            <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
+              <span className="text-primary">Escolha o plano ideal para você.</span> Comece seu negócio com a liberdade de <span className="text-primary">crescer ainda mais.</span>
+            </h1>
         </div>
-        <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8">
+        <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8 mt-20">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <PricingCard
                 tier="Free"
