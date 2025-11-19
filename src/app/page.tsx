@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -106,7 +107,7 @@ export default function Home() {
       <SocialProof />
       <LessonsCarousel />
 
-      <section className="relative overflow-hidden bg-background text-foreground py-20 text-center">
+      <section className="relative overflow-hidden bg-background text-foreground pt-10 pb-20 text-center">
         <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8">
             <div className="inline-block bg-gray-800 text-gray-300 rounded-full px-6 py-2 mb-6 border border-gray-700">
                 <p className="font-semibold">Preços - Planos flexíveis</p>
