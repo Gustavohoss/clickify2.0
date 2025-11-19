@@ -25,9 +25,9 @@ export const LessonsCarousel = () => {
             <BGPattern variant="grid" className="z-10" />
             <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-background to-transparent z-20" />
             <div className="container mx-auto px-4 text-center relative z-30">
-                <h2 className="text-3xl md:text-4xl font-bold font-body mb-10">
-                    Aulas <span className="text-primary">Premium e Exclusivas</span>
-                </h2>
+            <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body mb-10" style={{textShadow: '0 0 8px hsla(var(--primary), 0.5)'}}>
+                    Aulas <span className="text-primary">premium</span> e <span className="text-primary"> exclusivas! </span>
+                </h1>
                 <div
                     className="group relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]"
                 >
