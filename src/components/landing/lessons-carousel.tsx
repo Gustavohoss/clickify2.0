@@ -5,6 +5,8 @@ import React from 'react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
+import { BGPattern } from '@/components/ui/bg-pattern';
+
 
 const lessons = [
   PlaceHolderImages.find(p => p.id === 'lesson-card-1'),
@@ -19,8 +21,9 @@ const lessonsWithDuplicates = [...lessons, ...lessons];
 
 export const LessonsCarousel = () => {
     return (
-        <section className="py-16 bg-background">
-            <div className="container mx-auto px-4 text-center">
+        <section className="relative py-16 bg-background overflow-hidden">
+            <BGPattern variant="grid" />
+            <div className="container mx-auto px-4 text-center relative z-10">
                 <h2 className="text-3xl md:text-4xl font-bold font-headline mb-10">
                     Aulas <span className="text-primary">Premium e Exclusivas</span>
                 </h2>
