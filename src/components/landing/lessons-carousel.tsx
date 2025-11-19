@@ -22,7 +22,7 @@ const lessonsWithDuplicates = [...lessons, ...lessons];
 export const LessonsCarousel = () => {
     return (
         <section className="relative py-16 overflow-hidden">
-            <BGPattern variant="grid" className="z-10" />
+            
             <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-background to-transparent z-20" />
             <div className="container mx-auto px-4 text-center relative z-30">
             <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body mb-10" style={{textShadow: '0 0 8px hsla(var(--primary), 0.5)'}}>
