@@ -23,7 +23,7 @@ export default function Home() {
         <div className="w-full h-full absolute inset-0">
           <SparklesCore
             id="tsparticlesfullpage"
-            background="transparent"
+            background="#000000"
             minSize={0.6}
             maxSize={1.4}
             particleDensity={100}
