@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { SparklesCore } from "@/components/ui/sparkles";
 import Link from "next/link";
 import { Header } from "@/components/landing/header";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -30,9 +31,14 @@ export default function Home() {
           />
         </div>
         <div className="relative z-20 mt-8">
-            <Link href="/signup">
-                <Button>Começar Agora</Button>
-            </Link>
+            <Image 
+                src="https://picsum.photos/seed/homepage-image/800/450"
+                alt="Placeholder para imagem do produto"
+                width={800}
+                height={450}
+                className="rounded-lg shadow-lg"
+                data-ai-hint="product screenshot"
+            />
         </div>
       </div>
     </main>
