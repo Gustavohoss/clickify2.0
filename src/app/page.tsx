@@ -90,7 +90,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="relative mx-auto max-w-sm h-[600px]">
             <Image
-              src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/hds2d8f4i3yylj9l4g9xo7y9?v=1763467615962"
+              src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/mmudllxka9yrr0ypf1lpqfdh?v=1763540792561"
               alt="Smartphone"
               layout="fill"
               objectFit="contain"
