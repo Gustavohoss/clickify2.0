@@ -114,6 +114,8 @@ export default function Home() {
             <h2 className="text-4xl lg:text-5xl text-white font-body max-w-3xl mx-auto mb-12">
                 Escolha o plano ideal para você. Comece seu negócio com a liberdade de crescer ainda mais.
             </h2>
+        </div>
+        <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <PricingCard
                 tier="Free"
