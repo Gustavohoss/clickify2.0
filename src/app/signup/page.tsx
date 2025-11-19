@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +20,8 @@ import { useAuth, useFirestore, doc, setDoc } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import Link from 'next/link';
 import { Logo } from '@/components/landing/logo';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' }),
@@ -35,6 +38,8 @@ export default function SignupPage() {
   const router = useRouter();
   const auth = useAuth();
   const firestore = useFirestore();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -143,9 +148,20 @@ export default function SignupPage() {
                       render={({ field }) => (
                           <FormItem>
                           <FormLabel>Senha</FormLabel>
-                          <FormControl>
-                              <Input type="password" placeholder="********" {...field} />
-                          </FormControl>
+                          <div className="relative">
+                            <FormControl>
+                                <Input type={showPassword ? 'text' : 'password'} placeholder="********" {...field} />
+                            </FormControl>
+                             <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                             </Button>
+                          </div>
                           <FormMessage />
                           </FormItem>
                       )}
@@ -156,9 +172,20 @@ export default function SignupPage() {
                       render={({ field }) => (
                           <FormItem>
                           <FormLabel>Confirmar Senha</FormLabel>
-                          <FormControl>
-                              <Input type="password" placeholder="********" {...field} />
-                          </FormControl>
+                          <div className="relative">
+                            <FormControl>
+                                <Input type={showConfirmPassword ? 'text' : 'password'} placeholder="********" {...field} />
+                            </FormControl>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                >
+                                {showConfirmPassword ? <EyeOff /> : <Eye />}
+                             </Button>
+                          </div>
                           <FormMessage />
                           </FormItem>
                       )}
