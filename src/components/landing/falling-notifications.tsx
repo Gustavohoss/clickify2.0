@@ -76,7 +76,7 @@ const FallingNotifications = () => {
   }
 
   return (
-    <div className="w-full h-full flex flex-col justify-end items-center space-y-4 p-4">
+    <div className="w-full h-full flex flex-col justify-end items-center space-y-4">
       <AnimatePresence initial={false}>
         {notifications.map((notification, index) => (
           <motion.div

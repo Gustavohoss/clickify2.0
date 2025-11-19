@@ -69,34 +69,34 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="relative z-20 mt-12 flex flex-col items-center gap-4 w-full">
-            <div className="w-full max-w-5xl px-4 md:px-8">
-                <Image
-                  src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ewcazkwlemjkynkyhtz2tkoy?v=1763539211986"
-                  alt="Dashboard"
-                  width={1200}
-                  height={900}
-                  className="w-full h-auto rounded-lg border-2 border-primary/20 shadow-2xl shadow-primary/10 mb-8"
-                />
+        <div className="relative z-20 mt-12 flex flex-col items-center gap-4 w-full max-w-5xl px-4 md:px-8">
+            <Image
+              src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ewcazkwlemjkynkyhtz2tkoy?v=1763539211986"
+              alt="Dashboard"
+              width={1200}
+              height={900}
+              className="w-full h-auto rounded-lg border-2 border-primary/20 shadow-2xl shadow-primary/10 mb-8"
+            />
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
+              <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">Ver Planos</Button>
             </div>
-            <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
-            <Button variant="outline" size="lg" className="w-64 h-14 text-lg bg-transparent border-primary text-primary hover:bg-primary/10 rounded-full">Ver Planos</Button>
-            <Button variant="link" className="text-neutral-300">Conheça Área de Membros</Button>
+            <Button variant="link" className="text-neutral-300 mt-2">Conheça Área de Membros</Button>
         </div>
 
       </div>
 
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="relative mx-auto max-w-sm h-[600px] rounded-2xl overflow-hidden">
+          <div className="relative mx-auto w-fit">
             <Image
               src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/mmudllxka9yrr0ypf1lpqfdh?v=1763540792561"
               alt="Smartphone"
-              layout="fill"
-              objectFit="cover"
+              width={300}
+              height={600}
               className="z-0"
             />
-            <div className="absolute inset-0 z-10 flex items-center justify-center">
+            <div className="absolute inset-0 z-10 p-4">
               <FallingNotifications />
             </div>
           </div>
