@@ -84,22 +84,6 @@ export default function Home() {
         </div>
 
       </div>
-      
-      <div className="py-20 bg-background text-white text-center">
-        <h2 className="text-4xl font-bold">
-            Aulas <span className="text-primary">Premium</span> e <span className="text-primary">Exclusivas</span>
-        </h2>
-        <div className="mt-8 relative aspect-video max-w-4xl mx-auto rounded-lg overflow-hidden border border-primary/20 shadow-2xl shadow-primary/10">
-          <video
-            src="https://s3.typebot.io/public/workspaces/clh2omgfr000008ju0g6zjgj6/typebots/clhe9f9x3000708jnf263884e/videos/video_1.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </div>
 
        <div className="py-20 bg-black">
         <div className="container mx-auto text-center">
