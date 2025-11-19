@@ -54,7 +54,7 @@ export default function Home() {
         }
       `}</style>
 
-      <div className="relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md pt-32 pb-20">
+      <div className="relative w-full flex flex-col items-center justify-center overflow-hidden rounded-md pt-32 pb-20">
         <BGPattern variant="grid" />
         <div className="relative z-20 max-w-4xl px-4 text-center">
            <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
@@ -66,7 +66,7 @@ export default function Home() {
         </div>
         
         <div className="relative z-20 mt-12 flex flex-col items-center gap-4 w-full">
-             <div className="w-full max-w-5xl px-4 md:px-8">
+            <div className="w-full max-w-5xl px-4 md:px-8">
                 <Image
                   src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ewcazkwlemjkynkyhtz2tkoy?v=1763539211986"
                   alt="Dashboard"
