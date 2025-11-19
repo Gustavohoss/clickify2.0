@@ -21,9 +21,8 @@ const lessonsWithDuplicates = [...lessons, ...lessons];
 
 export const LessonsCarousel = () => {
     return (
-        <section className="relative py-16 bg-background overflow-hidden">
+        <section className="relative py-16 overflow-hidden">
             <BGPattern variant="grid" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
             <div className="container mx-auto px-4 text-center relative z-10">
                 <h2 className="text-3xl md:text-4xl font-bold font-body mb-10">
                     Aulas <span className="text-primary">Premium e Exclusivas</span>
