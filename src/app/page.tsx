@@ -9,6 +9,7 @@ import { BGPattern } from "@/components/ui/bg-pattern";
 import { Header } from "@/components/landing/header";
 import SocialProof from "@/components/landing/social-proof";
 import { LessonsCarousel } from "@/components/landing/lessons-carousel";
+import { PricingCard } from "@/components/ui/dark-gradient-pricing";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'kiwify-logo'),
@@ -113,6 +114,55 @@ export default function Home() {
           <h2 className="text-4xl lg:text-5xl text-white font-body max-w-3xl mx-auto">
             Escolha o plano ideal para você. Comece seu negócio com a liberdade de crescer ainda mais.
           </h2>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden bg-background text-foreground">
+        <div className="relative z-10 mx-auto max-w-5xl px-4 py-20 md:px-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <PricingCard
+              tier="Free"
+              price="R$0/mês"
+              bestFor="Para até 5 usuários"
+              CTA="Comece de graça"
+              benefits={[
+                { text: "Um workspace", checked: true },
+                { text: "Suporte por email", checked: true },
+                { text: "Retenção de dados de 1 dia", checked: false },
+                { text: "Funções customizadas", checked: false },
+                { text: "Suporte prioritário", checked: false },
+                { text: "SSO", checked: false },
+              ]}
+            />
+            <PricingCard
+              tier="Pro"
+              price="R$79/mês"
+              bestFor="Para 5-50 usuários"
+              CTA="Teste grátis por 14 dias"
+              benefits={[
+                { text: "Cinco workspaces", checked: true },
+                { text: "Suporte por email", checked: true },
+                { text: "Retenção de dados de 7 dias", checked: true },
+                { text: "Funções customizadas", checked: true },
+                { text: "Suporte prioritário", checked: false },
+                { text: "SSO", checked: false },
+              ]}
+            />
+            <PricingCard
+              tier="Enterprise"
+              price="Fale conosco"
+              bestFor="Para mais de 50 usuários"
+              CTA="Fale conosco"
+              benefits={[
+                { text: "Workspaces ilimitados", checked: true },
+                { text: "Suporte por email", checked: true },
+                { text: "Retenção de dados de 30 dias", checked: true },
+                { text: "Funções customizadas", checked: true },
+                { text: "Suporte prioritário", checked: true },
+                { text: "SSO", checked: true },
+              ]}
+            />
+          </div>
         </div>
       </section>
 
