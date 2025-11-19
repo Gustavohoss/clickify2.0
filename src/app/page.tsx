@@ -1,8 +1,7 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { SparklesCore } from "@/components/ui/sparkles";
+import { BGPattern } from "@/components/ui/bg-pattern";
 import Link from "next/link";
 import { Header } from "@/components/landing/header";
 import Image from "next/image";
@@ -88,17 +87,8 @@ export default function Home() {
           </div>
         }
         
-        <div className="w-full h-full absolute inset-0">
-          <SparklesCore
-            id="tsparticlesfullpage"
-            background="transparent"
-            minSize={0.6}
-            maxSize={1.4}
-            particleDensity={100}
-            className="w-full h-full"
-            particleColor="#FFFFFF"
-          />
-        </div>
+        <BGPattern variant="grid" mask="fade-edges" />
+
       </div>
       
       <div className="py-20 bg-black text-white text-center">
