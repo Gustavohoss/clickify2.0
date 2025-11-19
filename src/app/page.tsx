@@ -2,10 +2,12 @@
 import { Button } from "@/components/ui/button";
 import { SparklesCore } from "@/components/ui/sparkles";
 import Link from "next/link";
+import { Header } from "@/components/landing/header";
 
 export default function Home() {
   return (
     <main>
+       <Header />
       <div className="h-screen w-full bg-background flex flex-col items-center justify-center overflow-hidden rounded-md">
         <div className="relative z-20 max-w-4xl px-4 text-center">
           <h1 className="md:text-5xl text-3xl lg:text-7xl font-bold text-white">

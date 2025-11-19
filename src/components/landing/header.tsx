@@ -20,7 +20,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
+        "fixed top-0 z-50 w-full transition-all duration-300",
         isScrolled
           ? "border-b border-border/50 bg-background/80 backdrop-blur-lg"
           : "bg-transparent"
@@ -32,7 +32,7 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline">
+          <Button asChild>
             <Link href="/login">Login</Link>
           </Button>
         </div>
