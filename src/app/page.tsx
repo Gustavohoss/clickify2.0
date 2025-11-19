@@ -114,48 +114,30 @@ export default function Home() {
             </h1>
         </div>
         <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8 mt-20">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <PricingCard
-                tier="Free"
-                price="R$0/mês"
-                bestFor="Para até 5 usuários"
-                CTA="Comece de graça"
-                benefits={[
-                    { text: "Um workspace", checked: true },
-                    { text: "Suporte por email", checked: true },
-                    { text: "Retenção de dados de 1 dia", checked: false },
-                    { text: "Funções customizadas", checked: false },
-                    { text: "Suporte prioritário", checked: false },
-                    { text: "SSO", checked: false },
-                ]}
+                  tier="Mensal"
+                  price="R$149,00"
+                  bestFor="Acesso completo por um mês"
+                  CTA="Assinar agora"
+                  benefits={[
+                      { text: "Todos os recursos Pro", checked: true },
+                      { text: "Suporte via chat", checked: true },
+                      { text: "Cancelamento a qualquer momento", checked: true },
+                      { text: "Acesso a todas as aulas", checked: false },
+                  ]}
                 />
                 <PricingCard
-                tier="Pro"
-                price="R$79/mês"
-                bestFor="Para 5-50 usuários"
-                CTA="Teste grátis por 14 dias"
-                benefits={[
-                    { text: "Cinco workspaces", checked: true },
-                    { text: "Suporte por email", checked: true },
-                    { text: "Retenção de dados de 7 dias", checked: true },
-                    { text: "Funções customizadas", checked: true },
-                    { text: "Suporte prioritário", checked: false },
-                    { text: "SSO", checked: false },
-                ]}
-                />
-                <PricingCard
-                tier="Enterprise"
-                price="Fale conosco"
-                bestFor="Para mais de 50 usuários"
-                CTA="Fale conosco"
-                benefits={[
-                    { text: "Workspaces ilimitados", checked: true },
-                    { text: "Suporte por email", checked: true },
-                    { text: "Retenção de dados de 30 dias", checked: true },
-                    { text: "Funções customizadas", checked: true },
-                    { text: "Suporte prioritário", checked: true },
-                    { text: "SSO", checked: true },
-                ]}
+                  tier="Vitalício"
+                  price="R$249,00"
+                  bestFor="Pagamento único"
+                  CTA="Garantir acesso vitalício"
+                  benefits={[
+                      { text: "Todos os recursos Pro", checked: true },
+                      { text: "Suporte prioritário", checked: true },
+                      { text: "Acesso a todas as aulas futuras", checked: true },
+                      { text: "Acesso vitalício", checked: true },
+                  ]}
                 />
             </div>
         </div>
