@@ -9,8 +9,8 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
-          <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center text-white relative z-20">
-            Clickify
+          <h1 className="md:text-5xl text-3xl lg:text-7xl font-bold text-center text-white relative z-20 max-w-4xl">
+            Crie sua estrutura de vendas completa em menos de 10 minutos e ultrapasse 97% dos concorrentes!
           </h1>
           <div className="w-[40rem] h-40 relative">
             {/* Gradients */}
