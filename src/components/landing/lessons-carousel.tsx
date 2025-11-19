@@ -24,7 +24,7 @@ export const LessonsCarousel = () => {
         <section className="relative py-16 overflow-hidden">
             
             <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-background to-transparent z-20" />
-            <div className="container mx-auto px-4 text-center relative z-30">
+            <div className="container mx-auto px-1 text-center relative z-30">
             <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body mb-10" style={{textShadow: '0 0 8px hsla(var(--primary), 0.5)'}}>
                     Aulas <span className="text-primary">premium</span> e <span className="text-primary"> exclusivas! </span>
                 </h1>
@@ -38,7 +38,7 @@ export const LessonsCarousel = () => {
                         )}
                     >
                         {lessonsWithDuplicates.map((lesson, index) => (
-                            <div key={`${lesson.id}-${index}`} className="relative w-[280px] h-[500px] shrink-0 px-4">
+                            <div key={`${lesson.id}-${index}`} className="relative w-[280px] h-[415px] shrink-0 px-4">
                                 <Image
                                     src={lesson.imageUrl}
                                     alt={lesson.description}

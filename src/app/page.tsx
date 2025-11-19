@@ -106,63 +106,58 @@ export default function Home() {
       <SocialProof />
       <LessonsCarousel />
 
-      <section className="py-20 text-center">
-        <div className="container mx-auto px-4">
-          <div className="inline-block bg-gray-800 text-gray-300 rounded-full px-6 py-2 mb-6 border border-gray-700">
-            <p className="font-semibold">Preços - Planos flexíveis</p>
-          </div>
-          <h2 className="text-4xl lg:text-5xl text-white font-body max-w-3xl mx-auto">
-            Escolha o plano ideal para você. Comece seu negócio com a liberdade de crescer ainda mais.
-          </h2>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden bg-background text-foreground">
-        <div className="relative z-10 mx-auto max-w-5xl px-4 py-20 md:px-8">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <PricingCard
-              tier="Free"
-              price="R$0/mês"
-              bestFor="Para até 5 usuários"
-              CTA="Comece de graça"
-              benefits={[
-                { text: "Um workspace", checked: true },
-                { text: "Suporte por email", checked: true },
-                { text: "Retenção de dados de 1 dia", checked: false },
-                { text: "Funções customizadas", checked: false },
-                { text: "Suporte prioritário", checked: false },
-                { text: "SSO", checked: false },
-              ]}
-            />
-            <PricingCard
-              tier="Pro"
-              price="R$79/mês"
-              bestFor="Para 5-50 usuários"
-              CTA="Teste grátis por 14 dias"
-              benefits={[
-                { text: "Cinco workspaces", checked: true },
-                { text: "Suporte por email", checked: true },
-                { text: "Retenção de dados de 7 dias", checked: true },
-                { text: "Funções customizadas", checked: true },
-                { text: "Suporte prioritário", checked: false },
-                { text: "SSO", checked: false },
-              ]}
-            />
-            <PricingCard
-              tier="Enterprise"
-              price="Fale conosco"
-              bestFor="Para mais de 50 usuários"
-              CTA="Fale conosco"
-              benefits={[
-                { text: "Workspaces ilimitados", checked: true },
-                { text: "Suporte por email", checked: true },
-                { text: "Retenção de dados de 30 dias", checked: true },
-                { text: "Funções customizadas", checked: true },
-                { text: "Suporte prioritário", checked: true },
-                { text: "SSO", checked: true },
-              ]}
-            />
-          </div>
+      <section className="relative overflow-hidden bg-background text-foreground py-20 text-center">
+        <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8">
+            <div className="inline-block bg-gray-800 text-gray-300 rounded-full px-6 py-2 mb-6 border border-gray-700">
+                <p className="font-semibold">Preços - Planos flexíveis</p>
+            </div>
+            <h2 className="text-4xl lg:text-5xl text-white font-body max-w-3xl mx-auto mb-12">
+                Escolha o plano ideal para você. Comece seu negócio com a liberdade de crescer ainda mais.
+            </h2>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                <PricingCard
+                tier="Free"
+                price="R$0/mês"
+                bestFor="Para até 5 usuários"
+                CTA="Comece de graça"
+                benefits={[
+                    { text: "Um workspace", checked: true },
+                    { text: "Suporte por email", checked: true },
+                    { text: "Retenção de dados de 1 dia", checked: false },
+                    { text: "Funções customizadas", checked: false },
+                    { text: "Suporte prioritário", checked: false },
+                    { text: "SSO", checked: false },
+                ]}
+                />
+                <PricingCard
+                tier="Pro"
+                price="R$79/mês"
+                bestFor="Para 5-50 usuários"
+                CTA="Teste grátis por 14 dias"
+                benefits={[
+                    { text: "Cinco workspaces", checked: true },
+                    { text: "Suporte por email", checked: true },
+                    { text: "Retenção de dados de 7 dias", checked: true },
+                    { text: "Funções customizadas", checked: true },
+                    { text: "Suporte prioritário", checked: false },
+                    { text: "SSO", checked: false },
+                ]}
+                />
+                <PricingCard
+                tier="Enterprise"
+                price="Fale conosco"
+                bestFor="Para mais de 50 usuários"
+                CTA="Fale conosco"
+                benefits={[
+                    { text: "Workspaces ilimitados", checked: true },
+                    { text: "Suporte por email", checked: true },
+                    { text: "Retenção de dados de 30 dias", checked: true },
+                    { text: "Funções customizadas", checked: true },
+                    { text: "Suporte prioritário", checked: true },
+                    { text: "SSO", checked: true },
+                ]}
+                />
+            </div>
         </div>
       </section>
 
