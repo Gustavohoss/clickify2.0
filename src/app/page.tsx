@@ -58,6 +58,7 @@ export default function Home() {
 
       <div className="relative w-full flex flex-col items-center justify-center overflow-hidden rounded-md pt-32 pb-20">
         <BGPattern variant="grid" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         <div className="relative z-20 max-w-4xl px-4 text-center">
            <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
             <span className="text-primary">Automatize suas vendas online</span> e saia na frente de 97% dos <span className="text-primary">concorrentes!</span>
