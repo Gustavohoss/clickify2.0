@@ -1,57 +1,73 @@
 "use client";
 
-import { cva, type VariantProps } from "class-variance-authority";
+import React from 'react';
+import { cn } from '@/lib/utils';
 
-import { cn } from "@/lib/utils";
+type BGVariantType = 'dots' | 'diagonal-stripes' | 'grid' | 'horizontal-lines' | 'vertical-lines' | 'checkerboard';
+type BGMaskType = 	| 'fade-center' 	| 'fade-edges' 	| 'fade-top' 	| 'fade-bottom' 	| 'fade-left' 	| 'fade-right' 	| 'fade-x' 	| 'fade-y' 	| 'none';
 
-const bgPatternVariants = cva("absolute inset-0 -z-10", {
-	variants: {
-		variant: {
-			grid: "[background-image:linear-gradient(to_right,theme(colors.border)_1px,transparent_1px),linear-gradient(to_bottom,theme(colors.border)_1px,transparent_1px)] [background-size:2.5rem_2.5rem]",
-			dots: "[background-image:radial-gradient(theme(colors.border)_1.5px,transparent_1.5px)] [background-size:2.5rem_2.5rem]",
-			"diagonal-stripes":
-				"bg-[repeating-linear-gradient(45deg,theme(colors.border),theme(colors.border)_1px,transparent_1px,transparent_1.5rem)]",
-			"horizontal-lines":
-				"[background-image:linear-gradient(to_bottom,theme(colors.border)_1px,transparent_1px)] [background-size:100%_1.5rem]",
-			"vertical-lines":
-				"[background-image:linear-gradient(to_right,theme(colors.border)_1px,transparent_1px)] [background-size:1.5rem_100%]",
-			checkerboard:
-				"bg-[linear-gradient(45deg,theme(colors.border)_25%,transparent_25%),linear-gradient(-45deg,theme(colors.border)_25%,transparent_25%),linear-gradient(45deg,transparent_75%,theme(colors.border)_75%),linear-gradient(-45deg,transparent_75%,theme(colors.border)_75%)] [background-size:3rem_3rem] [background-position:0_0,0_1.5rem,1.5rem_-1.5rem,-1.5rem_0px]",
-		},
-		mask: {
-			none: "",
-			"fade-y":
-				"[mask-image:linear-gradient(to_bottom,transparent,theme(colors.background)_1.5rem,theme(colors.background)_calc(100%-1.5rem),transparent)]",
-			"fade-x":
-				"[mask-image:linear-gradient(to_right,transparent,theme(colors.background)_1.5rem,theme(colors.background)_calc(100%-1.5rem),transparent)]",
-			"fade-top":
-				"[mask-image:linear-gradient(to_bottom,transparent,theme(colors.background)_3rem)]",
-			"fade-bottom":
-				"[mask-image:linear-gradient(to_top,transparent,theme(colors.background)_3rem)]",
-			"fade-left":
-				"[mask-image:linear-gradient(to_right,transparent,theme(colors.background)_3rem)]",
-			"fade-right":
-				"[mask-image:linear-gradient(to_left,transparent,theme(colors.background)_3rem)]",
-			"fade-center":
-				"[mask-image:radial-gradient(ellipse_at_center,initial_1px,transparent_60%)]",
-			"fade-edges":
-				"[mask-image:radial-gradient(ellipse_at_center,initial_1px,transparent_100%)]",
-		},
-	},
-	defaultVariants: {
-		variant: "grid",
-		mask: "none",
-	},
-});
+type BGPatternProps = React.ComponentProps<'div'> & {
+	variant?: BGVariantType;
+	mask?: BGMaskType;
+	size?: number;
+	fill?: string;
+};
 
-export interface BGPatternProps
-	extends React.HTMLAttributes<HTMLDivElement>,
-		VariantProps<typeof bgPatternVariants> {}
+const maskClasses: Record<BGMaskType, string> = {
+	'fade-edges': '[mask-image:radial-gradient(ellipse_at_center,var(--background),transparent)]',
+	'fade-center': '[mask-image:radial-gradient(ellipse_at_center,transparent,var(--background))]',
+	'fade-top': '[mask-image:linear-gradient(to_bottom,transparent,var(--background))]',
+	'fade-bottom': '[mask-image:linear-gradient(to_bottom,var(--background),transparent)]',
+	'fade-left': '[mask-image:linear-gradient(to_right,transparent,var(--background))]',
+	'fade-right': '[mask-image:linear-gradient(to_right,var(--background),transparent)]',
+	'fade-x': '[mask-image:linear-gradient(to_right,transparent,var(--background),transparent)]',
+	'fade-y': '[mask-image:linear-gradient(to_bottom,transparent,var(--background),transparent)]',
+	none: '',
+};
 
-export function BGPattern({ className, variant, mask }: BGPatternProps) {
+function geBgImage(variant: BGVariantType, fill: string, size: number) {
+	switch (variant) {
+		case 'dots':
+			return `radial-gradient(${fill} 1px, transparent 1px)`;
+		case 'grid':
+			return `linear-gradient(to right, ${fill} 1px, transparent 1px), linear-gradient(to bottom, ${fill} 1px, transparent 1px)`;
+		case 'diagonal-stripes':
+			return `repeating-linear-gradient(45deg, ${fill}, ${fill} 1px, transparent 1px, transparent ${size}px)`;
+		case 'horizontal-lines':
+			return `linear-gradient(to bottom, ${fill} 1px, transparent 1px)`;
+		case 'vertical-lines':
+			return `linear-gradient(to right, ${fill} 1px, transparent 1px)`;
+		case 'checkerboard':
+			return `linear-gradient(45deg, ${fill} 25%, transparent 25%), linear-gradient(-45deg, ${fill} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${fill} 75%), linear-gradient(-45deg, transparent 75%, ${fill} 75%)`;
+		default:
+			return undefined;
+	}
+}
+
+const BGPattern = ({
+	variant = 'grid',
+	mask = 'none',
+	size = 24,
+	fill = '#252525',
+	className,
+	style,
+	...props
+}: BGPatternProps) => {
+	const bgSize = `${size}px ${size}px`;
+	const backgroundImage = geBgImage(variant, fill, size);
+
 	return (
 		<div
-			className={cn(bgPatternVariants({ variant, mask }), className)}
+			className={cn('absolute inset-0 z-[-10] size-full', maskClasses[mask], className)}
+			style={{
+				backgroundImage,
+				backgroundSize: bgSize,
+				...style,
+			}}
+			{...props}
 		/>
 	);
-}
+};
+
+BGPattern.displayName = 'BGPattern';
+export { BGPattern };
