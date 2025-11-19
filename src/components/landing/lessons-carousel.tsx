@@ -4,6 +4,7 @@
 import React from 'react';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const lessons = [
@@ -16,11 +17,14 @@ const lessons = [
 ].filter(Boolean) as any[];
 
 export const LessonsCarousel = () => {
-  const [emblaRef] = useEmblaCarousel({
-    loop: true,
-    align: 'start',
-    dragFree: true,
-  });
+  const [emblaRef] = useEmblaCarousel(
+    {
+      loop: true,
+      align: 'start',
+      dragFree: true,
+    },
+    [Autoplay({ delay: 2000, stopOnInteraction: false, stopOnMouseEnter: true })]
+  );
 
   return (
     <section className="relative py-8 overflow-hidden">
