@@ -63,12 +63,12 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="relative z-20 mt-12 flex flex-col items-center gap-4">
+        <div className="relative z-20 mt-12 flex flex-col items-center gap-4 px-8">
              <Image
               src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ewcazkwlemjkynkyhtz2tkoy?v=1763539211986"
               alt="Dashboard"
-              width={800}
-              height={600}
+              width={900}
+              height={675}
               className="mb-4 rounded-lg border-2 border-primary/20 shadow-2xl shadow-primary/10"
             />
             <Button size="lg" className="w-64 h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full">Assinar agora</Button>
