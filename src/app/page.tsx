@@ -85,19 +85,6 @@ export default function Home() {
 
       </div>
 
-       <div className="py-20 bg-black">
-        <div className="container mx-auto text-center">
-          <h2 className="text-sm font-semibold uppercase text-gray-400 tracking-wider">
-            PARCEIROS OFICIAIS
-          </h2>
-          <div className="mt-8 flex justify-center items-center gap-8 md:gap-12 flex-wrap">
-            {partners.map((partner, index) => (
-              partner && <Image key={index} src={partner.imageUrl} alt={partner.description} width={158} height={48} className="h-8 object-contain" />
-            ))}
-          </div>
-        </div>
-      </div>
-
       <footer className="relative h-40 w-full overflow-hidden bg-black flex items-center justify-center">
           <MovingRibbon />
           <MovingRibbon reverse />
