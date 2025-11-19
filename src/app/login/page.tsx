@@ -67,9 +67,6 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-8">
-        <div className="flex justify-center">
-            <Logo />
-        </div>
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
           <div className="flex flex-col p-6 space-y-1">
             <h3 className="font-semibold tracking-tight text-2xl">Acesse sua conta</h3>

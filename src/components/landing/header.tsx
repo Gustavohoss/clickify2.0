@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/landing/logo";
 
 export function Header() {
@@ -26,16 +25,10 @@ export function Header() {
           : "bg-transparent"
       )}
     >
-      <div className="container mx-auto flex h-20 items-center justify-between px-4">
+      <div className="container mx-auto flex h-20 items-center justify-center px-4">
         <Link href="/">
           <Logo />
         </Link>
-
-        <div className="flex items-center gap-2">
-          <Button asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-        </div>
       </div>
     </header>
   );

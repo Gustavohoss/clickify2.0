@@ -6,6 +6,7 @@ import Image from "next/image";
 import React from 'react';
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { BGPattern } from "@/components/ui/bg-pattern";
+import { Header } from "@/components/landing/header";
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'shopee-logo'),
@@ -37,6 +38,7 @@ export default function Home() {
 
   return (
     <main className="dark">
+       <Header />
        <style jsx global>{`
         @keyframes slide {
           from { transform: translateX(-33.33%); }
