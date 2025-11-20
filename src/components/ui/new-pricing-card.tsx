@@ -67,7 +67,8 @@ export function NewPricingCard({
       
       <Button
         size="lg"
-        className="mt-8 w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-full"
+        variant="glow"
+        className="mt-8 w-full font-bold rounded-full"
       >
         Escolher este plano
       </Button>
