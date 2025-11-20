@@ -42,6 +42,10 @@
         "planId": {
           "type": "string",
           "description": "Reference to the user's pricing plan. (Relationship: Plan 1:N User)"
+        },
+        "balance": {
+          "type": "number",
+          "description": "The user's current account balance."
         }
       },
       "required": [
@@ -49,7 +53,8 @@
         "email",
         "firstName",
         "lastName",
-        "createdAt"
+        "createdAt",
+        "balance"
       ]
     },
     "Plan": {

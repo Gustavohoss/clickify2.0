@@ -81,6 +81,7 @@ export default function SignupPage() {
         createdAt: new Date().toISOString(),
         isVerified: isAdmin, // Admin is verified by default, others are not.
         isAdmin: isAdmin,
+        balance: 0,
       });
 
 
