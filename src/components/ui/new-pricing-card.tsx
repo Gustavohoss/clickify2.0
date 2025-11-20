@@ -5,6 +5,7 @@ import { Check } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { LiquidGlassCard } from './liquid-notification';
 
 interface NewPricingCardProps {
   title: string;
@@ -24,13 +25,12 @@ export function NewPricingCard({
   isFeatured,
 }: NewPricingCardProps) {
   return (
-    <div
-      className={cn(
-        'relative rounded-3xl border p-8 text-white',
-        isFeatured
-          ? 'border-primary/50 bg-gray-900/50'
-          : 'border-gray-700 bg-gray-900/30'
-      )}
+    <LiquidGlassCard
+      className={cn('relative p-8 text-white', isFeatured && 'border-primary/50')}
+      borderRadius="1.5rem"
+      blurIntensity="md"
+      shadowIntensity="lg"
+      glowIntensity="sm"
     >
       {isFeatured && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-semibold text-primary-foreground">
@@ -76,6 +76,6 @@ export function NewPricingCard({
       >
         Escolher este plano
       </Button>
-    </div>
+    </LiquidGlassCard>
   );
 }

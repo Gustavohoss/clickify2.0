@@ -116,7 +116,7 @@ export default function Home() {
         <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8 mt-20">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <NewPricingCard
-                    title="Plano Básico"
+                    title="Plano Mensal"
                     subtitle="Para pequenas empresas"
                     price="R$ 149,90"
                     priceSuffix="/mês"
@@ -125,12 +125,11 @@ export default function Home() {
                         "Mercado Livre",
                         "Shopee",
                         "Suporte",
-                        "MENSAL",
                     ]}
                     isFeatured={false}
                 />
                 <NewPricingCard
-                    title="Plano Premium"
+                    title="Plano Vitalício"
                     subtitle="Para empresas maiores e além"
                     price="R$ 249,90"
                     features={[
@@ -138,7 +137,6 @@ export default function Home() {
                         "Mercado Livre",
                         "Shopee, Magalu e Bling",
                         "Suporte e Curso Completo",
-                        "VITALÍCIO",
                     ]}
                     isFeatured={true}
                 />
