@@ -11,6 +11,7 @@ import { collection } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import Link from 'next/link';
 
 type Product = {
   id: string;
@@ -211,9 +212,10 @@ export default function ProdutosPage() {
                       <DialogClose asChild>
                         <Button variant="ghost">Fechar</Button>
                       </DialogClose>
-                      <Button onClick={() => handleCopyLink(product.affiliateLink)}>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copiar Link de Afiliado
+                      <Button asChild>
+                          <Link href={product.affiliateLink} target="_blank">
+                              Afiliar-se Agora
+                          </Link>
                       </Button>
                     </DialogFooter>
                   </DialogContent>
