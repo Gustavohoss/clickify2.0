@@ -114,7 +114,7 @@ export default function Home() {
       <SocialProof />
       <LessonsCarousel />
 
-      <section id="pricing" className="relative overflow-hidden bg-background text-foreground pt-10 pb-20 text-center">
+      <section id="pricing" className="relative overflow-hidden bg-background text-foreground pt-10 pb-20 text-center scroll-mt-20">
         <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8">
             <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
               <span className="text-primary">Escolha o plano ideal para você.</span> Comece seu negócio com a liberdade de <span className="text-primary">crescer ainda mais.</span>
@@ -138,8 +138,8 @@ export default function Home() {
                     isFeatured={false}
                 />
                 <NewPricingCard
-                    title="Plano Vitalício"
-                    subtitle="Para empresas maiores e além"
+                    title="Plano Ilimitado"
+                    subtitle="Para crescer sem limites"
                     price="R$ 249,90"
                     features={[
                         "Criar até 5 funis por categoria",
