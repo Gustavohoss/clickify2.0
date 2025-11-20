@@ -159,47 +159,6 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>{formatBalance(totalRevenue)}</CardTitle>
-          <CardDescription>Receita líquida</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="h-[200px] w-full">
-            <RechartsAreaChart accessibilityLayer data={chartData}>
-               <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => `R$ ${value}`}
-                hide
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent 
-                    indicator="dot"
-                    formatter={(value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value as number)}
-                />}
-              />
-              <Area dataKey="revenue" type="monotone" fill="url(#colorRevenue)" stroke="var(--color-revenue)" stackId="a" />
-            </RechartsAreaChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
     </div>
   );
 }
