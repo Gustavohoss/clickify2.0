@@ -15,6 +15,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useAuth, useFirestore, doc } from '@/firebase';
@@ -23,7 +32,7 @@ import { getDoc } from 'firebase/firestore';
 import Link from 'next/link';
 import { Logo } from '@/components/landing/logo';
 import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Hourglass } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, insira um e-mail válido.' }),
@@ -36,6 +45,8 @@ export default function LoginPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const [showPassword, setShowPassword] = useState(false);
+  const [showVerificationPopup, setShowVerificationPopup] = useState(false);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,11 +86,7 @@ export default function LoginPage() {
         router.push('/dashboard');
       } else {
         await auth.signOut(); // Log out user if not verified
-        toast({
-          variant: 'destructive',
-          title: 'Acesso Negado',
-          description: 'Sua conta está sendo verificada. Tente novamente mais tarde.',
-        });
+        setShowVerificationPopup(true);
       }
     } catch (error: any) {
       console.error(error);
@@ -96,70 +103,89 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-          <div className="flex flex-col p-6 space-y-1">
-            <h3 className="font-semibold tracking-tight text-2xl">Acesse sua conta</h3>
-            <p className="text-sm text-muted-foreground">
-              Não tem uma conta?{' '}
-              <Link href="/signup" className="underline">
-                Cadastre-se
-              </Link>
-            </p>
-          </div>
-          <div className="p-6 pt-0">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="seu@email.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Senha</FormLabel>
-                       <div className="relative">
+    <>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
+        <div className="w-full max-w-md space-y-8">
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div className="flex flex-col p-6 space-y-1">
+              <h3 className="font-semibold tracking-tight text-2xl">Acesse sua conta</h3>
+              <p className="text-sm text-muted-foreground">
+                Não tem uma conta?{' '}
+                <Link href="/signup" className="underline">
+                  Cadastre-se
+                </Link>
+              </p>
+            </div>
+            <div className="p-6 pt-0">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="********"
-                            {...field}
-                          />
+                          <Input placeholder="seu@email.com" {...field} />
                         </FormControl>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                        >
-                          {showPassword ? <EyeOff /> : <Eye />}
-                        </Button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full">
-                  Entrar
-                </Button>
-              </form>
-            </Form>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Senha</FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showPassword ? 'text' : 'password'}
+                              placeholder="********"
+                              {...field}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          >
+                            {showPassword ? <EyeOff /> : <Eye />}
+                          </Button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full">
+                    Entrar
+                  </Button>
+                </form>
+              </Form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      <AlertDialog open={showVerificationPopup} onOpenChange={setShowVerificationPopup}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+             <div className="flex justify-center">
+              <Hourglass className="h-10 w-10 text-primary" />
+            </div>
+            <AlertDialogTitle className="text-center">Conta em Verificação</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Sua conta está sendo verificada para garantir a segurança e evitar robôs. 
+              Este processo pode levar até 1 hora. Agradecemos a sua paciência!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowVerificationPopup(false)}>Entendi</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
