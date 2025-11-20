@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { BarChart, BookUser, BrainCircuit, DollarSign, Milestone, Settings, ShoppingBag, Users, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ import { Area, AreaChart as RechartsAreaChart, XAxis, YAxis, CartesianGrid } fro
 import { useCollection, useFirestore, useUser, useMemoFirebase, useDoc, doc } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 
-const chartData = [
+const initialChartData = [
     { date: '19 out', revenue: 0 },
     { date: '22 out', revenue: 0 },
     { date: '25 out', revenue: 0 },
@@ -37,12 +38,36 @@ const chartConfig = {
 export default function DashboardPage() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const [chartData, setChartData] = useState(initialChartData);
 
   const userDocRef = useMemoFirebase(
     () => (user && firestore ? doc(firestore, 'users', user.uid) : null),
     [firestore, user]
   );
-  const { data: userData } = useDoc(userDocRef);
+  const { data: userData } = useDoc(userData);
+
+  useEffect(() => {
+    if (userData && userData.simulateRevenue && userData.balance > 0) {
+      const balance = userData.balance;
+      const days = initialChartData.length;
+      
+      let randomFactors = Array.from({ length: days }, () => Math.random());
+      const totalFactor = randomFactors.reduce((sum, factor) => sum + factor, 0);
+      
+      const newChartData = initialChartData.map((dataPoint, index) => {
+        const share = (randomFactors[index] / totalFactor) * balance;
+        return {
+          ...dataPoint,
+          revenue: parseFloat(share.toFixed(2)),
+        };
+      });
+      
+      setChartData(newChartData);
+    } else {
+      setChartData(initialChartData.map(d => ({...d, revenue: 0})));
+    }
+  }, [userData]);
+
 
   const funnelsQuery = useMemoFirebase(
     () =>
@@ -72,6 +97,8 @@ export default function DashboardPage() {
         currency: 'BRL'
     }).format(balance);
   }
+
+  const totalRevenue = chartData.reduce((sum, item) => sum + item.revenue, 0);
 
   return (
     <div className="space-y-8">
@@ -135,7 +162,7 @@ export default function DashboardPage() {
       
       <Card>
         <CardHeader>
-          <CardTitle>R$ 0,00</CardTitle>
+          <CardTitle>{formatBalance(totalRevenue)}</CardTitle>
           <CardDescription>Receita líquida</CardDescription>
         </CardHeader>
         <CardContent>
@@ -176,3 +203,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

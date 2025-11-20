@@ -82,6 +82,7 @@ export default function SignupPage() {
         isVerified: isAdmin, // Admin is verified by default, others are not.
         isAdmin: isAdmin,
         balance: 0,
+        simulateRevenue: false, // Default value for the new field
       });
 
 
@@ -210,3 +211,5 @@ export default function SignupPage() {
     </div>
   );
 }
+
+    
