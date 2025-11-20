@@ -45,9 +45,13 @@ export function NewPricingCard({
       <ul className="mt-8 space-y-4">
         {features.map((feature, index) => (
           <li key={index} className="flex items-center gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary">
-              <Check className="h-4 w-4" />
-            </span>
+            <Image
+              src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/w8rpngje86gb2p2e1f0olqzc?v=1763598299100"
+              alt="Checkmark"
+              width={24}
+              height={24}
+              className="h-6 w-6"
+            />
             <span className="font-medium">{feature}</span>
           </li>
         ))}
@@ -68,7 +72,7 @@ export function NewPricingCard({
       <Button
         size="lg"
         variant="glow"
-        className="mt-8 w-full font-bold rounded-full"
+        className="mt-8 w-full font-bold"
       >
         Escolher este plano
       </Button>
