@@ -44,7 +44,7 @@ export default function DashboardPage() {
     () => (user && firestore ? doc(firestore, 'users', user.uid) : null),
     [firestore, user]
   );
-  const { data: userData } = useDoc(userData);
+  const { data: userData } = useDoc(userDocRef);
 
   useEffect(() => {
     if (userData && userData.simulateRevenue && userData.balance > 0) {
@@ -203,5 +203,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
