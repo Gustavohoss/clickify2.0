@@ -69,6 +69,8 @@ export default function SignupPage() {
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(' ');
       
+      const isAdmin = user.email === 'Clickify@adm.com';
+
       // Save user info to Firestore
       const userDocRef = doc(firestore, "users", user.uid);
       await setDoc(userDocRef, {
@@ -77,6 +79,8 @@ export default function SignupPage() {
         firstName: firstName,
         lastName: lastName,
         createdAt: new Date().toISOString(),
+        isVerified: isAdmin, // Admin is verified by default, others are not.
+        isAdmin: isAdmin,
       });
 
 

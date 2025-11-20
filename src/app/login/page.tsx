@@ -17,8 +17,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore, doc } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { getDoc } from 'firebase/firestore';
 import Link from 'next/link';
 import { Logo } from '@/components/landing/logo';
 import { useState } from 'react';
@@ -33,6 +34,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -44,13 +46,41 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+    if (!firestore) {
       toast({
-        title: 'Login bem-sucedido!',
-        description: 'Você será redirecionado em breve.',
+        variant: 'destructive',
+        title: 'Erro de conexão',
+        description: 'Não foi possível conectar ao banco de dados.',
       });
-      router.push('/dashboard');
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      if(user.email === 'Clickify@adm.com') {
+        router.push('/clickifyadmpainelemail/dashboard');
+        return;
+      }
+
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists() && userDoc.data().isVerified) {
+        toast({
+          title: 'Login bem-sucedido!',
+          description: 'Você será redirecionado em breve.',
+        });
+        router.push('/dashboard');
+      } else {
+        await auth.signOut(); // Log out user if not verified
+        toast({
+          variant: 'destructive',
+          title: 'Acesso Negado',
+          description: 'Sua conta está sendo verificada. Tente novamente mais tarde.',
+        });
+      }
     } catch (error: any) {
       console.error(error);
       let description = 'Ocorreu um erro ao fazer login.';
