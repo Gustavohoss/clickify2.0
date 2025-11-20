@@ -54,7 +54,7 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error(error);
       let description = 'Ocorreu um erro ao fazer login.';
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
         description = 'E-mail ou senha inválidos.';
       }
       toast({
