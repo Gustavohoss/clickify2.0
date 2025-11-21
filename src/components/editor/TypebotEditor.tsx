@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -1407,13 +1408,13 @@ export function TypebotEditor({
             onContextMenu={(e) => e.preventDefault()}
             >
             <div
-                className="relative h-full w-full"
+                className="relative h-full w-full pointer-events-none"
                 style={{
                     transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
                     transformOrigin: '0 0',
                 }}
             >
-                <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+                <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-10">
                 <defs>
                     <marker
                     id="arrowhead"
