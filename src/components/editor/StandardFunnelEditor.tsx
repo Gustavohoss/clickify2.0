@@ -540,7 +540,7 @@ export function StandardFunnelEditor({
   
   const handleCopyUrl = () => {
     if (!funnel) return;
-    const funnelSlug = funnel.slug || funnel.name.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-');
+    const funnelSlug = funnel.slug || funnel.name.toLowerCase().trim().replace(/[^a-z0-9\\s-]/g, '').replace(/[\\s-]+/g, '-');
     const publicUrl = `${window.location.origin}/funil/${funnelSlug}/${funnel.id}`;
     navigator.clipboard.writeText(publicUrl);
     toast({
@@ -805,8 +805,10 @@ export function StandardFunnelEditor({
                 <header className="flex flex-col items-center p-4 space-y-4 rounded-t-lg bg-transparent">
                   {funnel.headerLogoType === 'emoji' ? (
                     <span className="text-4xl">{funnel.headerLogoValue}</span>
+                  ) : funnel.headerLogoType === 'image' && funnel.headerLogoValue ? (
+                    <Image src={funnel.headerLogoValue} alt="Logo" width={40} height={40} className="rounded-md" />
                   ) : (
-                    <Image src={funnel.headerLogoValue || 'https://picsum.photos/seed/logo/40/40'} alt="Logo" width={40} height={40} className="rounded-md" />
+                    <Image src="https://picsum.photos/seed/logo/40/40" alt="Logo" width={40} height={40} className="rounded-md" />
                   )}
                   <Progress value={progressValue} className="w-full mt-4 h-2" />
                 </header>
