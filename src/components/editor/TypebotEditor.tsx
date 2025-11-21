@@ -725,18 +725,15 @@ export function TypebotEditor({
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (!canvasRef.current) return;
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-    const mousePos = {
-      x: (e.clientX - canvasRect.left - panOffset.x) / zoom,
-      y: (e.clientY - canvasRect.top - panOffset.y) / zoom,
-    };
-
-    if (drawingConnection) {
-      setDrawingConnection((prev: any) => ({ ...prev, to: mousePos }));
-      return;
+    if (drawingConnection && canvasRef.current) {
+        const canvasRect = canvasRef.current.getBoundingClientRect();
+        const mousePos = {
+            x: (e.clientX - canvasRect.left - panOffset.x) / zoom,
+            y: (e.clientY - canvasRect.top - panOffset.y) / zoom,
+        };
+        setDrawingConnection((prev: any) => ({ ...prev, to: mousePos }));
     }
-    
+
     if (isPanning) {
       const dx = e.clientX - startPanPosition.current.x;
       const dy = e.clientY - startPanPosition.current.y;
@@ -766,6 +763,7 @@ export function TypebotEditor({
           );
           if (!blockElement) return;
 
+          const canvasRect = canvasRef.current.getBoundingClientRect();
           const blockRect = blockElement.getBoundingClientRect();
           const parentElement = document.getElementById(
             `block-${parentGroup.id}`
@@ -836,6 +834,7 @@ export function TypebotEditor({
     }
 
     if (draggingState.isDragging && draggingState.blockId && canvasRef.current) {
+        const canvasRect = canvasRef.current.getBoundingClientRect();
       const newX =
         (e.clientX - canvasRect.left - panOffset.x) / zoom -
         draggingState.dragStartOffset.x;
@@ -1003,29 +1002,22 @@ export function TypebotEditor({
 
 
   const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
-    if (e.ctrlKey) {
-        e.preventDefault();
-        const zoomFactor = 1.1;
-        const newZoom = e.deltaY > 0 ? zoom / zoomFactor : zoom * zoomFactor;
+    e.preventDefault();
+    const zoomFactor = 1.1;
+    const newZoom = e.deltaY > 0 ? zoom / zoomFactor : zoom * zoomFactor;
 
-        const rect = e.currentTarget.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
 
-        const mousePointX = (mouseX - panOffset.x) / zoom;
-        const mousePointY = (mouseY - panOffset.y) / zoom;
+    const mousePointX = (mouseX - panOffset.x) / zoom;
+    const mousePointY = (mouseY - panOffset.y) / zoom;
 
-        const newPanX = mouseX - mousePointX * newZoom;
-        const newPanY = mouseY - mousePointY * newZoom;
+    const newPanX = mouseX - mousePointX * newZoom;
+    const newPanY = mouseY - mousePointY * newZoom;
 
-        setZoom(newZoom);
-        setPanOffset({ x: newPanX, y: newPanY });
-    } else {
-        setPanOffset(prev => ({
-            x: prev.x - e.deltaX,
-            y: prev.y - e.deltaY
-        }));
-    }
+    setZoom(newZoom);
+    setPanOffset({ x: newPanX, y: newPanY });
   };
 
   const findBlock = (id: number | null): CanvasBlock | undefined => {
