@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -13,6 +12,7 @@ import {
   MessageCircle,
   Check,
   Code2,
+  PictureInPicture,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CanvasBlock } from '../../types';
@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { EditableTextBlock } from '../EditableTextBlock';
 import { Button } from '@/components/ui/button';
 import { ConnectionHandle } from '../ui/ConnectionHandle';
+import Image from 'next/image';
 
 export const CanvasTextBlock = React.memo(
   ({
@@ -127,7 +128,7 @@ export const CanvasTextBlock = React.memo(
                     width="100%"
                     height="100%"
                     controls
-                    playing={block.props.autoplayVideo}
+                    playing={block.props.autoplay}
                     loop={block.props.loopVideo}
                   />
                 )}
@@ -152,6 +153,7 @@ export const CanvasTextBlock = React.memo(
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen
+                  title="Embed Content"
                 ></iframe>
               </div>
             );
@@ -224,6 +226,25 @@ export const CanvasTextBlock = React.memo(
                 </div>
               ))}
             </div>
+          );
+        case 'input-pic':
+          return (
+             <div className="flex flex-col gap-2 w-full">
+                {(block.props?.choices || []).map((choice: any, index: number) => (
+                  <div key={index} className="relative w-full aspect-video rounded-md overflow-hidden border border-[#3f3f46]">
+                     <Image src={choice.imageUrl} alt={`Choice ${index}`} layout="fill" objectFit="cover" />
+                      {onConnectionStart && (
+                        <ConnectionHandle
+                          data-handle-id={`output-${block.id}-${index}`}
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            onConnectionStart(e, block.id, 'output', index);
+                          }}
+                        />
+                      )}
+                  </div>
+                ))}
+             </div>
           );
         default:
           return (

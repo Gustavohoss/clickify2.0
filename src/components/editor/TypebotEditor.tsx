@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -116,6 +115,7 @@ import { TextBlockSettings } from './typebot/settings/TextSettings.tsx';
 import { EmailBlockSettings } from './typebot/settings/EmailSettings.tsx';
 import { DateBlockSettings } from './typebot/settings/DateSettings.tsx';
 import { EmbedBlockSettings } from './typebot/settings/EmbedSettings.tsx';
+import { ImageChoiceSettings } from './typebot/settings/ImageChoiceSettings.tsx';
 import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
 
 
@@ -949,7 +949,7 @@ export function TypebotEditor({
     return { x, y };
   };
 
-  const onConnectionStart = (
+  const handleConnectionStart = (
     e: React.MouseEvent,
     fromBlockId: number | 'start',
     fromHandle: 'output',
@@ -974,22 +974,29 @@ export function TypebotEditor({
 
 
   const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
-    e.preventDefault();
-    const zoomFactor = 1.1;
-    const newZoom = e.deltaY > 0 ? zoom / zoomFactor : zoom * zoomFactor;
+    if (e.ctrlKey) {
+        e.preventDefault();
+        const zoomFactor = 1.1;
+        const newZoom = e.deltaY > 0 ? zoom / zoomFactor : zoom * zoomFactor;
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
 
-    const mousePointX = (mouseX - panOffset.x) / zoom;
-    const mousePointY = (mouseY - panOffset.y) / zoom;
+        const mousePointX = (mouseX - panOffset.x) / zoom;
+        const mousePointY = (mouseY - panOffset.y) / zoom;
 
-    const newPanX = mouseX - mousePointX * newZoom;
-    const newPanY = mouseY - mousePointY * newZoom;
+        const newPanX = mouseX - mousePointX * newZoom;
+        const newPanY = mouseY - mousePointY * newZoom;
 
-    setZoom(newZoom);
-    setPanOffset({ x: newPanX, y: newPanY });
+        setZoom(newZoom);
+        setPanOffset({ x: newPanX, y: newPanY });
+    } else {
+        setPanOffset(prev => ({
+            x: prev.x - e.deltaX,
+            y: prev.y - e.deltaY
+        }));
+    }
   };
 
   const findBlock = (id: number | null): CanvasBlock | undefined => {
@@ -1007,22 +1014,28 @@ export function TypebotEditor({
   const getBlockPosition = (id: number | null): { x: number; y: number } => {
     if (id === null || !canvasRef.current) return { x: 0, y: 0 };
 
-    const blockElement = document.getElementById(`block-${id}`);
-    if (!blockElement) return { x: 0, y: 0 };
-
     const block = findBlock(id);
-    if (block?.parentId) {
+    if (!block) return {x: 0, y: 0};
+    
+    if (block.parentId) {
       const parent = findBlock(block.parentId);
       if (parent) {
-        return {
-          x: parent.position.x,
-          y: parent.position.y,
-        };
+        const blockElement = document.getElementById(`block-${id}`);
+        const parentElement = document.getElementById(`block-${block.parentId}`);
+        if(blockElement && parentElement) {
+            const blockRect = blockElement.getBoundingClientRect();
+            const parentRect = parentElement.getBoundingClientRect();
+             const canvasRect = canvasRef.current.getBoundingClientRect();
+             return {
+                 x: (parentRect.left - canvasRect.left - panOffset.x) / zoom,
+                 y: (blockRect.top - canvasRect.top - panOffset.y) / zoom
+             }
+        }
+        return parent.position;
       }
     }
-    if (block) return block.position;
 
-    return { x: 0, y: 0 };
+    return block.position;
   };
 
   const canvasBlocksRef = useRef(canvasBlocks);
@@ -1234,6 +1247,42 @@ export function TypebotEditor({
   const selectedBlock = findBlock(selectedBlockId);
   const selectedBlockPosition = getBlockPosition(selectedBlockId);
 
+  const SettingsPanel = () => {
+    if (!selectedBlock) return null;
+
+    const props = {
+      block: selectedBlock,
+      onUpdate: updateBlockProps,
+      position: selectedBlockPosition,
+    };
+
+    switch(selectedBlock.type) {
+      case 'image':
+        return <ImageBlockSettings {...props} />;
+      case 'video':
+        return <VideoBlockSettings {...props} />;
+      case 'audio':
+        return <AudioBlockSettings {...props} />;
+      case 'embed':
+        return <EmbedBlockSettings {...props} />;
+      case 'logic-wait':
+        return <WaitBlockSettings {...props} />;
+      case 'input-buttons':
+        return <ButtonsBlockSettings {...props} />;
+      case 'input-text':
+        return <TextBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
+      case 'input-email':
+        return <EmailBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
+      case 'input-date':
+        return <DateBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
+      case 'input-pic':
+        return <ImageChoiceSettings {...props} />;
+      default:
+        return null;
+    }
+  };
+
+
   return (
     <div className="flex h-screen w-full flex-col bg-[#111111] text-white">
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-[#262626] px-4">
@@ -1332,7 +1381,7 @@ export function TypebotEditor({
             onContextMenu={(e) => e.preventDefault()}
             >
             <div
-                className="relative h-full w-full pointer-events-none"
+                className="relative h-full w-full"
                 style={{
                 transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
                 transformOrigin: '0 0',
@@ -1400,7 +1449,7 @@ export function TypebotEditor({
                         data-handle-id="output-start"
                         onMouseDown={(e) => {
                             e.stopPropagation();
-                            onConnectionStart(e, 'start', 'output');
+                            handleConnectionStart(e, 'start', 'output');
                         }}
                     />
                 </div>
@@ -1432,88 +1481,20 @@ export function TypebotEditor({
                         dropIndicator={dropIndicator}
                         updateBlockProps={updateBlockProps}
                         variables={variables}
-                        onConnectionStart={onConnectionStart}
+                        onConnectionStart={handleConnectionStart}
                         selectedBlockId={selectedBlockId}
                     />
                     );
                 })}
             </div>
+            </main>
+            <SettingsPanel />
             {contextMenu.visible && (
                 <ContextMenu
                 x={contextMenu.x}
                 y={contextMenu.y}
                 onDuplicate={handleDuplicateFromMenu}
                 onDelete={handleDeleteFromMenu}
-                />
-            )}
-            </main>
-            {selectedBlock && selectedBlock.type === 'image' && (
-                <ImageBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                />
-            )}
-            {selectedBlock && selectedBlock.type === 'video' && (
-                <VideoBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                />
-            )}
-            {selectedBlock && selectedBlock.type === 'audio' && (
-                <AudioBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                />
-            )}
-            {selectedBlock && selectedBlock.type === 'embed' && (
-                <EmbedBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                />
-            )}
-            {selectedBlock && selectedBlock.type === 'logic-wait' && (
-                <WaitBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                />
-            )}
-            {selectedBlock && selectedBlock.type === 'input-buttons' && (
-                <ButtonsBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                />
-            )}
-            {selectedBlock && selectedBlock.type === 'input-text' && (
-                <TextBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                variables={variables}
-                onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
-                />
-            )}
-            {selectedBlock && selectedBlock.type === 'input-email' && (
-                <EmailBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                variables={variables}
-                onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
-                />
-            )}
-            {selectedBlock && selectedBlock.type === 'input-date' && (
-                <DateBlockSettings
-                block={selectedBlock}
-                onUpdate={updateBlockProps}
-                position={selectedBlockPosition}
-                variables={variables}
-                onAddVariable={(newVar) => setVariables((prev) => [...prev, newVar])}
                 />
             )}
         </div>
