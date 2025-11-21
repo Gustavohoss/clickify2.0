@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -101,7 +102,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import type { Funnel, CanvasBlock, CanvasConnection, DropIndicator, ButtonItem } from './types.tsx';
+import type { Funnel, CanvasBlock, CanvasConnection, DropIndicator, ButtonItem, ImageChoice } from './types.tsx';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 import { CanvasGroupBlock } from './typebot/blocks/CanvasGroupBlock.tsx';
 import { CanvasTextBlock } from './typebot/blocks/CanvasTextBlock.tsx';
@@ -117,6 +118,7 @@ import { DateBlockSettings } from './typebot/settings/DateSettings.tsx';
 import { EmbedBlockSettings } from './typebot/settings/EmbedSettings.tsx';
 import { ImageChoiceSettings } from './typebot/settings/ImageChoiceSettings.tsx';
 import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
+import Image from 'next/image';
 
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
@@ -134,7 +136,7 @@ type PreviewMessage = {
 
 const PreviewButtons = ({ buttons, onButtonClick }: { buttons: ButtonItem[], onButtonClick: (buttonIndex: number) => void }) => {
     return (
-        <div className="flex justify-end gap-2 my-2">
+        <div className="flex justify-end gap-2 my-2 flex-wrap">
             {buttons.map((button, index) => (
                 <Button 
                     key={index}
@@ -143,6 +145,30 @@ const PreviewButtons = ({ buttons, onButtonClick }: { buttons: ButtonItem[], onB
                 >
                     {button.text}
                 </Button>
+            ))}
+        </div>
+    );
+};
+
+const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[], onImageClick: (choiceIndex: number) => void }) => {
+    return (
+        <div className="flex flex-col items-end gap-2 my-2">
+            {choices.map((choice, index) => (
+                <button
+                    key={index}
+                    className="w-48 rounded-lg overflow-hidden border-2 border-transparent hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    onClick={() => onImageClick(index)}
+                >
+                    <div className="relative aspect-video">
+                        <Image
+                            src={choice.imageUrl}
+                            alt={`Choice ${index + 1}`}
+                            layout="fill"
+                            objectFit="cover"
+                        />
+                         <div className="absolute bottom-0 w-full h-1/4 bg-orange-500/80 backdrop-blur-sm" />
+                    </div>
+                </button>
             ))}
         </div>
     );
@@ -949,7 +975,7 @@ export function TypebotEditor({
     return { x, y };
   };
 
-  const handleConnectionStart = (
+  const onConnectionStart = (
     e: React.MouseEvent,
     fromBlockId: number | 'start',
     fromHandle: 'output',
@@ -1117,7 +1143,7 @@ export function TypebotEditor({
           break;
         }
   
-        const interpolatedContent = interpolateVariables(child.props.content);
+        const interpolatedContent = interpolateVariables(child.props?.content);
   
         setPreviewMessages((prev) => [
           ...prev,
@@ -1173,8 +1199,14 @@ export function TypebotEditor({
     
     setWaitingForInput(null);
 
-    processFlow(waitingForInput.id, 0, buttonIndex);
+    processFlow(waitingForInput.parentId, 0, buttonIndex);
   };
+  
+  const handleImageChoiceClick = (choiceIndex: number) => {
+    if (!waitingForInput) return;
+    setWaitingForInput(null);
+    processFlow(waitingForInput.parentId, 0, choiceIndex);
+  }
 
 
   const handleUserInput = () => {
@@ -1449,7 +1481,7 @@ export function TypebotEditor({
                         data-handle-id="output-start"
                         onMouseDown={(e) => {
                             e.stopPropagation();
-                            handleConnectionStart(e, 'start', 'output');
+                            onConnectionStart(e, 'start', 'output');
                         }}
                     />
                 </div>
@@ -1481,7 +1513,7 @@ export function TypebotEditor({
                         dropIndicator={dropIndicator}
                         updateBlockProps={updateBlockProps}
                         variables={variables}
-                        onConnectionStart={handleConnectionStart}
+                        onConnectionStart={onConnectionStart}
                         selectedBlockId={selectedBlockId}
                     />
                     );
@@ -1533,6 +1565,11 @@ export function TypebotEditor({
                      <PreviewButtons 
                         buttons={waitingForInput.props.buttons || []}
                         onButtonClick={handleUserButtonClick}
+                    />
+                 ) : waitingForInput?.type === 'input-pic' ? (
+                     <PreviewImageChoices
+                        choices={waitingForInput.props.choices || []}
+                        onImageClick={handleImageChoiceClick}
                     />
                  ) : (
                     <form
