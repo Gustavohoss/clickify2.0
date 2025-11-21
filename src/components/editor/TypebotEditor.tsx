@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -913,36 +912,39 @@ export function TypebotEditor({
     e.stopPropagation();
     if (e.button !== 0) return;
     setContextMenu({ ...contextMenu, visible: false });
-
+  
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const blockToDrag = findBlock(block.id);
     if (!blockToDrag) return;
-
+  
     let dragStartOffset;
+  
+    const blockElement = document.getElementById(`block-${blockToDrag.id}`);
+    if (!blockElement) {
+        console.error("Could not find block element for dragging");
+        return;
+    }
+    const blockRect = blockElement.getBoundingClientRect();
 
     if (blockToDrag.parentId) {
-      const blockElement = document.getElementById(`block-${blockToDrag.id}`);
-      if (blockElement) {
-        const blockRect = blockElement.getBoundingClientRect();
-        dragStartOffset = {
-          x: (e.clientX - blockRect.left) / zoom,
-          y: (e.clientY - blockRect.top) / zoom,
-        };
+      const parentElement = document.getElementById(`block-${blockToDrag.parentId}`);
+      if(parentElement) {
+          const parentRect = parentElement.getBoundingClientRect();
+           dragStartOffset = {
+                x: (e.clientX - blockRect.left) / zoom,
+                y: (e.clientY - blockRect.top) / zoom,
+            };
       } else {
-        dragStartOffset = { x: 0, y: 0 };
+          dragStartOffset = { x: 0, y: 0 };
       }
     } else {
       dragStartOffset = {
-        x:
-          (e.clientX - canvasRect.left - panOffset.x) / zoom -
-          blockToDrag.position.x,
-        y:
-          (e.clientY - canvasRect.top - panOffset.y) / zoom -
-          blockToDrag.position.y,
+        x: (e.clientX - canvasRect.left - panOffset.x) / zoom - blockToDrag.position.x,
+        y: (e.clientY - canvasRect.top - panOffset.y) / zoom - blockToDrag.position.y,
       };
     }
-
+  
     setDraggingState({
       blockId: block.id,
       isDragging: false,
