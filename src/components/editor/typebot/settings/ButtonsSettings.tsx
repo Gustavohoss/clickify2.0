@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -51,7 +52,7 @@ export const ButtonsBlockSettings = ({
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div>
-        <Label className="text-xs text-white/50">Conteúdo</Label>
+        <Label className="text-xs text-white/50">Pergunta</Label>
         <Textarea
           value={props.content || ''}
           onChange={(e) => handleChange('content', e.target.value)}
@@ -60,7 +61,7 @@ export const ButtonsBlockSettings = ({
         />
       </div>
       <div>
-        <Label className="text-xs text-white/50">Item</Label>
+        <Label className="text-xs text-white/50">Botões</Label>
         <div className="space-y-2 mt-1">
           {buttons.map((button: any, index: number) => (
             <div key={index} className="flex items-center gap-2">
@@ -85,13 +86,13 @@ export const ButtonsBlockSettings = ({
           className="w-full mt-2 border-[#3f3f46] hover:bg-[#3f3f46]"
           onClick={addButton}
         >
-          Adicionar opção
+          Adicionar botão
         </Button>
       </div>
 
       <div className="flex items-center justify-between rounded-lg bg-[#181818] p-3">
         <Label htmlFor="multiple-choice" className="text-sm">
-          Habilitar múltipla escolha
+          Permitir múltiplas escolhas
         </Label>
         <Switch
           id="multiple-choice"

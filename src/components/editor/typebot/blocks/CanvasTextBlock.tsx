@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -19,6 +20,7 @@ import ReactPlayer from 'react-player';
 import { Badge } from '@/components/ui/badge';
 import { EditableTextBlock } from '../EditableTextBlock';
 import { Button } from '@/components/ui/button';
+import { ConnectionHandle } from '../ui/ConnectionHandle';
 
 export const CanvasTextBlock = React.memo(
   ({
@@ -30,6 +32,7 @@ export const CanvasTextBlock = React.memo(
     isChild = false,
     updateBlockProps,
     variables,
+    onConnectionStart,
   }: {
     block: CanvasBlock;
     onBlockMouseDown: (e: React.MouseEvent, block: CanvasBlock) => void;
@@ -39,6 +42,12 @@ export const CanvasTextBlock = React.memo(
     isChild?: boolean;
     updateBlockProps: (id: number, props: any) => void;
     variables: string[];
+    onConnectionStart?: (
+      e: React.MouseEvent,
+      fromBlockId: number,
+      fromHandle: 'output',
+      buttonIndex?: number
+    ) => void;
   }) => {
     const [hasMounted, setHasMounted] = useState(false);
 
@@ -215,34 +224,27 @@ export const CanvasTextBlock = React.memo(
                   }}
                 />
               </div>
-
-              {(block.props?.buttons || []).map((button: any, index: number) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="w-full justify-center bg-[#2a2a2a] border-[#3f3f46] text-white h-8"
-                >
-                  {button.text}
-                </Button>
-              ))}
-
-              <Button
-                variant="outline"
-                className="w-full justify-center bg-[#2a2a2a] border-[#3f3f46] text-white h-8 mt-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const newButtons = [
-                    ...(block.props?.buttons || []),
-                    { text: 'New Button' },
-                  ];
-                  updateBlockProps(block.id, {
-                    ...block.props,
-                    buttons: newButtons,
-                  });
-                }}
-              >
-                Add Button
-              </Button>
+              <div className="space-y-1">
+                {(block.props?.buttons || []).map((button: any, index: number) => (
+                  <div key={index} className="relative">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start bg-[#2a2a2a] border-[#3f3f46] text-white h-8"
+                    >
+                      {button.text}
+                    </Button>
+                    {onConnectionStart && (
+                        <ConnectionHandle
+                            data-handle-id={`output-${block.id}-${index}`}
+                            onMouseDown={(e) => {
+                                e.stopPropagation();
+                                onConnectionStart(e, block.id, 'output', index);
+                            }}
+                        />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           );
         default:
