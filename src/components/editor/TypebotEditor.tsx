@@ -925,15 +925,13 @@ export function TypebotEditor({
         console.error("Could not find block element for dragging");
         return;
     }
-    const blockRect = blockElement.getBoundingClientRect();
 
     if (blockToDrag.parentId) {
       const parentElement = document.getElementById(`block-${blockToDrag.parentId}`);
       if(parentElement) {
-          const parentRect = parentElement.getBoundingClientRect();
            dragStartOffset = {
-                x: (e.clientX - blockRect.left) / zoom,
-                y: (e.clientY - blockRect.top) / zoom,
+                x: (e.clientX - blockElement.getBoundingClientRect().left) / zoom,
+                y: (e.clientY - blockElement.getBoundingClientRect().top) / zoom,
             };
       } else {
           dragStartOffset = { x: 0, y: 0 };
@@ -1002,23 +1000,24 @@ export function TypebotEditor({
 
 
   const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
+    if (!canvasRef.current) return;
     e.preventDefault();
     const zoomFactor = 1.1;
     const newZoom = e.deltaY > 0 ? zoom / zoomFactor : zoom * zoomFactor;
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const rect = canvasRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
     const mousePointX = (mouseX - panOffset.x) / zoom;
     const mousePointY = (mouseY - panOffset.y) / zoom;
-
+    
     const newPanX = mouseX - mousePointX * newZoom;
     const newPanY = mouseY - mousePointY * newZoom;
 
     setZoom(newZoom);
-    setPanOffset({ x: newPanX, y: newPanY });
-  };
+    setPanOffset({x: newPanX, y: newPanY});
+  }
 
   const findBlock = (id: number | null): CanvasBlock | undefined => {
     if (id === null) return undefined;
