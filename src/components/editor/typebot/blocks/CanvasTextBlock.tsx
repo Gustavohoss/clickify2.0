@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -13,6 +14,7 @@ import {
   Check,
   Code2,
   PictureInPicture,
+  Link2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CanvasBlock } from '../../types';
@@ -173,6 +175,11 @@ export const CanvasTextBlock = React.memo(
           return renderInputBlock(
             <AtSign size={16} className="text-orange-400 flex-shrink-0" />,
             block.props?.placeholder || 'Digite seu email...'
+          );
+        case 'input-website':
+          return renderInputBlock(
+            <Link2 size={16} className="text-orange-400 flex-shrink-0" />,
+            block.props?.placeholder || 'Type a URL...'
           );
         case 'input-date':
           return renderInputBlock(
