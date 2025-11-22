@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -179,13 +178,18 @@ export const CanvasTextBlock = React.memo(
         case 'input-website':
           return renderInputBlock(
             <Link2 size={16} className="text-orange-400 flex-shrink-0" />,
-            block.props?.placeholder || 'Type a URL...'
+            block.props?.placeholder || 'Digite uma URL...'
           );
         case 'input-date':
           return renderInputBlock(
             <Calendar size={16} className="text-orange-400 flex-shrink-0" />,
             block.props?.placeholder || 'Escolha uma data...'
           );
+        case 'input-time':
+            return renderInputBlock(
+              <Clock10 size={16} className="text-orange-400 flex-shrink-0" />,
+              'Escolha uma hora...'
+            );
         case 'logic-wait':
           return (
             <div className="flex items-center gap-2 text-sm text-white/80 w-full">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -116,6 +115,7 @@ import { TextBlockSettings } from './typebot/settings/TextSettings.tsx';
 import { EmailBlockSettings } from './typebot/settings/EmailSettings.tsx';
 import { WebsiteBlockSettings } from './typebot/settings/WebsiteSettings.tsx';
 import { DateBlockSettings } from './typebot/settings/DateSettings.tsx';
+import { TimeBlockSettings } from './typebot/settings/TimeSettings.tsx';
 import { EmbedBlockSettings } from './typebot/settings/EmbedSettings.tsx';
 import { ImageChoiceSettings } from './typebot/settings/ImageChoiceSettings.tsx';
 import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
@@ -577,8 +577,8 @@ export function TypebotEditor({
         const fromBlockId = drawingConnection.fromBlockId;
         if (fromBlockId !== toBlockId) {
           setConnections((prev) => [
-            ...prev.filter((c) => c.from !== fromBlockId),
-            { from: fromBlockId, to: toBlockId },
+            ...prev.filter((c) => c.from !== fromBlockId || c.buttonIndex !== drawingConnection.buttonIndex),
+            { from: fromBlockId, to: toBlockId, buttonIndex: drawingConnection.buttonIndex },
           ]);
         }
       }
@@ -740,7 +740,6 @@ export function TypebotEditor({
       const dy = e.clientY - startPanPosition.current.y;
       setPanOffset((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
       startPanPosition.current = { x: e.clientX, y: e.clientY };
-      return;
     }
 
     if (draggingState.isReadyToDrag && !draggingState.isDragging) {
@@ -1305,6 +1304,8 @@ export function TypebotEditor({
         return <WebsiteBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
       case 'input-date':
         return <DateBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
+      case 'input-time':
+        return <TimeBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])} />;
       case 'input-pic':
         return <ImageChoiceSettings {...props} />;
       default:
@@ -1417,7 +1418,7 @@ export function TypebotEditor({
                     transformOrigin: '0 0',
                 }}
               >
-                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-10">
                   <defs>
                       <marker
                       id="arrowhead"
