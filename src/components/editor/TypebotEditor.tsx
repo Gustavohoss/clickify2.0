@@ -432,30 +432,6 @@ export function TypebotEditor({
         type: 'input-pic',
         color: 'text-orange-400',
       },
-      {
-        name: 'Pagamento',
-        icon: <CreditCard size={16} />,
-        type: 'input-payment',
-        color: 'text-orange-400',
-      },
-      {
-        name: 'Avaliação',
-        icon: <StarHalf size={16} />,
-        type: 'input-rating',
-        color: 'text-orange-400',
-      },
-      {
-        name: 'Arquivo',
-        icon: <UploadCloud size={16} />,
-        type: 'input-file',
-        color: 'text-orange-400',
-      },
-      {
-        name: 'Cartões',
-        icon: <GanttChart size={16} />,
-        type: 'input-cards',
-        color: 'text-orange-400',
-      },
     ],
     Lógica: [
       {
@@ -1394,8 +1370,14 @@ export function TypebotEditor({
             onWheel={handleWheel}
             onContextMenu={(e) => e.preventDefault()}
             >
-              <div className="absolute inset-0 pointer-events-none" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: '0 0' }}>
-                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                  transformOrigin: '0 0',
+                }}
+              >
+                  <svg className="absolute top-0 left-0 h-full w-full overflow-visible">
                   <defs>
                       <marker
                       id="arrowhead"
