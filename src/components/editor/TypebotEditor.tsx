@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -413,24 +414,6 @@ export function TypebotEditor({
         name: 'Texto',
         icon: <TextCursorInput size={16} />,
         type: 'input-text',
-        color: 'text-orange-400',
-      },
-      {
-        name: 'Número',
-        icon: <span className="font-bold">7</span>,
-        type: 'input-number',
-        color: 'text-orange-400',
-      },
-      {
-        name: 'Email',
-        icon: <AtSign size={16} />,
-        type: 'input-email',
-        color: 'text-orange-400',
-      },
-      {
-        name: 'Website',
-        icon: <Link2 size={16} />,
-        type: 'input-website',
         color: 'text-orange-400',
       },
       {
@@ -1570,9 +1553,11 @@ export function TypebotEditor({
             </div>
           </main>
           {activeTab === 'Tema' && (
-             <div className="w-full h-full bg-gray-900 pointer-events-none">
-                <TypebotPreview />
-             </div>
+            <div className="w-full h-full pointer-events-none flex items-center justify-center p-8">
+              <div className="w-[360px] h-[720px] rounded-[40px] shadow-2xl overflow-hidden border-8 border-black">
+                 <TypebotPreview />
+              </div>
+            </div>
           )}
         </div>
 
@@ -1587,8 +1572,8 @@ export function TypebotEditor({
         )}
       </div>
       {isPreviewOpen && (
-        <aside className="w-96 shrink-0 border-l border-[#262626] bg-white flex flex-col">
-          <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4">
+        <aside className="fixed bottom-4 right-4 z-50 w-96 h-[600px] shrink-0 border border-[#262626] bg-white flex flex-col rounded-xl shadow-2xl">
+          <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4 shrink-0">
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" className="text-black border-gray-300">
                 <Globe size={14} className="mr-2" />
@@ -1613,10 +1598,13 @@ export function TypebotEditor({
               <X size={16} />
             </Button>
           </div>
-          <TypebotPreview />
+          <div className="flex-1 overflow-hidden">
+            <TypebotPreview />
+          </div>
         </aside>
       )}
     </div>
   );
 }
+
 
