@@ -177,6 +177,7 @@ const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[]
     );
 };
 
+type EditorTab = 'Fluxo' | 'Tema' | 'Configurações';
 
 export function TypebotEditor({
   funnel,
@@ -188,7 +189,7 @@ export function TypebotEditor({
   debouncedUpdateFunnel: any;
 }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('Fluxo');
+  const [activeTab, setActiveTab] = useState<EditorTab>('Fluxo');
   const [isPanning, setIsPanning] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -1283,6 +1284,23 @@ export function TypebotEditor({
               <Redo2 size={16} />
             </Button>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-lg bg-[#262626] p-1">
+            {(['Fluxo', 'Tema', 'Configurações'] as EditorTab[]).map(tab => (
+                <Button 
+                    key={tab}
+                    variant={activeTab === tab ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className={cn(
+                        "h-8 px-4 text-xs font-medium",
+                        activeTab === tab ? 'bg-[#3f3f46] text-white' : 'text-white/60 hover:bg-[#3f3f46] hover:text-white'
+                    )}
+                    onClick={() => setActiveTab(tab)}
+                >
+                    {tab}
+                </Button>
+            ))}
         </div>
 
         <div className="flex items-center gap-2">
