@@ -115,10 +115,9 @@ import { ButtonsBlockSettings } from './typebot/settings/ButtonsSettings.tsx';
 import { TextBlockSettings } from './typebot/settings/TextSettings.tsx';
 import { EmailBlockSettings } from './typebot/settings/EmailSettings.tsx';
 import { WebsiteBlockSettings } from './typebot/settings/WebsiteSettings.tsx';
-import { DateBlockSettings } from './typebot/settings/DateSettings.tsx';
-import { TimeBlockSettings } from './typebot/settings/TimeSettings.tsx';
 import { EmbedBlockSettings } from './typebot/settings/EmbedSettings.tsx';
 import { ImageChoiceSettings } from './typebot/settings/ImageChoiceSettings.tsx';
+import { RedirectBlockSettings } from './typebot/settings/RedirectSettings.tsx';
 import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
 import Image from 'next/image';
 
@@ -1253,6 +1252,8 @@ export function TypebotEditor({
         return <EmbedBlockSettings {...props} />;
       case 'logic-wait':
         return <WaitBlockSettings {...props} />;
+      case 'logic-redirect':
+        return <RedirectBlockSettings {...props} />;
       case 'input-buttons':
         return <ButtonsBlockSettings {...props} />;
       case 'input-text':
@@ -1261,10 +1262,6 @@ export function TypebotEditor({
         return <EmailBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
       case 'input-website':
         return <WebsiteBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
-      case 'input-date':
-        return <DateBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])}/>;
-      case 'input-time':
-        return <TimeBlockSettings {...props} variables={variables} onAddVariable={(v) => setVariables(p => [...p, v])} />;
       case 'input-pic':
         return <ImageChoiceSettings {...props} />;
       default:
@@ -1356,7 +1353,7 @@ export function TypebotEditor({
         <div className="flex-1 relative">
             <main
             ref={canvasRef}
-            className="absolute inset-0 overflow-hidden"
+            className="h-full w-full"
             style={{
                 background: '#1d1d1d',
                 backgroundImage:
@@ -1377,7 +1374,7 @@ export function TypebotEditor({
                   transformOrigin: '0 0',
                 }}
               >
-                  <svg className="absolute top-0 left-0 h-full w-full overflow-visible">
+                  <svg className="pointer-events-none absolute top-0 left-0 h-full w-full overflow-visible z-0">
                   <defs>
                       <marker
                       id="arrowhead"

@@ -14,6 +14,7 @@ import {
   Code2,
   PictureInPicture,
   Link2,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CanvasBlock } from '../../types';
@@ -180,22 +181,21 @@ export const CanvasTextBlock = React.memo(
             <Link2 size={16} className="text-orange-400 flex-shrink-0" />,
             block.props?.placeholder || 'Digite uma URL...'
           );
-        case 'input-date':
-          return renderInputBlock(
-            <Calendar size={16} className="text-orange-400 flex-shrink-0" />,
-            block.props?.placeholder || 'Escolha uma data...'
-          );
-        case 'input-time':
-            return renderInputBlock(
-              <Clock10 size={16} className="text-orange-400 flex-shrink-0" />,
-              'Escolha uma hora...'
-            );
         case 'logic-wait':
           return (
             <div className="flex items-center gap-2 text-sm text-white/80 w-full">
               <Clock10 size={16} className="text-indigo-400 flex-shrink-0" />
               <span className="truncate">
                 Aguarde por {block.props.duration || 0} segundo(s)
+              </span>
+            </div>
+          );
+        case 'logic-redirect':
+          return (
+            <div className="flex items-center gap-2 text-sm text-white/80 w-full">
+              <ArrowRightLeft size={16} className="text-indigo-400 flex-shrink-0" />
+              <span className="truncate">
+                Redirecionar para uma URL
               </span>
             </div>
           );
