@@ -16,6 +16,7 @@ import {
   Link2,
   ArrowRightLeft,
   GitCompareArrows,
+  GitCommit,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CanvasBlock } from '../../types';
@@ -228,6 +229,15 @@ export const CanvasTextBlock = React.memo(
               </div>
             </div>
           )
+        case 'logic-jump':
+            return (
+              <div className="flex items-center gap-2 text-sm text-white/80 w-full">
+                <GitCommit size={16} className="text-indigo-400 flex-shrink-0" />
+                <span className="truncate">
+                  {block.props.targetGroupId ? `Pular para: Grupo...` : 'Configure...'}
+                </span>
+              </div>
+            );
         case 'text':
           return (
             <EditableTextBlock

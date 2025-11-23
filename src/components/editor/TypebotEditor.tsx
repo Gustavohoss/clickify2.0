@@ -119,6 +119,7 @@ import { ImageChoiceSettings } from './typebot/settings/ImageChoiceSettings.tsx'
 import { RedirectBlockSettings } from './typebot/settings/RedirectSettings.tsx';
 import { TimeBlockSettings } from './typebot/settings/TimeSettings.tsx';
 import { ABTestSettings } from './typebot/settings/ABTestSettings.tsx';
+import { JumpToBlockSettings } from './typebot/settings/JumpToSettings.tsx';
 import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
 import Image from 'next/image';
 
@@ -320,7 +321,14 @@ export function TypebotEditor({
     const updateRecursively = (blocks: CanvasBlock[]): CanvasBlock[] => {
       return blocks.map((block) => {
         if (block.id === blockId) {
-          return { ...block, props: { ...block.props, ...props } };
+           const newBlock = { ...block, props: { ...block.props, ...props } };
+           if (newBlock.type === 'logic-jump' && props.targetGroupId !== undefined) {
+             setConnections(prev => [
+               ...prev.filter(c => c.from !== blockId),
+               { from: blockId, to: props.targetGroupId }
+             ]);
+           }
+          return newBlock;
         }
         if (block.children) {
           return { ...block, children: updateRecursively(block.children) };
@@ -699,7 +707,6 @@ export function TypebotEditor({
       const dy = e.clientY - startPanPosition.current.y;
       setPanOffset((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
       startPanPosition.current = { x: e.clientX, y: e.clientY };
-      return;
     }
 
     if (draggingState.isReadyToDrag && !draggingState.isDragging) {
@@ -1258,6 +1265,8 @@ export function TypebotEditor({
         return <RedirectBlockSettings {...props} />;
       case 'logic-abtest':
         return <ABTestSettings {...props} />;
+      case 'logic-jump':
+        return <JumpToBlockSettings {...props} groups={canvasBlocks.filter(b => b.type === 'group')} />;
       case 'input-buttons':
         return <ButtonsBlockSettings {...props} />;
       case 'input-text':
@@ -1371,54 +1380,58 @@ export function TypebotEditor({
               onWheel={handleWheel}
               onContextMenu={(e) => e.preventDefault()}
             >
-              <svg className="pointer-events-none absolute top-0 left-0 h-full w-full overflow-visible z-0">
-                <defs>
-                    <marker
-                    id="arrowhead"
-                    markerWidth="10"
-                    markerHeight="7"
-                    refX="0"
-                    refY="3.5"
-                    orient="auto"
-                    >
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
-                    </marker>
-                </defs>
-                {connections.map((conn, index) => {
-                    const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
-                    const fromPos = getHandlePosition(fromHandleId);
-                    const toPos = getHandlePosition(`input-${conn.to}`);
+              <div className="absolute inset-0 pointer-events-none z-10">
+                <svg className="w-full h-full overflow-visible">
+                    <defs>
+                        <marker
+                        id="arrowhead"
+                        markerWidth="10"
+                        markerHeight="7"
+                        refX="0"
+                        refY="3.5"
+                        orient="auto"
+                        >
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+                        </marker>
+                    </defs>
+                    <g style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`}}>
+                        {connections.map((conn, index) => {
+                            const fromHandleId = conn.buttonIndex !== undefined ? `output-${conn.from}-${conn.buttonIndex}` : `output-${conn.from}`;
+                            const fromPos = getHandlePosition(fromHandleId);
+                            const toPos = getHandlePosition(`input-${conn.to}`);
 
-                    if (fromPos && toPos) {
-                    return (
-                        <path
-                        key={index}
-                        d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
-                        stroke="#f97316"
-                        strokeWidth="2"
-                        fill="none"
-                        markerEnd="url(#arrowhead)"
-                        />
-                    );
-                    }
-                    return null;
-                })}
+                            if (fromPos && toPos) {
+                            return (
+                                <path
+                                key={index}
+                                d={getSmoothStepPath(fromPos.x, fromPos.y, toPos.x, toPos.y)}
+                                stroke="#f97316"
+                                strokeWidth="2"
+                                fill="none"
+                                markerEnd="url(#arrowhead)"
+                                />
+                            );
+                            }
+                            return null;
+                        })}
 
-                {drawingConnection && (
-                    <path
-                    d={getSmoothStepPath(
-                        drawingConnection.from.x,
-                        drawingConnection.from.y,
-                        drawingConnection.to.x,
-                        drawingConnection.to.y
-                    )}
-                    stroke="#f97316"
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrowhead)"
-                    />
-                )}
-              </svg>
+                        {drawingConnection && (
+                            <path
+                            d={getSmoothStepPath(
+                                drawingConnection.from.x,
+                                drawingConnection.from.y,
+                                drawingConnection.to.x,
+                                drawingConnection.to.y
+                            )}
+                            stroke="#f97316"
+                            strokeWidth="2"
+                            fill="none"
+                            markerEnd="url(#arrowhead)"
+                            />
+                        )}
+                    </g>
+                </svg>
+              </div>
               <div
                 className="relative h-full w-full pointer-events-none"
                  style={{
