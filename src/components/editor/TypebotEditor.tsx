@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -118,6 +117,8 @@ import { WebsiteBlockSettings } from './typebot/settings/WebsiteSettings.tsx';
 import { EmbedBlockSettings } from './typebot/settings/EmbedSettings.tsx';
 import { ImageChoiceSettings } from './typebot/settings/ImageChoiceSettings.tsx';
 import { RedirectBlockSettings } from './typebot/settings/RedirectSettings.tsx';
+import { TimeBlockSettings } from './typebot/settings/TimeSettings.tsx';
+import { ABTestSettings } from './typebot/settings/ABTestSettings.tsx';
 import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
 import Image from 'next/image';
 
@@ -698,6 +699,7 @@ export function TypebotEditor({
       const dy = e.clientY - startPanPosition.current.y;
       setPanOffset((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
       startPanPosition.current = { x: e.clientX, y: e.clientY };
+      return;
     }
 
     if (draggingState.isReadyToDrag && !draggingState.isDragging) {
@@ -1254,6 +1256,8 @@ export function TypebotEditor({
         return <WaitBlockSettings {...props} />;
       case 'logic-redirect':
         return <RedirectBlockSettings {...props} />;
+      case 'logic-abtest':
+        return <ABTestSettings {...props} />;
       case 'input-buttons':
         return <ButtonsBlockSettings {...props} />;
       case 'input-text':
@@ -1367,7 +1371,7 @@ export function TypebotEditor({
               onWheel={handleWheel}
               onContextMenu={(e) => e.preventDefault()}
             >
-              <svg className="pointer-events-none absolute top-0 left-0 h-full w-full overflow-visible z-10">
+              <svg className="pointer-events-none absolute top-0 left-0 h-full w-full overflow-visible z-0">
                 <defs>
                     <marker
                     id="arrowhead"
@@ -1416,7 +1420,7 @@ export function TypebotEditor({
                 )}
               </svg>
               <div
-                className="relative h-full w-full"
+                className="relative h-full w-full pointer-events-none"
                  style={{
                   transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
                   transformOrigin: '0 0',

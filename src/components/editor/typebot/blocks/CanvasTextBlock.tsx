@@ -15,6 +15,7 @@ import {
   PictureInPicture,
   Link2,
   ArrowRightLeft,
+  GitCompareArrows,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CanvasBlock } from '../../types';
@@ -199,6 +200,34 @@ export const CanvasTextBlock = React.memo(
               </span>
             </div>
           );
+        case 'logic-abtest':
+          const percentageA = block.props.percentageA || 50;
+          return (
+            <div className="flex flex-col gap-1 w-full text-white/80">
+              <div className="flex items-center gap-2 text-sm">
+                <GitCompareArrows size={16} className="text-indigo-400 flex-shrink-0"/>
+                <span>Teste A/B</span>
+              </div>
+               <div className="flex flex-col gap-1 w-full">
+                  <div className="relative">
+                    <Button variant="outline" className="w-full justify-start bg-[#2a2a2a] border-[#3f3f46] text-white h-8">
+                        A <Badge className="ml-auto">{percentageA}%</Badge>
+                    </Button>
+                    {onConnectionStart && (
+                        <ConnectionHandle data-handle-id={`output-${block.id}-0`} onMouseDown={(e) => { e.stopPropagation(); onConnectionStart(e, block.id, 'output', 0); }} />
+                    )}
+                  </div>
+                  <div className="relative">
+                     <Button variant="outline" className="w-full justify-start bg-[#2a2a2a] border-[#3f3f46] text-white h-8">
+                        B <Badge className="ml-auto">{100 - percentageA}%</Badge>
+                     </Button>
+                      {onConnectionStart && (
+                        <ConnectionHandle data-handle-id={`output-${block.id}-1`} onMouseDown={(e) => { e.stopPropagation(); onConnectionStart(e, block.id, 'output', 1); }} />
+                    )}
+                  </div>
+              </div>
+            </div>
+          )
         case 'text':
           return (
             <EditableTextBlock
