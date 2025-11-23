@@ -991,50 +991,39 @@ export function TypebotEditor({
   }, []);
 
   const processFlow = useCallback(
-    (blockId: number | 'start' | null, startIndex = 0, buttonIndex?: number) => {
-      if (blockId === null) {
-        setWaitingForInput(null);
-        return;
-      }
-      
-      const findBlockInState = (id: number) => {
-        for (const block of canvasBlocksRef.current) {
-          if (block.id === id) return block;
-        }
-        return undefined;
-      };
-
-      let nextBlockId;
-      if (blockId === 'start') {
-          nextBlockId = connectionsRef.current.find((c) => c.from === 'start')?.to;
-      } else if (buttonIndex !== undefined) {
-          // Find connection from a specific button
-          nextBlockId = connectionsRef.current.find(
-              (c) => c.from === blockId && c.buttonIndex === buttonIndex
-          )?.to;
-      } else {
-          // Find a general connection from a group
-          nextBlockId = connectionsRef.current.find(
-              (c) => c.from === blockId && c.buttonIndex === undefined
-          )?.to;
-      }
-      
-      if (!nextBlockId) {
-        setWaitingForInput(null);
-        return;
-      }
-      
-      const currentBlock = findBlockInState(nextBlockId);
-      if (!currentBlock || !currentBlock.children) {
+    (startFromId: number | 'start', startIndex = 0, buttonIndex?: number) => {
+      if (startFromId === null) {
         setWaitingForInput(null);
         return;
       }
   
-      setCurrentPreviewBlockId(nextBlockId);
+      const findNextGroupId = () => {
+        if (startFromId === 'start') {
+          return connectionsRef.current.find(c => c.from === 'start')?.to;
+        }
+        if (buttonIndex !== undefined) {
+          return connectionsRef.current.find(c => c.from === startFromId && c.buttonIndex === buttonIndex)?.to;
+        }
+        return connectionsRef.current.find(c => c.from === startFromId && c.buttonIndex === undefined)?.to;
+      };
+      
+      const nextGroupId = findNextGroupId();
+  
+      if (!nextGroupId) {
+        setWaitingForInput(null);
+        return;
+      }
+  
+      const currentGroup = canvasBlocksRef.current.find(b => b.id === nextGroupId);
+      if (!currentGroup || !currentGroup.children) {
+        setWaitingForInput(null);
+        return;
+      }
+  
+      setCurrentPreviewBlockId(nextGroupId);
   
       let isWaiting = false;
-  
-      const childrenToProcess = currentBlock.children.slice(startIndex);
+      const childrenToProcess = currentGroup.children.slice(startIndex);
   
       for (let i = 0; i < childrenToProcess.length; i++) {
         const child = childrenToProcess[i];
@@ -1043,7 +1032,7 @@ export function TypebotEditor({
           const duration = child.props.duration || 0;
           if (duration > 0) {
             setTimeout(() => {
-              processFlow(nextBlockId, startIndex + i + 1);
+              processFlow(nextGroupId, startIndex + i + 1);
             }, duration * 1000);
             isWaiting = true;
             break;
@@ -1064,19 +1053,15 @@ export function TypebotEditor({
           {
             id: Date.now() + Math.random(),
             sender: 'bot',
-            content: (
-              <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />
-            ),
+            content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
           },
         ]);
       }
   
       if (!isWaiting) {
-        const nextGroupId = connectionsRef.current.find(
-          (c) => c.from === nextBlockId
-        )?.to;
-        if (nextGroupId) {
-          setTimeout(() => processFlow(nextGroupId, 0), 500);
+        const nextConnectedGroupId = connectionsRef.current.find(c => c.from === nextGroupId)?.to;
+        if (nextConnectedGroupId) {
+          setTimeout(() => processFlow(nextConnectedGroupId, 0), 500);
         } else {
           setWaitingForInput(null);
         }
@@ -1117,15 +1102,17 @@ export function TypebotEditor({
         { id: Date.now(), sender: 'user', content: clickedButton.text },
     ]);
     
+    const parentId = waitingForInput.parentId;
     setWaitingForInput(null);
 
-    processFlow(waitingForInput.parentId, 0, buttonIndex);
+    processFlow(parentId, 0, buttonIndex);
   };
   
   const handleImageChoiceClick = (choiceIndex: number) => {
     if (!waitingForInput) return;
+    const parentId = waitingForInput.parentId;
     setWaitingForInput(null);
-    processFlow(waitingForInput.parentId, 0, choiceIndex);
+    processFlow(parentId, 0, choiceIndex);
   }
 
 
@@ -1154,7 +1141,7 @@ export function TypebotEditor({
         (c) => c.id === lastInputBlock.id
       );
   
-      if (lastInputIndex !== -1 && lastInputIndex < parentBlock.children.length - 1) {
+       if (lastInputIndex !== -1 && lastInputIndex < parentBlock.children.length - 1) {
         // If there are more blocks in the same group, process them
         processFlow(parentBlock.id, lastInputIndex + 1);
       } else {
@@ -1549,7 +1536,7 @@ export function TypebotEditor({
             </div>
           </main>
           {activeTab === 'Tema' && (
-            <div className="w-full h-full pointer-events-none p-8">
+            <div className="w-full h-full p-8">
               <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden border-8 border-black">
                  <TypebotPreview />
               </div>
@@ -1602,6 +1589,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
