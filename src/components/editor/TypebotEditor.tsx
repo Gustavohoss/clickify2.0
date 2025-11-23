@@ -1116,6 +1116,12 @@ export function TypebotEditor({
       startPreview();
     }
   }, [isPreviewOpen, startPreview]);
+
+  useEffect(() => {
+    if (activeTab === 'Tema') {
+      startPreview();
+    }
+  }, [activeTab, startPreview]);
   
   const handleUserButtonClick = (buttonIndex: number) => {
     if (!waitingForInput) return;
@@ -1335,7 +1341,7 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2 rounded-lg bg-[#181818] p-1">
-            {(['Fluxo', 'Tema', 'Configurações'] as EditorTab[]).map(tab => (
+            {(['Fluxo', 'Tema', 'Configurações', 'Compartilhar'] as EditorTab[]).map(tab => (
                 <Button 
                     key={tab}
                     variant={activeTab === tab ? 'secondary' : 'ghost'}
@@ -1352,9 +1358,6 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2">
-            <Button variant="ghost" className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white">
-                <Share2 size={16} /> Compartilhar
-            </Button>
           <Button
             variant="ghost"
             className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
@@ -1567,9 +1570,9 @@ export function TypebotEditor({
             </div>
           </main>
           {activeTab === 'Tema' && (
-            <div className="h-full w-full bg-gray-900 pointer-events-none">
+             <div className="w-full h-full bg-gray-900 pointer-events-none">
                 <TypebotPreview />
-            </div>
+             </div>
           )}
         </div>
 
@@ -1616,3 +1619,4 @@ export function TypebotEditor({
     </div>
   );
 }
+
