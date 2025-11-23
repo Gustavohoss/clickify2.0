@@ -1042,45 +1042,34 @@ export function TypebotEditor({
   }, [interpolateVariables]);
 
 
-  const processGroup = (group: CanvasBlock, startIndex: number) => {
-      let isWaiting = false;
+  const processGroup = async (group: CanvasBlock, startIndex: number) => {
       const childrenToProcess = group.children?.slice(startIndex) || [];
-      let timeout = 0;
-
+      
       for (let i = 0; i < childrenToProcess.length; i++) {
         const child = childrenToProcess[i];
         
-        const processChild = () => {
-            if (child.type.startsWith('input-')) {
-                setWaitingForInput(child);
-                isWaiting = true;
-                return; // Stop processing further in this loop iteration
-            }
-
-            const interpolatedContent = interpolateVariables(child.props?.content);
-            setPreviewMessages((prev) => [
-              ...prev,
-              {
-                id: Date.now() + Math.random(),
-                sender: 'bot',
-                content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
-              },
-            ]);
-
-            if (i === childrenToProcess.length - 1 && !isWaiting) {
-                 processFlow(group.id, 0);
-            }
-        };
-
-        if (child.type === 'logic-wait' && child.props?.duration) {
-            timeout += (child.props.duration || 0) * 1000;
-            setTimeout(processChild, timeout);
-        } else {
-            setTimeout(processChild, timeout);
+        if (child.type.startsWith('input-')) {
+          setWaitingForInput(child);
+          return;
         }
-         
-        if (isWaiting) break;
+        
+        if (child.type === 'logic-wait' && child.props?.duration) {
+            await new Promise(resolve => setTimeout(resolve, (child.props.duration || 0) * 1000));
+        }
+
+        const interpolatedContent = interpolateVariables(child.props?.content);
+        setPreviewMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now() + Math.random(),
+            sender: 'bot',
+            content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
+          },
+        ]);
       }
+      
+      // If we finished the group without waiting for input, continue the flow
+      processFlow(group.id);
   }
   
 
@@ -1142,10 +1131,17 @@ export function TypebotEditor({
     }
   
     const lastInputBlockId = waitingForInput.id;
+    const parentGroup = canvasBlocksRef.current.find(g => g.children?.some(c => c.id === lastInputBlockId));
+    
     setUserInput('');
     setWaitingForInput(null);
-  
-    processFlow(lastInputBlockId, 0);
+
+    if (parentGroup) {
+      const childIndex = parentGroup.children?.findIndex(c => c.id === lastInputBlockId) ?? -1;
+      processGroup(parentGroup, childIndex + 1);
+    } else {
+       processFlow(lastInputBlockId, 0);
+    }
   };
 
   const renderPreviewMessage = (message: PreviewMessage) => {
@@ -1588,6 +1584,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
