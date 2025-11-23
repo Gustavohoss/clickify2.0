@@ -1141,18 +1141,9 @@ export function TypebotEditor({
         (c) => c.id === lastInputBlock.id
       );
   
-       if (lastInputIndex !== -1 && lastInputIndex < parentBlock.children.length - 1) {
-        // If there are more blocks in the same group, process them
+       if (lastInputIndex !== -1) {
         processFlow(parentBlock.id, lastInputIndex + 1);
-      } else {
-        // Otherwise, find the next connected group
-        const nextGroupId = connectionsRef.current.find(
-          (c) => c.from === parentBlock.id
-        )?.to;
-        if (nextGroupId) {
-          processFlow(nextGroupId, 0);
-        }
-      }
+       }
     }
   };
 
@@ -1307,7 +1298,7 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2 rounded-lg bg-[#181818] p-1">
-            {(['Fluxo', 'Tema', 'Configurações', 'Compartilhar'] as EditorTab[]).map(tab => (
+            {(['Fluxo', 'Tema', 'Configurações'] as EditorTab[]).map(tab => (
                 <Button 
                     key={tab}
                     variant={activeTab === tab ? 'secondary' : 'ghost'}
@@ -1324,6 +1315,13 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
+          >
+            <Share2 size={16} />
+            Compartilhar
+          </Button>
           <Button
             variant="ghost"
             className="h-9 gap-2 text-sm font-medium text-white/80 hover:bg-[#262626] hover:text-white"
@@ -1555,7 +1553,7 @@ export function TypebotEditor({
         )}
       </div>
       {isPreviewOpen && (
-        <aside className="fixed bottom-4 right-4 z-50 w-96 h-[600px] shrink-0 border border-[#262626] bg-white flex flex-col rounded-xl shadow-2xl">
+        <div className="fixed inset-y-0 right-0 z-50 w-96 shrink-0 border-l border-[#262626] bg-white flex flex-col shadow-2xl">
           <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4 shrink-0">
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" className="text-black border-gray-300">
@@ -1584,11 +1582,12 @@ export function TypebotEditor({
           <div className="flex-1 overflow-hidden">
             <TypebotPreview />
           </div>
-        </aside>
+        </div>
       )}
     </div>
   );
 }
+
 
 
 
