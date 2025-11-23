@@ -1556,7 +1556,7 @@ export function TypebotEditor({
             )}
 
             {activeTab === 'Tema' && (
-                <main className="flex-1 flex items-center justify-center bg-gray-900 p-8">
+                <main className="flex-1 bg-gray-900 pointer-events-none">
                    <TypebotPreview />
                 </main>
             )}
