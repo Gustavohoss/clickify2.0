@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -63,8 +64,8 @@ const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[]
 
 const WhatsAppCheck = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 16 15" width="16" height="15" className={cn("text-blue-400", className)}>
-        <path fill="currentColor" d="M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.516.002l-.41.383a.365.365 0 0 0 .003.512l3.238 3.238a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
-        <path fill="currentColor" d="M15.263 3.316l-.478-.372a.365.365 0 0 0-.51.063l-6.272 8.048a.32.32 0 0 1-.484.033l-.78-.78a.365.365 0 0 0-.513.512l1.218 1.218a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
+        <path fill="currentColor" d="M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.516.002l-.41.383a.365.365 0 0 0 .003.512l3.238 3.238a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" />
+        <path fill="currentColor" d="M15.263 3.316l-.478-.372a.365.365 0 0 0-.51.063l-6.272 8.048a.32.32 0 0 1-.484.033l-.78-.78a.365.365 0 0 0-.513.512l1.218 1.218a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" />
     </svg>
 );
 
@@ -72,7 +73,7 @@ const WhatsAppCheck = ({ className }: { className?: string }) => (
 const renderPreviewMessage = (message: PreviewMessage) => {
     if (message.sender === 'bot') {
       return (
-        <div key={message.id} className="flex items-start gap-3">
+        <div key={message.id + Math.random()} className="flex items-start gap-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Bot" />
             <AvatarFallback>C</AvatarFallback>
@@ -84,7 +85,7 @@ const renderPreviewMessage = (message: PreviewMessage) => {
       );
     }
     return (
-      <div key={message.id} className="flex justify-end">
+      <div key={message.id + Math.random()} className="flex justify-end">
         <div className="bg-[#005c4b] text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
           <p className="text-sm">{message.content as string}</p>
         </div>
@@ -295,8 +296,12 @@ export function TypebotPublicViewer() {
         }
     };
 
-    if (isLoading || !funnel) {
+    if (isLoading) {
         return <div className="flex h-screen w-screen items-center justify-center bg-[#111821] text-white">Carregando Funil...</div>;
+    }
+
+    if (!funnel || !funnel.isPublished) {
+         return <div className="flex h-screen w-screen items-center justify-center bg-[#111821] text-white">Este funil não está disponível no momento.</div>;
     }
 
     const {
@@ -319,7 +324,7 @@ export function TypebotPublicViewer() {
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4 max-w-2xl mx-auto w-full">{previewMessages.map(renderPreviewMessage)}</div>
             </ScrollArea>
-            <div className="p-4 bg-[#202c33]">
+            <div className="p-4 bg-transparent">
                 <div className="max-w-2xl mx-auto w-full">
                     {waitingForInput?.type === 'input-buttons' ? (
                         <PreviewButtons buttons={waitingForInput.props.buttons || []} onButtonClick={handleUserButtonClick} sender="user" />
