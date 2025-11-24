@@ -402,17 +402,19 @@ export function TypebotEditor({
   const [history, setHistory] = useState<{ past: Funnel[]; future: Funnel[] }>({ past: [], future: [] });
   const funnel = initialFunnel;
 
-  const setFunnel = useCallback((updater: Funnel | ((prev: Funnel) => Funnel)) => {
-    const newFunnel = typeof updater === 'function' ? updater(funnel) : updater;
+  const updateFunnelState = (updater: (prev: Funnel) => Funnel, trackHistory: boolean = true) => {
+    const newFunnel = updater(funnel);
     if (JSON.stringify(newFunnel) !== JSON.stringify(funnel)) {
-      setHistory(prev => ({
-        ...prev,
-        past: [...prev.past, funnel],
-        future: [],
-      }));
+      if (trackHistory) {
+        setHistory(prev => ({
+          ...prev,
+          past: [...prev.past, funnel],
+          future: [],
+        }));
+      }
       setFunnelProp(() => newFunnel);
     }
-  }, [funnel, setFunnelProp]);
+  };
 
   const undo = useCallback(() => {
     if (history.past.length === 0) return;
@@ -465,10 +467,6 @@ export function TypebotEditor({
     }
   }, [funnel, debouncedUpdateFunnel]);
 
-  const updateFunnelState = (updater: (prev: Funnel) => Funnel) => {
-    setFunnel(updater);
-  }
-
   const addBlock = (type: string) => {
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
@@ -479,7 +477,6 @@ export function TypebotEditor({
 
     updateFunnelState(prev => {
         let newBlocks = [...(prev.steps as CanvasBlock[])];
-        let newConnections = [...(prev.connections || [])];
 
         if (type === 'group') {
             const newBlock: CanvasBlock = {
@@ -511,7 +508,7 @@ export function TypebotEditor({
             };
             newBlocks.push(groupBlock);
         }
-        return {...prev, steps: newBlocks, connections: newConnections};
+        return {...prev, steps: newBlocks};
     });
   };
 
@@ -758,7 +755,10 @@ export function TypebotEditor({
 
   const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
     const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
+    let significantChange = false;
+
     if (drawingConnection) {
+      significantChange = true;
       let toBlockId: number | undefined;
       let target = e.target as HTMLElement;
 
@@ -780,7 +780,7 @@ export function TypebotEditor({
               ...(prev.connections || []).filter((c: any) => c.from !== fromBlockId || c.buttonIndex !== drawingConnection.buttonIndex),
               { from: fromBlockId, to: toBlockId, buttonIndex: drawingConnection.buttonIndex },
             ]
-          }));
+          }), true);
         }
       }
       setDrawingConnection(null);
@@ -793,13 +793,11 @@ export function TypebotEditor({
     ) {
       const draggedBlock = findBlock(draggingState.blockId, canvasBlocks);
       if (!draggedBlock) return;
-
-      let isDroppedOnTarget = false;
+      significantChange = true;
       
       updateFunnelState(prev => {
         let updatedBlocks = [...(prev.steps as CanvasBlock[])];
         if (dropIndicator) {
-            isDroppedOnTarget = true;
             const targetGroupIndex = updatedBlocks.findIndex(
             (b) => b.id === dropIndicator.groupId
             );
@@ -824,7 +822,6 @@ export function TypebotEditor({
             }
         } else {
             if (draggedBlock.type !== 'group') {
-            isDroppedOnTarget = true;
             const newGroupId = Date.now();
             const blockToMove: CanvasBlock = {
                 ...draggingState.originalBlock!,
@@ -845,7 +842,7 @@ export function TypebotEditor({
             }
         }
         return {...prev, steps: updatedBlocks};
-      });
+      }, true);
     } else if (
       !draggingState.isDragging &&
       draggingState.blockId &&
@@ -907,7 +904,7 @@ export function TypebotEditor({
               }
             }
             return {...prev, steps: restoredBlocks};
-          });
+          }, true);
         }
       }
 
@@ -1019,7 +1016,7 @@ export function TypebotEditor({
                 ...prev,
                 steps: [...newSteps, detachedBlock]
             }
-          });
+          }, true);
 
 
           setDraggingState((prev) => ({
@@ -1055,7 +1052,7 @@ export function TypebotEditor({
                 ? { ...block, position: { x: newX, y: newY } }
                 : block
           )
-      }));
+      }), false);
 
       const dropX = (e.clientX - canvasRect.left) / zoom;
       const dropY = (e.clientY - canvasRect.top) / zoom;
@@ -1769,7 +1766,7 @@ export function TypebotEditor({
                       dropIndicator={dropIndicator}
                       updateBlockProps={updateBlockProps}
                       variables={funnel.variables || []}
-                      onConnectionStart={onConnectionStart}
+                      onConnectionStart={onConnectionStart as any}
                       selectedBlockId={selectedBlockId}
                     />
                   );
@@ -1887,6 +1884,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
