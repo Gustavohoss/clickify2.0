@@ -116,16 +116,9 @@ const SeoSettings = () => (
                     <Textarea id="seo-description" placeholder="Digite aqui..." className="mt-1 bg-gray-900 border-gray-600 min-h-[100px]" />
                 </div>
                 <div>
-                    <label className="text-sm font-medium text-gray-400">Favicon</label>
-                    <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-600 px-6 py-10 bg-gray-900/50">
-                        <div className="text-center">
-                            <UploadCloud size={32} className="mx-auto text-gray-500" />
-                            <p className="mt-4 text-sm text-gray-400">
-                                <span className="font-semibold text-primary">Enviar Arquivo</span>
-                            </p>
-                             <p className="text-xs text-gray-500">Arraste e solte ou clique aqui para enviar seu arquivo.</p>
-                        </div>
-                    </div>
+                    <label htmlFor="favicon-url" className="text-sm font-medium text-gray-400">Favicon</label>
+                     <p className="text-xs text-gray-500 mb-2">Cole o link da imagem que será o favicon do seu funil.</p>
+                    <Input id="favicon-url" placeholder="https://example.com/favicon.png" className="mt-1 bg-gray-900 border-gray-600"/>
                 </div>
             </div>
         </Card>
