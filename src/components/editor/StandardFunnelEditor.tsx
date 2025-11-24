@@ -267,6 +267,23 @@ export function StandardFunnelEditor({
     setActiveStepId(newActiveStepId);
   };
 
+  const moveStep = (stepId: number, direction: 'up' | 'down') => {
+    const steps = funnel.steps as Step[];
+    const index = steps.findIndex((s) => s.id === stepId);
+
+    if (index === -1) return;
+
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (newIndex < 0 || newIndex >= steps.length) return;
+
+    const newSteps = [...steps];
+    const [movedStep] = newSteps.splice(index, 1);
+    newSteps.splice(newIndex, 0, movedStep);
+
+    updateFunnel((prev) => ({ ...prev, steps: newSteps }));
+  };
+
   const addComponentToCanvas = (component: ComponentType) => {
     if (!activeStepId) return;
 
@@ -723,16 +740,22 @@ export function StandardFunnelEditor({
               </div>
               <ScrollArea className="flex-1">
                 <div className="space-y-1 p-2">
-                  {(funnel.steps as Step[]).map((step) => (
-                    <div key={step.id} className="group relative">
+                  {(funnel.steps as Step[]).map((step, index) => (
+                    <div key={step.id} className="group relative flex items-center">
                       <Button
                         variant={activeStepId === step.id ? 'secondary' : 'ghost'}
-                        className="w-full justify-start"
+                        className="w-full justify-start pr-16"
                         onClick={() => setActiveStepId(step.id)}
                       >
                         <span className="flex-1 truncate text-left">{step.name}</span>
                       </Button>
-                      <div className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 group-hover:opacity-100">
+                      <div className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => moveStep(step.id, 'up')} disabled={index === 0}>
+                            <ArrowUp className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => moveStep(step.id, 'down')} disabled={index === (funnel.steps as Step[]).length - 1}>
+                            <ArrowDown className="h-4 w-4" />
+                        </Button>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-7 w-7">
