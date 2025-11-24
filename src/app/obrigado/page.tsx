@@ -3,17 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import ReactPlayer from 'react-player/youtube';
 import { Button } from '@/components/ui/button';
-import { Instagram } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function ObrigadoPage() {
   const [hasMounted, setHasMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  const handleFollowClick = () => {
-    window.open('https://instagram.com', '_blank');
+  const handleContinueClick = () => {
+    router.push('/dashboard');
   };
 
   return (
@@ -23,7 +24,7 @@ export default function ObrigadoPage() {
           Obrigado!
         </h1>
         <p className="text-lg text-gray-300">
-          Assista ao vídeo abaixo para os próximos passos e não se esqueça de nos seguir.
+          Assista ao vídeo abaixo para os próximos passos.
         </p>
         
         <div className="aspect-video w-full overflow-hidden rounded-lg shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-black">
@@ -38,12 +39,11 @@ export default function ObrigadoPage() {
         </div>
 
         <Button 
-          onClick={handleFollowClick} 
+          onClick={handleContinueClick} 
           size="lg" 
-          className="bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-bold text-lg w-full max-w-sm"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg w-full max-w-sm"
         >
-          <Instagram className="mr-2 h-5 w-5" />
-          Seguir no Instagram
+          Continuar
         </Button>
       </div>
     </div>
