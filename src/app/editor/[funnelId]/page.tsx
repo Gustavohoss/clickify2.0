@@ -3,25 +3,50 @@
 
 import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useDebouncedCallback } from 'use-debounce';
 import { StandardFunnelEditor } from '@/components/editor/StandardFunnelEditor';
 import { TypebotEditor } from '@/components/editor/TypebotEditor';
 import type { Funnel, Step, CanvasBlock } from '@/components/editor/types.tsx';
+import { useToast } from '@/hooks/use-toast';
 
 
 function FunnelEditorContent() {
   const { funnelId } = useParams() as { funnelId: string };
   const firestore = useFirestore();
+  const { user } = useUser();
+  const router = useRouter();
+  const { toast } = useToast();
 
   const funnelRef = useMemoFirebase(
     () => (funnelId ? doc(firestore, 'funnels', funnelId) : null),
     [firestore, funnelId]
   );
+  
   const { data: funnelData, isLoading } = useDoc<Omit<Funnel, 'id'>>(funnelRef);
 
   const [funnel, setFunnel] = useState<Funnel | null>(null);
+
+  useEffect(() => {
+    if (funnelData && user) {
+      if (funnelData.userId !== user.uid) {
+        toast({
+            variant: "destructive",
+            title: "Acesso Negado",
+            description: "Você não tem permissão para editar este funil.",
+        });
+        router.push('/dashboard/funis');
+        return;
+      }
+      const initialFunnel: Funnel = {
+        id: funnelId,
+        ...funnelData,
+        steps: funnelData.steps || (funnelData.type === 'typebot' ? [] : [{ id: Date.now(), name: 'Etapa 1', components: [] }]),
+      };
+      setFunnel(initialFunnel);
+    }
+  }, [funnelData, funnelId, user, router, toast]);
   
   const debouncedUpdateFunnel = useDebouncedCallback((updatedFunnel: Funnel) => {
     if (funnelRef) {
@@ -62,25 +87,14 @@ function FunnelEditorContent() {
     }
   }, [funnel, debouncedUpdateFunnel]);
 
-  useEffect(() => {
-    if (funnelData) {
-      const initialFunnel: Funnel = {
-        id: funnelId,
-        ...funnelData,
-        steps: funnelData.steps || (funnelData.type === 'typebot' ? [] : [{ id: Date.now(), name: 'Etapa 1', components: [] }]),
-      };
-      setFunnel(initialFunnel);
-    }
-  }, [funnelData, funnelId]);
-
-  if (isLoading || !funnel) {
+  if (isLoading || !funnel || !user) {
     return (
       <div className="flex h-screen items-center justify-center">
         Carregando editor...
       </div>
     );
   }
-
+  
   if (funnel.type === 'typebot') {
     return <TypebotEditor funnel={funnel} setFunnel={setFunnel} debouncedUpdateFunnel={debouncedUpdateFunnel} />;
   }
