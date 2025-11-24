@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useAuth, useFirestore, useDoc, doc, useMemoFirebase } from '@/firebase';
@@ -21,6 +22,9 @@ import { Badge } from '@/components/ui/badge';
 
 type UserData = {
     planId: 'mensal' | 'vitalicio' | '';
+    firstName: string;
+    lastName: string;
+    email: string;
 };
 
 export function Topbar() {
@@ -38,12 +42,14 @@ export function Topbar() {
     router.push('/login');
   };
 
-  const userInitial = user?.email?.charAt(0).toUpperCase() || 'U';
+  const userInitial = userData?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U';
   
   const planText = {
     'mensal': 'Plano Mensal',
     'vitalicio': 'Plano Vitalício',
   }
+
+  const displayName = userData ? `${userData.firstName} ${userData.lastName}` : user?.email?.split('@')[0] || 'Usuário';
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-card px-4 sm:px-6">
@@ -65,7 +71,7 @@ export function Topbar() {
         </Sheet>
         <div className="flex items-center gap-3">
             <h1 className="text-lg font-semibold text-muted-foreground">
-            Olá, {user?.displayName || user?.email?.split('@')[0] || 'Usuário'} 👋
+            Olá, {displayName} 👋
             </h1>
             {userData?.planId && (
                  <Badge variant={userData.planId === 'vitalicio' ? 'default' : 'secondary'}>
@@ -87,9 +93,9 @@ export function Topbar() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.displayName || 'Usuário'}</p>
+                <p className="text-sm font-medium leading-none">{displayName}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {user?.email}
+                  {userData?.email}
                 </p>
               </div>
             </DropdownMenuLabel>
