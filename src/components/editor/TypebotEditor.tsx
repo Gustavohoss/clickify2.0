@@ -216,7 +216,7 @@ const TypebotPreviewHeader = ({ name, avatarUrl }: { name: string; avatarUrl: st
     </div>
 );
 
-type EditorTab = 'Fluxo' | 'Tema' | 'Configurações' | 'Compartilhar';
+type EditorTab = 'Fluxo' | 'Tema' | 'Compartilhar';
 
 const renderPreviewMessage = (message: PreviewMessage) => {
     if (message.sender === 'bot') {
@@ -419,8 +419,6 @@ export function TypebotEditor({
   const previewVariablesRef = useRef<{ [key: string]: any }>({});
   
   const isPublished = funnel.isPublished || false;
-  const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
-  const connections = (funnel as any).connections || [];
   
   useEffect(() => {
     debouncedUpdateFunnel(funnel);
@@ -476,6 +474,7 @@ export function TypebotEditor({
   };
 
   const duplicateBlock = (blockId: number) => {
+    const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
     const blockToDuplicate = canvasBlocks.find((block) => block.id === blockId);
     if (!blockToDuplicate) return;
 
@@ -528,7 +527,7 @@ export function TypebotEditor({
              updateFunnelState(prev => ({
                  ...prev,
                  connections: [
-                     ...(prev as any).connections.filter((c: any) => c.from !== blockId),
+                     ...((prev as any).connections || []).filter((c: any) => c.from !== blockId),
                      { from: blockId, to: newProps.targetGroupId }
                  ]
              }));
@@ -702,6 +701,7 @@ export function TypebotEditor({
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
+    const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
     if (drawingConnection) {
       let toBlockId: number | undefined;
       let target = e.target as HTMLElement;
@@ -870,6 +870,7 @@ export function TypebotEditor({
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
     if (drawingConnection && canvasRef.current) {
         const canvasRect = canvasRef.current.getBoundingClientRect();
         const mousePos = {
@@ -981,6 +982,7 @@ export function TypebotEditor({
     }
 
     if (draggingState.isDragging && draggingState.blockId && canvasRef.current) {
+        const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
         const canvasRect = canvasRef.current.getBoundingClientRect();
       const newX =
         (e.clientX - canvasRect.left - panOffset.x) / zoom -
@@ -1169,6 +1171,7 @@ export function TypebotEditor({
 
   const findBlock = (id: number | null): CanvasBlock | undefined => {
     if (id === null) return undefined;
+    const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
     for (const block of canvasBlocks) {
       if (block.id === id) return block;
       if (block.children) {
@@ -1206,10 +1209,10 @@ export function TypebotEditor({
     return block.position;
   };
 
-  const canvasBlocksRef = useRef(canvasBlocks);
-  canvasBlocksRef.current = canvasBlocks;
-  const connectionsRef = useRef(connections);
-  connectionsRef.current = connections;
+  const canvasBlocksRef = useRef((funnel.steps || []) as CanvasBlock[]);
+  canvasBlocksRef.current = (funnel.steps || []) as CanvasBlock[];
+  const connectionsRef = useRef((funnel as any).connections || []);
+  connectionsRef.current = (funnel as any).connections || [];
 
   const interpolateVariables = useCallback((text: string = '') => {
     if (!text) return '';
@@ -1429,6 +1432,7 @@ export function TypebotEditor({
       case 'logic-abtest':
         return <ABTestSettings {...props} />;
       case 'logic-jump':
+        const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
         return <JumpToBlockSettings {...props} groups={canvasBlocks.filter(b => b.type === 'group')} />;
       case 'input-buttons':
         return <ButtonsBlockSettings {...props} />;
@@ -1479,7 +1483,7 @@ export function TypebotEditor({
         </div>
 
         <div className="flex items-center gap-2 rounded-lg bg-[#181818] p-1">
-            {(['Fluxo', 'Tema', 'Configurações', 'Compartilhar'] as EditorTab[]).map(tab => (
+            {(['Fluxo', 'Tema', 'Compartilhar'] as EditorTab[]).map(tab => (
                 <Button 
                     key={tab}
                     variant={activeTab === tab ? 'secondary' : 'ghost'}
@@ -1610,7 +1614,7 @@ export function TypebotEditor({
                   </marker>
                 </defs>
                 <g>
-                  {connections.map((conn: CanvasConnection, index: number) => {
+                  {((funnel as any).connections || []).map((conn: CanvasConnection, index: number) => {
                     const fromHandleId =
                       conn.buttonIndex !== undefined
                         ? `output-${conn.from}-${conn.buttonIndex}`
@@ -1672,12 +1676,12 @@ export function TypebotEditor({
                   }}
                 />
               </div>
-              {canvasBlocks
+              {((funnel.steps || []) as CanvasBlock[])
                 .filter((b) => !b.parentId)
                 .map((block, index) => {
                   const BlockComponent =
                     block.type === 'group' ? CanvasGroupBlock : CanvasTextBlock;
-                  const groupIndex = canvasBlocks
+                  const groupIndex = ((funnel.steps || []) as CanvasBlock[])
                     .filter((b) => b.type === 'group' && !b.parentId)
                     .findIndex((g) => g.id === block.id);
                   return (
