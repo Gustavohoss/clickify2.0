@@ -18,7 +18,7 @@ import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
 type PreviewMessageType = {
   id: number;
   sender: 'bot' | 'user';
-  content: React.ReactNode;
+  content: string; // Changed to string
   isTyping?: boolean;
 };
 
@@ -79,7 +79,7 @@ const PreviewMessageItem = React.memo(({ message }: { message: PreviewMessageTyp
             <AvatarFallback>C</AvatarFallback>
           </Avatar>
           <div className="bg-[#202c33] rounded-lg rounded-tl-none p-3 max-w-[80%] text-white">
-            {message.isTyping ? <TypingIndicator /> : message.content}
+            {message.isTyping ? <TypingIndicator /> : <div dangerouslySetInnerHTML={{ __html: message.content }} />}
           </div>
         </div>
       );
@@ -87,7 +87,7 @@ const PreviewMessageItem = React.memo(({ message }: { message: PreviewMessageTyp
     return (
       <div className="flex justify-end">
         <div className="bg-[#005c4b] text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
-          <p className="text-sm">{message.content as string}</p>
+          <p className="text-sm">{message.content}</p>
         </div>
       </div>
     );
@@ -192,7 +192,7 @@ export function TypebotPublicViewer() {
                     {
                         id: Date.now(),
                         sender: 'bot',
-                        content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
+                        content: interpolatedContent,
                     },
                 ]);
             }
