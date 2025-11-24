@@ -105,7 +105,7 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
 
           {chartData.map((point: CartesianChartDataPoint, index: number) => (
             <ReferenceDot
-              key={index}
+              key={`${index}-${point.indicatorLabel}`}
               x={point.name}
               y={point.value}
               r={8}
