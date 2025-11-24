@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -23,7 +24,6 @@ const navLinks = [
   { href: '/dashboard/produtos', label: 'Produtos Para Vender', icon: ShoppingBag },
   { href: '/dashboard/area-de-membros', label: 'Área de Membros', icon: BookUser },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
-  { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart },
   { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
