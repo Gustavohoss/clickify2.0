@@ -50,6 +50,15 @@ const staticProducts: Product[] = [
     price: 'de R$ 19,90 a R$ 99,90',
     commission: 'de R$ 13,93 à R$ 69,93',
     affiliateLink: '#'
+  },
+  {
+    id: 'static-4',
+    name: 'Elixir Anti-Barriga',
+    description: 'Elimine a gordura localizada e conquiste a barriga dos seus sonhos com este método inovador.',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/gd325kcyp1gf6pou81oowpji?v=1763949891132',
+    price: 'de R$ 19,90 a R$ 37,00',
+    commission: 'Até R$ 27,00',
+    affiliateLink: 'https://app.pepper.com.br/invite/affiliate/n1mdilesdw'
   }
 ];
 
@@ -161,7 +170,7 @@ export default function ProdutosPage() {
                 <CardTitle className="text-lg">{product.name}</CardTitle>
                 <div className="flex flex-col items-start gap-2 mt-2">
                    <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 w-fit">
-                    Ganhos de até {product.name === 'Dieta das Celebridades' ? 'R$ 41,93' : 'R$ 69,93'}
+                    Ganhos de até {product.name === 'Dieta das Celebridades' ? 'R$ 41,93' : product.name === 'Elixir Anti-Barriga' ? 'R$ 27,00' : 'R$ 69,93'}
                   </Badge>
                   <div className="flex flex-wrap gap-2">
                     <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
