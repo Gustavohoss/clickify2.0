@@ -10,35 +10,58 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceDot,
-  Label,
   Customized,
 } from 'recharts';
 import type { CanvasComponentData, CartesianChartDataPoint } from '../types';
 import { WavingHandIcon } from './WavingHandIcon';
 
 const CustomLabel = (props: any) => {
-    const { cx, cy, value, isFeatured } = props;
-    
-    if (!value || cx === undefined || cy === undefined) return null;
-  
-    const textWidth = value.length * 7;
-    const boxWidth = textWidth + 16;
-    
-    const bgColor = isFeatured ? '#000000' : '#FFFFFF';
-    const textColor = isFeatured ? '#FFFFFF' : '#000000';
-    const borderColor = isFeatured ? '#000000' : '#e5e7eb';
-  
-    return (
-      <g transform={`translate(${cx - boxWidth / 2}, ${cy - 45})`}>
-        <rect x="0" y="0" width={boxWidth} height="28" rx="8" fill={bgColor} stroke={borderColor} strokeWidth="1" />
-        <text x={boxWidth/2} y="18" textAnchor="middle" fill={textColor} fontSize="12">
-          {value}
-        </text>
-        <path d={`M ${boxWidth/2 - 5} 28 L ${boxWidth/2} 33 L ${boxWidth/2 + 5} 28 Z`} fill={bgColor} stroke={borderColor} strokeWidth="1" />
-      </g>
-    );
-  };
+  const { cx, cy, value, isFeatured } = props;
 
+  if (!value || cx === undefined || cy === undefined) return null;
+
+  const textWidth = value.length * 7; // Approximate width
+  const boxWidth = textWidth + 16;
+  const boxHeight = 28;
+
+  const bgColor = isFeatured ? '#000000' : '#FFFFFF';
+  const textColor = isFeatured ? '#FFFFFF' : '#000000';
+  const borderColor = isFeatured ? '#000000' : '#e5e7eb';
+
+  return (
+    <g transform={`translate(${cx - boxWidth / 2}, ${cy - 45})`}>
+      <rect
+        x="0"
+        y="0"
+        width={boxWidth}
+        height={boxHeight}
+        rx="8"
+        fill={bgColor}
+        stroke={borderColor}
+        strokeWidth="1"
+      />
+      <text
+        x={boxWidth / 2}
+        y={boxHeight / 2}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill={textColor}
+        fontSize="12"
+        fontWeight="500"
+      >
+        {value}
+      </text>
+      <path
+        d={`M ${boxWidth / 2 - 5} 28 L ${boxWidth / 2} 33 L ${
+          boxWidth / 2 + 5
+        } 28 Z`}
+        fill={bgColor}
+        stroke={borderColor}
+        strokeWidth="1"
+      />
+    </g>
+  );
+};
 
 export const CartesianoCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
   const {
@@ -101,55 +124,54 @@ export const CartesianoCanvasComponent = ({ component }: { component: CanvasComp
             fill={showArea ? `url(#colorGradient-${uniqueId})` : 'transparent'}
             strokeWidth={2}
           />
-          
-           {chartData.map((point: CartesianChartDataPoint) => (
-             <ReferenceDot
-                key={`dot-${point.id}`}
-                x={point.name}
-                y={point.value}
-                r={8}
-                fill="#FFFFFF"
-                stroke={point.isFeatured ? '#000000' : '#A0AEC0'}
-                strokeWidth={2}
-                ifOverflow="extendDomain"
-              />
+
+          {chartData.map((point: CartesianChartDataPoint) => (
+            <ReferenceDot
+              key={`dot-${point.id}`}
+              x={point.name}
+              y={point.value}
+              r={8}
+              fill="#FFFFFF"
+              stroke={point.isFeatured ? '#000000' : '#A0AEC0'}
+              strokeWidth={2}
+              ifOverflow="extendDomain"
+            />
           ))}
 
-          <Customized 
-            // A key is needed here to force re-render when data changes
-            key={`customized-labels-${JSON.stringify(chartData)}`}
-            component={(props) => {
+          <Customized
+            key={`custom-labels-${JSON.stringify(chartData)}`}
+            component={(props: any) => {
               const { xAxis, yAxis, data } = props;
-              // These checks are important as the props might not be available on first render
               if (!xAxis || !yAxis || !data) return null;
-
+              
               const { scale: xScale } = xAxis[0];
               const { scale: yScale } = yAxis[0];
 
               return (
                 <g>
-                  {data.map((entry, index) => {
-                    const point = chartData.find(p => p.name === entry.name && p.value === entry.value);
-                    if (!point || !point.indicatorLabel) return null;
-                    
-                    const cx = xScale(entry.name);
-                    const cy = yScale(entry.value);
+                  {chartData
+                    .filter((p) => p.indicatorLabel)
+                    .map((point) => {
+                      const entry = data.find((d:any) => d.name === point.name);
+                      if (!entry) return null;
+                      
+                      const cx = xScale(point.name);
+                      const cy = yScale(point.value);
 
-                    return (
-                        <CustomLabel 
+                      return (
+                        <CustomLabel
                           key={`label-${point.id}`}
-                          cx={cx} 
+                          cx={cx}
                           cy={cy}
                           value={point.indicatorLabel}
                           isFeatured={point.isFeatured}
                         />
-                    );
-                  })}
+                      );
+                    })}
                 </g>
               );
-            }} 
+            }}
           />
-
         </AreaChart>
       </ResponsiveContainer>
     </div>
