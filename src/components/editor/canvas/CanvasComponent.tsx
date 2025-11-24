@@ -1,10 +1,9 @@
-
 'use client';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Grip, Pencil, Copy, Trash2 } from 'lucide-react';
+import { ArrowUp, ArrowDown, Pencil, Copy, Trash2 } from 'lucide-react';
 import type { CanvasComponentData } from '../types';
 import { GenericCanvasComponent } from './GenericCanvasComponent';
 import { AlertCanvasComponent } from './AlertCanvasComponent';
@@ -38,6 +37,10 @@ export const CanvasComponent = ({
   onDuplicate,
   onDelete,
   onOptionClick,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
 }: {
   component: CanvasComponentData;
   isSelected: boolean;
@@ -45,6 +48,10 @@ export const CanvasComponent = ({
   onDuplicate: () => void;
   onDelete: () => void;
   onOptionClick?: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
 }) => {
   const renderComponent = () => {
     switch (component.name) {
@@ -111,9 +118,20 @@ export const CanvasComponent = ({
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 cursor-grab text-white hover:bg-blue-600 hover:text-white"
+          className="h-7 w-7 text-white hover:bg-blue-600 hover:text-white disabled:opacity-50"
+          onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
+          disabled={isFirst}
         >
-          <Grip className="h-4 w-4" />
+          <ArrowUp className="h-4 w-4" />
+        </Button>
+         <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-white hover:bg-blue-600 hover:text-white disabled:opacity-50"
+          onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
+          disabled={isLast}
+        >
+          <ArrowDown className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"

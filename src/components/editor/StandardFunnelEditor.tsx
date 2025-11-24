@@ -10,7 +10,6 @@ import {
   Rocket,
   Plus,
   MoreVertical,
-  Grip,
   Trash2,
   Wand2,
   Combine,
@@ -21,6 +20,8 @@ import {
   ArrowRight,
   ClipboardCopy,
   EyeOff,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -439,6 +440,31 @@ export function StandardFunnelEditor({
     }));
   };
 
+  const moveComponent = (componentId: number, direction: 'up' | 'down') => {
+    const activeStep = (funnel.steps as Step[]).find((s) => s.id === activeStepId);
+    if (!activeStep) return;
+
+    const components = activeStep.components;
+    const index = components.findIndex((c) => c.id === componentId);
+
+    if (index === -1) return;
+
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (newIndex < 0 || newIndex >= components.length) return;
+
+    const newComponents = [...components];
+    const [movedComponent] = newComponents.splice(index, 1);
+    newComponents.splice(newIndex, 0, movedComponent);
+
+    updateFunnel((prev) => ({
+      ...prev,
+      steps: (prev.steps as Step[]).map((step) =>
+        step.id === activeStepId ? { ...step, components: newComponents } : step
+      ),
+    }));
+  };
+
   const duplicateComponent = (id: number) => {
     const activeStep = (funnel.steps as Step[]).find((s) => s.id === activeStepId);
     if (!activeStep) return;
@@ -684,7 +710,6 @@ export function StandardFunnelEditor({
                         className="w-full justify-start"
                         onClick={() => setActiveStepId(step.id)}
                       >
-                        <Grip className="mr-2 h-4 w-4 text-muted-foreground" />
                         <span className="flex-1 truncate text-left">{step.name}</span>
                       </Button>
                       <div className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 group-hover:opacity-100">
@@ -828,7 +853,7 @@ export function StandardFunnelEditor({
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
-                  {activeStepComponents.map((comp) => (
+                  {activeStepComponents.map((comp, index) => (
                     <CanvasComponent
                       key={comp.id}
                       component={comp}
@@ -836,6 +861,10 @@ export function StandardFunnelEditor({
                       onClick={() => setSelectedComponentId(comp.id)}
                       onDuplicate={() => duplicateComponent(comp.id)}
                       onDelete={() => deleteComponent(comp.id)}
+                      onMoveUp={() => moveComponent(comp.id, 'up')}
+                      onMoveDown={() => moveComponent(comp.id, 'down')}
+                      isFirst={index === 0}
+                      isLast={index === activeStepComponents.length - 1}
                     />
                   ))}
                 </div>
