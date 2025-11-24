@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useUser, useAuth, useFirestore, useDoc, doc, useMemoFirebase } from '@/firebase';
+import { useState, useEffect } from 'react';
+import { useUser, useAuth, useFirestore, useDoc, doc, updateDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,6 +14,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 import { Menu, Zap } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '../ui/sheet';
 import { Sidebar } from './sidebar';
@@ -32,14 +37,50 @@ export function Topbar() {
   const firestore = useFirestore();
   const auth = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   
   const userDocRef = useMemoFirebase(() => (user && firestore ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
-  const { data: userData } = useDoc<UserData>(userDocRef);
+  const { data: userData, mutate } = useDoc<UserData>(userDocRef);
+
+  const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (userData) {
+      setFirstName(userData.firstName || '');
+      setLastName(userData.lastName || '');
+    }
+  }, [userData]);
 
 
   const handleLogout = async () => {
     await auth.signOut();
     router.push('/login');
+  };
+  
+  const handleNameChange = async () => {
+    if (!user || !firestore || !firstName.trim()) {
+        toast({ variant: 'destructive', title: 'Erro', description: 'O nome é obrigatório.' });
+        return;
+    }
+    setIsSaving(true);
+    try {
+        const userRef = doc(firestore, 'users', user.uid);
+        await updateDoc(userRef, {
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+        });
+        toast({ title: 'Sucesso!', description: 'Seu nome foi atualizado.' });
+        mutate(); // Re-fetch user data to update UI
+        setIsNameDialogOpen(false);
+    } catch (error) {
+        toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar o nome.' });
+        console.error(error);
+    } finally {
+        setIsSaving(false);
+    }
   };
 
   const userInitial = userData?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U';
@@ -49,10 +90,10 @@ export function Topbar() {
     'vitalicio': 'Plano Vitalício',
   }
 
-  const displayName = userData ? `${userData.firstName} ${userData.lastName}` : user?.email?.split('@')[0] || 'Usuário';
+  const displayName = userData ? `${userData.firstName} ${userData.lastName}`.trim() : user?.email?.split('@')[0] || 'Usuário';
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-card px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card px-4 sm:px-6">
       <div className="flex items-center gap-4">
         <Sheet>
             <SheetTrigger asChild>
@@ -81,31 +122,58 @@ export function Topbar() {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.photoURL || ''} alt="User Avatar" />
-                <AvatarFallback>{userInitial}</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{displayName}</p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  {userData?.email}
-                </p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Perfil</DropdownMenuItem>
-            <DropdownMenuItem>Configurações</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>Sair</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Dialog open={isNameDialogOpen} onOpenChange={setIsNameDialogOpen}>
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                    <AvatarImage src={user?.photoURL || ''} alt="User Avatar" />
+                    <AvatarFallback>{userInitial}</AvatarFallback>
+                </Avatar>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{displayName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                    {userData?.email}
+                    </p>
+                </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Alterar Nome</DropdownMenuItem>
+                </DialogTrigger>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>Sair</DropdownMenuItem>
+            </DropdownMenuContent>
+            </DropdownMenu>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Alterar Nome</DialogTitle>
+                    <DialogDescription>
+                        Atualize seu nome e sobrenome aqui.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="firstName" className="text-right">Nome</Label>
+                        <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="lastName" className="text-right">Sobrenome</Label>
+                        <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} className="col-span-3" />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={() => setIsNameDialogOpen(false)}>Cancelar</Button>
+                    <Button onClick={handleNameChange} disabled={isSaving}>
+                        {isSaving ? 'Salvando...' : 'Salvar'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
       </div>
     </header>
   );
