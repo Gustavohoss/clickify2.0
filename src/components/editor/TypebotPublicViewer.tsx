@@ -92,6 +92,27 @@ const renderPreviewMessage = (message: PreviewMessage) => {
     );
   };
 
+const TypebotPreviewHeader = ({ name, avatarUrl }: { name: string; avatarUrl: string }) => (
+    <div className="flex items-center p-2 bg-[#202c33] shrink-0">
+        <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><ArrowLeft /></Button>
+        <Avatar className="h-10 w-10">
+            <AvatarImage src={avatarUrl} alt={name}/>
+            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div className="ml-3">
+            <div className="flex items-center gap-1.5">
+                <p className="font-medium text-white">{name}</p>
+                <WhatsAppCheck className="w-4 h-3.5" />
+            </div>
+            <p className="text-xs text-white/70">Online</p>
+        </div>
+        <div className="flex-grow" />
+        <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><Video /></Button>
+        <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><Phone /></Button>
+        <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><MoreHorizontal /></Button>
+    </div>
+);
+
 export function TypebotPublicViewer() {
     const { funnelId } = useParams() as { funnelId: string };
     const firestore = useFirestore();
@@ -278,28 +299,25 @@ export function TypebotPublicViewer() {
         return <div className="flex h-screen w-screen items-center justify-center bg-[#111821] text-white">Carregando Funil...</div>;
     }
 
+    const {
+        headerName = "Clickify",
+        headerAvatarUrl = "https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191",
+        backgroundColor = "#111821",
+        backgroundImageUrl = "",
+    } = funnel.props || {};
+
+    const backgroundStyle = {
+        backgroundColor,
+        backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+    };
+
     return (
-        <div className="flex h-screen w-screen flex-col bg-[#111821]">
-            <div className="flex items-center p-2 bg-[#202c33] shrink-0">
-                <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><ArrowLeft /></Button>
-                <Avatar className="h-10 w-10">
-                    <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Clickify"/>
-                    <AvatarFallback>C</AvatarFallback>
-                </Avatar>
-                <div className="ml-3">
-                    <div className="flex items-center gap-1.5">
-                        <p className="font-medium text-white">Clickify</p>
-                        <WhatsAppCheck className="w-4 h-3.5" />
-                    </div>
-                    <p className="text-xs text-white/70">Online</p>
-                </div>
-                <div className="flex-grow" />
-                <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><Video /></Button>
-                <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><Phone /></Button>
-                <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><MoreHorizontal /></Button>
-            </div>
+        <div className="flex h-screen w-screen flex-col" style={backgroundStyle}>
+            <TypebotPreviewHeader name={headerName} avatarUrl={headerAvatarUrl} />
             <ScrollArea className="flex-1 p-4">
-                <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
+                <div className="space-y-4 max-w-2xl mx-auto w-full">{previewMessages.map(renderPreviewMessage)}</div>
             </ScrollArea>
             <div className="p-4 bg-[#202c33]">
                 <div className="max-w-2xl mx-auto w-full">

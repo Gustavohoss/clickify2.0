@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -196,16 +195,16 @@ const WhatsAppCheck = ({ className }: { className?: string }) => (
 );
 
 
-const TypebotPreviewHeader = () => (
+const TypebotPreviewHeader = ({ name, avatarUrl }: { name: string; avatarUrl: string }) => (
     <div className="flex items-center p-2 bg-[#202c33] shrink-0">
         <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><ArrowLeft /></Button>
         <Avatar className="h-10 w-10">
-            <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Clickify"/>
-            <AvatarFallback>C</AvatarFallback>
+            <AvatarImage src={avatarUrl} alt={name}/>
+            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="ml-3">
             <div className="flex items-center gap-1.5">
-                <p className="font-medium text-white">Clickify</p>
+                <p className="font-medium text-white">{name}</p>
                 <WhatsAppCheck className="w-4 h-3.5" />
             </div>
             <p className="text-xs text-white/70">Online</p>
@@ -249,11 +248,25 @@ const TypebotPreview = memo(function TypebotPreview({
     handleImageChoiceClick,
     userInput,
     setUserInput,
-    handleUserInput
+    handleUserInput,
+    funnel,
 }: any) {
+    const {
+        headerName = "Clickify",
+        headerAvatarUrl = "https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191",
+        backgroundColor = "#111821",
+        backgroundImageUrl = "",
+    } = funnel.props || {};
+
+    const backgroundStyle = {
+        backgroundColor,
+        backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+    };
     return (
-        <div className="w-full h-full bg-[#111821] flex flex-col">
-            <TypebotPreviewHeader />
+        <div className="w-full h-full flex flex-col" style={backgroundStyle}>
+            <TypebotPreviewHeader name={headerName} avatarUrl={headerAvatarUrl} />
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">{previewMessages.map(renderPreviewMessage)}</div>
             </ScrollArea>
@@ -299,6 +312,53 @@ const TypebotPreview = memo(function TypebotPreview({
     );
 });
 TypebotPreview.displayName = "TypebotPreview";
+
+const ThemeSettings = ({ funnel, onUpdate }: { funnel: Funnel, onUpdate: (props: any) => void }) => {
+    const props = funnel.props || {};
+
+    const handlePropChange = (key: string, value: any) => {
+        onUpdate({ ...props, [key]: value });
+    };
+
+    return (
+        <div className="space-y-4 p-4">
+            <div>
+                <Label className="text-sm text-white/70">Nome do Header</Label>
+                <Input
+                    value={props.headerName || 'Clickify'}
+                    onChange={(e) => handlePropChange('headerName', e.target.value)}
+                    className="mt-1 bg-[#181818] border-[#3f3f46] text-white"
+                />
+            </div>
+            <div>
+                <Label className="text-sm text-white/70">URL da Foto</Label>
+                <Input
+                    value={props.headerAvatarUrl || 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191'}
+                    onChange={(e) => handlePropChange('headerAvatarUrl', e.target.value)}
+                    className="mt-1 bg-[#181818] border-[#3f3f46] text-white"
+                />
+            </div>
+            <div>
+                <Label className="text-sm text-white/70">Cor de Fundo</Label>
+                <Input
+                    type="color"
+                    value={props.backgroundColor || '#111821'}
+                    onChange={(e) => handlePropChange('backgroundColor', e.target.value)}
+                    className="mt-1 w-full bg-[#181818] border-[#3f3f46] text-white"
+                />
+            </div>
+            <div>
+                <Label className="text-sm text-white/70">URL da Imagem de Fundo</Label>
+                <Input
+                    value={props.backgroundImageUrl || ''}
+                    onChange={(e) => handlePropChange('backgroundImageUrl', e.target.value)}
+                    placeholder="Deixe em branco para usar cor sólida"
+                    className="mt-1 bg-[#181818] border-[#3f3f46] text-white"
+                />
+            </div>
+        </div>
+    );
+};
 
 
 export function TypebotEditor({
@@ -483,6 +543,11 @@ export function TypebotEditor({
     };
     updateFunnelState(prev => ({...prev, steps: updateRecursively((prev.steps as CanvasBlock[]))}));
   };
+  
+  const updateFunnelProps = (newProps: any) => {
+    updateFunnelState(prev => ({...prev, props: {...prev.props, ...newProps}}));
+  };
+
 
   const handleContextMenu = (e: React.MouseEvent, block: CanvasBlock) => {
     e.preventDefault();
@@ -1499,15 +1564,8 @@ export function TypebotEditor({
             </aside>
         )}
         {activeTab === 'Tema' && (
-            <aside className="w-72 shrink-0 border-r border-[#262626] bg-[#181818] p-4">
-                <Accordion type="single" defaultValue="css" collapsible className="w-full">
-                    <AccordionItem value="css">
-                        <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline"><Code size={16} className="mr-2"/>Customizar</AccordionTrigger>
-                         <AccordionContent className="pt-4 text-white/60">
-                           Adicione seu próprio CSS.
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
+            <aside className="w-72 shrink-0 border-r border-[#262626] bg-[#181818]">
+               <ThemeSettings funnel={funnel} onUpdate={updateFunnelProps} />
             </aside>
         )}
 
@@ -1660,6 +1718,7 @@ export function TypebotEditor({
                     userInput={userInput}
                     setUserInput={setUserInput}
                     handleUserInput={handleUserInput}
+                    funnel={funnel}
                  />
               </div>
             </div>
@@ -1712,6 +1771,7 @@ export function TypebotEditor({
                 userInput={userInput}
                 setUserInput={setUserInput}
                 handleUserInput={handleUserInput}
+                funnel={funnel}
             />
           </div>
         </div>
