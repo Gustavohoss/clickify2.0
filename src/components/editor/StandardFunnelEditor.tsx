@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -22,6 +21,7 @@ import {
   EyeOff,
   ArrowUp,
   ArrowDown,
+  Copy,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -227,6 +227,26 @@ export function StandardFunnelEditor({
       ),
     }));
   };
+  
+  const duplicateStep = (id: number) => {
+    const steps = funnel.steps as Step[];
+    const stepToDuplicate = steps.find((s) => s.id === id);
+    if (!stepToDuplicate) return;
+
+    const newStep: Step = {
+      ...stepToDuplicate,
+      id: Date.now(),
+      name: `${stepToDuplicate.name} (Cópia)`,
+    };
+
+    const index = steps.findIndex((s) => s.id === id);
+    const newSteps = [...steps];
+    newSteps.splice(index + 1, 0, newStep);
+
+    updateFunnel((prev) => ({ ...prev, steps: newSteps }));
+    setActiveStepId(newStep.id);
+  };
+
 
   const deleteStep = (id: number) => {
     const steps = funnel.steps as Step[];
@@ -723,6 +743,13 @@ export function StandardFunnelEditor({
                             <Button
                               variant="ghost"
                               className="w-full justify-start text-sm font-normal"
+                              onClick={() => duplicateStep(step.id)}
+                            >
+                              <Copy className="mr-2 h-4 w-4" /> Duplicar
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start text-sm font-normal text-red-500 hover:text-red-500"
                               onClick={() => deleteStep(step.id)}
                               disabled={(funnel.steps as Step[]).length <= 1}
                             >
