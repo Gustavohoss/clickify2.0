@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -1253,7 +1254,8 @@ export function TypebotEditor({
   const interpolateVariables = useCallback((text: string = '') => {
     if (!text) return '';
     return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
-      return previewVariablesRef.current[key] || `{{${key}}}`;
+        const value = previewVariablesRef.current[key] || `{{${key}}}`;
+        return `<span style="color: #ffffff;">${value}</span>`;
     });
   }, []);
 
