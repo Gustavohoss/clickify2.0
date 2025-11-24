@@ -127,7 +127,7 @@ import { RedirectBlockSettings } from './typebot/settings/RedirectSettings.tsx';
 import { TimeBlockSettings } from './typebot/settings/TimeSettings.tsx';
 import { ABTestSettings } from './typebot/settings/ABTestSettings.tsx';
 import { JumpToBlockSettings } from './typebot/settings/JumpToSettings.tsx';
-import { ConnectionHandle } from '../ui/ConnectionHandle.tsx';
+import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
 import { useToast } from '@/hooks/use-toast.ts';

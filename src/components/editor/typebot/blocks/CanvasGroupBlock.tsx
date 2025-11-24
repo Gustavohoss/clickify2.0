@@ -121,6 +121,7 @@ export const CanvasGroupBlock = ({
               isChild={true}
               updateBlockProps={updateBlockProps}
               variables={variables}
+              onConnectionStart={onConnectionStart as any}
             />
           </React.Fragment>
         ))}
