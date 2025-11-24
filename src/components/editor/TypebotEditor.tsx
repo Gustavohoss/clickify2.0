@@ -248,7 +248,7 @@ const TypebotPreview = memo(function TypebotPreview({
                     >
                         <Input
                             placeholder="Digite sua resposta..."
-                            className="bg-[#2D3748] text-white border-[#3f3f46] focus:border-green-500 focus-visible:ring-0 placeholder:text-gray-500"
+                            className="bg-[#2a3942] text-white border-[#3f3f46] focus:border-green-500 focus-visible:ring-0 placeholder:text-gray-500"
                             value={userInput}
                             onChange={(e) => setUserInput(e.target.value)}
                             disabled={!waitingForInput}
@@ -356,11 +356,6 @@ export function TypebotEditor({
       } as Funnel & { connections: CanvasConnection[] };
     });
   }
-
-  useEffect(() => {
-    updateFunnelState(canvasBlocks, connections);
-  }, [canvasBlocks, connections]);
-
 
   const addBlock = (type: string) => {
     if (!canvasRef.current) return;
@@ -1712,15 +1707,3 @@ export function TypebotEditor({
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
