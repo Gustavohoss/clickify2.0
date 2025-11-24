@@ -20,6 +20,22 @@ export async function POST(
     if (!userId || !webhookId) {
       return NextResponse.json({ error: 'Missing userId or webhookId' }, { status: 400 });
     }
+    
+    // 1. Validate User and Webhook
+    const userRef = db.collection('users').doc(userId);
+    const webhookRef = userRef.collection('webhooks').doc(webhookId);
+    
+    const [userDoc, webhookDoc] = await Promise.all([
+        userRef.get(),
+        webhookRef.get()
+    ]);
+
+    if (!userDoc.exists) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    if (!webhookDoc.exists) {
+        return NextResponse.json({ error: 'Webhook configuration not found' }, { status: 404 });
+    }
 
     const body = await req.json();
     
@@ -36,18 +52,9 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid or missing status' }, { status: 400 });
     }
 
-    const userRef = db.collection('users').doc(userId);
-    const webhookRef = userRef.collection('webhooks').doc(webhookId);
-    
-    // Check if the webhook exists and belongs to the user
-    const webhookDoc = await webhookRef.get();
-    if (!webhookDoc.exists) {
-        return NextResponse.json({ error: 'Webhook not found' }, { status: 404 });
-    }
-
     const saleRef = userRef.collection('sales').doc(transactionId);
     
-    // Create or update sale record
+    // 2. Create or update sale record
     await saleRef.set({
         id: transactionId,
         price: price,
@@ -56,11 +63,16 @@ export async function POST(
     }, { merge: true });
 
 
-    // If payment is successful, atomically update the user's balance
+    // 3. If payment is successful, atomically update the user's balance
     if (status === 'paid') {
-        await userRef.update({
-            balance: FieldValue.increment(price)
-        });
+        const saleDoc = await saleRef.get();
+        const saleData = saleDoc.data();
+        // Check if it was pending before to avoid double counting
+        if (saleData && saleData.status !== 'paid') {
+           await userRef.update({
+                balance: FieldValue.increment(price)
+           });
+        }
     }
 
     return NextResponse.json({ success: true, message: `Sale ${transactionId} processed for user ${userId}.` });
@@ -70,3 +82,4 @@ export async function POST(
     return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
   }
 }
+
