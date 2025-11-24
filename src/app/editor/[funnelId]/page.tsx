@@ -8,7 +8,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { useDebouncedCallback } from 'use-debounce';
 import { StandardFunnelEditor } from '@/components/editor/StandardFunnelEditor';
 import { TypebotEditor } from '@/components/editor/TypebotEditor';
-import type { Funnel, Step, CanvasBlock } from '@/components/editor/types.tsx';
+import type { Funnel, Step, CanvasBlock } from '@/components/editor/types';
 import { useToast } from '@/hooks/use-toast';
 
 
