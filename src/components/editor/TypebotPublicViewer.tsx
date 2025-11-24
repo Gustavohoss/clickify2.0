@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -18,7 +17,7 @@ import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
 type PreviewMessageType = {
   id: number;
   sender: 'bot' | 'user';
-  content: string; // Changed to string
+  content: string;
   isTyping?: boolean;
 };
 
@@ -69,7 +68,6 @@ const WhatsAppCheck = ({ className }: { className?: string }) => (
     </svg>
 );
 
-
 const PreviewMessageItem = React.memo(({ message }: { message: PreviewMessageType }) => {
     if (message.sender === 'bot') {
       return (
@@ -115,6 +113,17 @@ const TypebotPreviewHeader = ({ name, avatarUrl }: { name: string; avatarUrl: st
     </div>
 );
 
+type FlowState = {
+  type: 'process';
+  groupId: number;
+  childIndex: number;
+} | {
+  type: 'wait_for_input';
+  block: CanvasBlock;
+} | {
+  type: 'end';
+};
+
 export function TypebotPublicViewer() {
     const { funnelId } = useParams() as { funnelId: string };
     
@@ -122,14 +131,11 @@ export function TypebotPublicViewer() {
     const [isLoading, setIsLoading] = useState(true);
 
     const [previewMessages, setPreviewMessages] = useState<PreviewMessageType[]>([]);
-    const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(null);
     const [userInput, setUserInput] = useState('');
+    const [flowState, setFlowState] = useState<FlowState | null>(null);
     
     const previewVariablesRef = useRef<{ [key: string]: any }>({});
     
-    const canvasBlocks = (funnel?.steps as CanvasBlock[]) || [];
-    const connections = (funnel as any)?.connections || [];
-
     useEffect(() => {
         const fetchFunnelData = async () => {
             if (!funnelId) return;
@@ -152,163 +158,139 @@ export function TypebotPublicViewer() {
                 setIsLoading(false);
             }
         };
-
         fetchFunnelData();
     }, [funnelId]);
     
-    const interpolateVariables = useCallback((text: string = '') => {
-        if (!text) return '';
-        return text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
-            const value = previewVariablesRef.current[key] || `{{${key}}}`;
-            return `<span style="color: #ffffff;">${value}</span>`;
-        });
-    }, []);
-
-    const processGroup = useCallback(async (group: CanvasBlock, startIndex: number) => {
-        const childrenToProcess = group.children?.slice(startIndex) || [];
-        
-        for (let i = 0; i < childrenToProcess.length; i++) {
-            const child = childrenToProcess[i];
-        
-            if (child.type.startsWith('input-')) {
-                setWaitingForInput(child);
-                return;
-            }
-        
-            if (child.type === 'logic-wait') {
-                const typingId = Date.now();
-                setPreviewMessages((prev) => [...prev, { id: typingId, sender: 'bot', isTyping: true, content: '' }]);
-                if (child.props?.duration) {
-                  await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
-                }
-                setPreviewMessages((prev) => prev.filter(m => m.id !== typingId));
-                continue; 
-              }
-    
-            if (child.type === 'text' && child.props?.content) {
-                const interpolatedContent = interpolateVariables(child.props.content);
-                setPreviewMessages((prev) => [
-                    ...prev,
-                    {
-                        id: Date.now(),
-                        sender: 'bot',
-                        content: interpolatedContent,
-                    },
-                ]);
-            }
-        }
-    
-        const nextConnection = connections.find(
-          (c: any) => c.from === group.id && c.buttonIndex === undefined
-        );
-    
-        if (nextConnection) {
-          const nextGroup = canvasBlocks.find((b) => b.id === nextConnection.to);
-          if (nextGroup) {
-            processGroup(nextGroup, 0);
-          }
-        } else {
-          setWaitingForInput(null);
-        }
-    }, [canvasBlocks, connections, interpolateVariables]);
-
-    const processFlow = useCallback((startId: number | "start", buttonIndex?: number) => {
-        if (startId === null) {
-            setWaitingForInput(null);
-            return;
-        }
-
-        let nextGroupId: number | undefined;
-
-        if (typeof startId === 'number') {
-            const parentBlock = canvasBlocks.find(b => b.children?.some(c => c.id === startId));
-            const startBlock = parentBlock?.children?.find(c => c.id === startId);
-            
-            if (parentBlock && startBlock) {
-                if (buttonIndex !== undefined) {
-                    nextGroupId = connections.find((c: any) => c.from === startBlock.id && c.buttonIndex === buttonIndex)?.to;
-                } else {
-                    const currentIndex = parentBlock.children?.findIndex(c => c.id === startId) ?? -1;
-                    if (currentIndex !== -1 && currentIndex + 1 < (parentBlock.children?.length ?? 0)) {
-                        processGroup(parentBlock, currentIndex + 1);
-                        return;
-                    } else {
-                        nextGroupId = connections.find((c: any) => c.from === parentBlock.id && c.buttonIndex === undefined)?.to;
-                    }
-                }
-            } else { 
-                nextGroupId = connections.find((c: any) => c.from === startId && c.buttonIndex === buttonIndex)?.to;
-            }
-        } else {
-            nextGroupId = connections.find((c: any) => c.from === 'start')?.to;
-        }
-
-        if (nextGroupId) {
-            const nextGroup = canvasBlocks.find(b => b.id === nextGroupId);
-            if (nextGroup) {
-                processGroup(nextGroup, 0);
-            } else {
-                setWaitingForInput(null);
-            }
-        } else {
-            setWaitingForInput(null);
-        }
-    }, [canvasBlocks, connections, processGroup]);
-
-    const startPreview = useCallback(() => {
+    useEffect(() => {
+      if (funnel) {
         setPreviewMessages([]);
         previewVariablesRef.current = {};
-        setWaitingForInput(null);
-        processFlow('start');
-    }, [processFlow]);
+        const connections = (funnel as any)?.connections || [];
+        const startConnection = connections.find((c: any) => c.from === 'start');
+        if (startConnection) {
+          setFlowState({ type: 'process', groupId: startConnection.to, childIndex: 0 });
+        } else {
+          setFlowState({ type: 'end' });
+        }
+      }
+    }, [funnel]);
 
     useEffect(() => {
-        if (funnel) {
-            startPreview();
+      if (flowState?.type !== 'process' || !funnel) {
+        return;
+      }
+      
+      const canvasBlocks = (funnel.steps as CanvasBlock[]) || [];
+      const connections = (funnel as any)?.connections || [];
+
+      let currentGroupId = flowState.groupId;
+      let currentChildIndex = flowState.childIndex;
+      let processing = true;
+
+      const processNext = async () => {
+        while (processing) {
+          const currentGroup = canvasBlocks.find(b => b.id === currentGroupId);
+          if (!currentGroup || !currentGroup.children || currentChildIndex >= currentGroup.children.length) {
+            // End of group, find next connection
+            const nextConnection = connections.find((c: any) => c.from === currentGroupId && c.buttonIndex === undefined);
+            if (nextConnection) {
+              currentGroupId = nextConnection.to;
+              currentChildIndex = 0;
+              continue; // Loop to process the new group
+            } else {
+              setFlowState({ type: 'end' });
+              processing = false;
+              return;
+            }
+          }
+
+          const child = currentGroup.children[currentChildIndex];
+
+          if (child.type.startsWith('input-')) {
+            setFlowState({ type: 'wait_for_input', block: child });
+            processing = false;
+            return;
+          }
+
+          if (child.type === 'logic-wait') {
+            const typingId = Date.now();
+            setPreviewMessages(prev => [...prev, { id: typingId, sender: 'bot', isTyping: true, content: '' }]);
+            if (child.props?.duration) {
+              await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
+            }
+            setPreviewMessages(prev => prev.filter(m => m.id !== typingId));
+          } else if (child.props?.content) {
+            const interpolatedContent = (child.props.content as string).replace(/{{\s*(\w+)\s*}}/g, (_, key) => {
+              return previewVariablesRef.current[key] || `{{${key}}}`;
+            });
+            setPreviewMessages(prev => [...prev, { id: Date.now(), sender: 'bot', content: interpolatedContent }]);
+          }
+          currentChildIndex++;
         }
-    }, [funnel, startPreview]);
+      };
+      
+      processNext().then(() => {
+         if (processing) { // If loop finished without waiting for input
+             setFlowState({ type: 'process', groupId: currentGroupId, childIndex: currentChildIndex });
+         }
+      });
+
+    }, [flowState, funnel]);
+    
+    const continueFlow = (fromBlockId: number, buttonIndex?: number) => {
+      const connections = (funnel as any)?.connections || [];
+      const parentGroup = ((funnel?.steps || []) as CanvasBlock[]).find(g => g.children?.some(c => c.id === fromBlockId));
+
+      let nextConnection;
+      if (buttonIndex !== undefined) {
+        nextConnection = connections.find((c:any) => c.from === fromBlockId && c.buttonIndex === buttonIndex);
+      } else if (parentGroup) {
+        const childIndex = parentGroup.children?.findIndex(c => c.id === fromBlockId) ?? -1;
+        if (childIndex !== -1 && childIndex + 1 < (parentGroup.children?.length ?? 0)) {
+           setFlowState({ type: 'process', groupId: parentGroup.id, childIndex: childIndex + 1 });
+           return;
+        }
+        nextConnection = connections.find((c:any) => c.from === parentGroup.id && c.buttonIndex === undefined);
+      }
+
+      if (nextConnection) {
+        setFlowState({ type: 'process', groupId: nextConnection.to, childIndex: 0 });
+      } else {
+        setFlowState({ type: 'end' });
+      }
+    };
+
 
     const handleUserButtonClick = (buttonIndex: number) => {
-        if (!waitingForInput) return;
-        const clickedButton = waitingForInput.props.buttons[buttonIndex];
+        if (flowState?.type !== 'wait_for_input') return;
+        const waitingBlock = flowState.block;
+        const clickedButton = waitingBlock.props.buttons[buttonIndex];
         if (!clickedButton) return;
-        setPreviewMessages((prev) => [ ...prev, { id: Date.now(), sender: 'user', content: clickedButton.text }, ]);
-        const parentId = waitingForInput.id;
-        setWaitingForInput(null);
-        processFlow(parentId, buttonIndex);
+        setPreviewMessages((prev) => [ ...prev, { id: Date.now(), sender: 'user', content: clickedButton.text }]);
+        setFlowState(null); // Clear waiting state
+        continueFlow(waitingBlock.id, buttonIndex);
     };
   
     const handleImageChoiceClick = (choiceIndex: number) => {
-        if (!waitingForInput) return;
-        const parentId = waitingForInput.id;
-        setWaitingForInput(null);
-        processFlow(parentId, choiceIndex);
+        if (flowState?.type !== 'wait_for_input') return;
+        const waitingBlock = flowState.block;
+        setFlowState(null);
+        continueFlow(waitingBlock.id, choiceIndex);
     }
 
     const handleUserInput = () => {
-        if (!userInput.trim() || !waitingForInput) return;
-        setPreviewMessages((prev) => [ ...prev, { id: Date.now(), sender: 'user', content: userInput }, ]);
-        if (waitingForInput.props.variable) {
-            previewVariablesRef.current[waitingForInput.props.variable] = userInput;
+        if (userInput.trim() === '' || flowState?.type !== 'wait_for_input') return;
+        const waitingBlock = flowState.block;
+
+        setPreviewMessages((prev) => [ ...prev, { id: Date.now(), sender: 'user', content: userInput }]);
+        
+        if (waitingBlock.props.variable) {
+            previewVariablesRef.current[waitingBlock.props.variable] = userInput;
         }
-        const lastInputBlockId = waitingForInput.id;
-        const parentGroup = canvasBlocks.find(g => g.children?.some(c => c.id === lastInputBlockId));
+
         setUserInput('');
-        setWaitingForInput(null);
-        if (parentGroup) {
-            const childIndex = parentGroup.children?.findIndex(c => c.id === lastInputBlockId) ?? -1;
-            if (childIndex !== -1 && childIndex + 1 < (parentGroup.children?.length ?? 0)) {
-                processGroup(parentGroup, childIndex + 1);
-            } else {
-                const nextConnection = connections.find((c: any) => c.from === parentGroup.id);
-                if (nextConnection?.to) {
-                    const nextGroup = canvasBlocks.find(g => g.id === nextConnection.to);
-                    if (nextGroup) {
-                        processGroup(nextGroup, 0);
-                    }
-                }
-            }
-        }
+        setFlowState(null);
+        continueFlow(waitingBlock.id);
     };
 
     if (isLoading) {
@@ -332,6 +314,8 @@ export function TypebotPublicViewer() {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
     };
+    
+    const waitingBlock = flowState?.type === 'wait_for_input' ? flowState.block : null;
 
     return (
         <div className="flex h-screen w-screen flex-col" style={backgroundStyle}>
@@ -345,14 +329,14 @@ export function TypebotPublicViewer() {
             </ScrollArea>
             <div className="p-4 bg-transparent">
                 <div className="max-w-2xl mx-auto w-full">
-                    {waitingForInput?.type === 'input-buttons' ? (
-                        <PreviewButtons buttons={waitingForInput.props.buttons || []} onButtonClick={handleUserButtonClick} sender="user" />
-                    ) : waitingForInput?.type === 'input-pic' ? (
-                        <PreviewImageChoices choices={waitingForInput.props.choices || []} onImageClick={handleImageChoiceClick} />
+                    {waitingBlock?.type === 'input-buttons' ? (
+                        <PreviewButtons buttons={waitingBlock.props.buttons || []} onButtonClick={handleUserButtonClick} sender="user" />
+                    ) : waitingBlock?.type === 'input-pic' ? (
+                        <PreviewImageChoices choices={waitingBlock.props.choices || []} onImageClick={handleImageChoiceClick} />
                     ) : (
                         <form onSubmit={(e) => { e.preventDefault(); handleUserInput(); }} className="flex items-center gap-2">
-                            <Input placeholder="Digite sua resposta..." className="bg-[#2a3942] text-white border-[#3f3f46] focus:border-green-500 focus-visible:ring-0 placeholder:text-gray-500" value={userInput} onChange={(e) => setUserInput(e.target.value)} disabled={!waitingForInput} />
-                            <Button type="submit" size="icon" className="h-10 w-10 bg-green-500 hover:bg-green-600 flex-shrink-0" disabled={!waitingForInput}>
+                            <Input placeholder="Digite sua resposta..." className="bg-[#2a3942] text-white border-[#3f3f46] focus:border-green-500 focus-visible:ring-0 placeholder:text-gray-500" value={userInput} onChange={(e) => setUserInput(e.target.value)} disabled={!waitingBlock} />
+                            <Button type="submit" size="icon" className="h-10 w-10 bg-green-500 hover:bg-green-600 flex-shrink-0" disabled={!waitingBlock}>
                                 <ArrowRight size={16} className="text-white" />
                             </Button>
                         </form>
