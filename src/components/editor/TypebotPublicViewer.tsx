@@ -12,11 +12,13 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Bot, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
 
 type PreviewMessage = {
   id: number;
   sender: 'bot' | 'user';
   content: React.ReactNode;
+  isTyping?: boolean;
 };
 
 const PreviewButtons = ({ buttons, onButtonClick, sender }: { buttons: ButtonItem[], onButtonClick: (buttonIndex: number) => void, sender: 'bot' | 'user' }) => {
@@ -69,7 +71,7 @@ const renderPreviewMessage = (message: PreviewMessage) => {
             <AvatarFallback>B</AvatarFallback>
           </Avatar>
           <div className="bg-[#2D3748] rounded-lg rounded-tl-none p-3 max-w-[80%] text-white">
-            {message.content}
+            {message.isTyping ? <TypingIndicator /> : message.content}
           </div>
         </div>
       );
@@ -129,10 +131,15 @@ export function TypebotPublicViewer() {
                 return;
             }
         
-            if (child.type === 'logic-wait' && child.props?.duration) {
-                await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
+            if (child.type === 'logic-wait') {
+                const typingId = Date.now();
+                setPreviewMessages((prev) => [...prev, { id: typingId, sender: 'bot', isTyping: true, content: '' }]);
+                if (child.props?.duration) {
+                  await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
+                }
+                setPreviewMessages((prev) => prev.filter(m => m.id !== typingId));
                 continue; 
-            }
+              }
     
             if (child.type === 'text' && child.props?.content) {
                 const interpolatedContent = interpolateVariables(child.props.content);

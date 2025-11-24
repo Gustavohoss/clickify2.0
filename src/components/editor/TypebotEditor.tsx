@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -132,6 +130,7 @@ import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
 import { useToast } from '@/hooks/use-toast.ts';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu.tsx';
+import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
 
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
@@ -145,6 +144,7 @@ type PreviewMessage = {
   id: number;
   sender: 'bot' | 'user';
   content: React.ReactNode;
+  isTyping?: boolean;
 };
 
 const PreviewButtons = ({ buttons, onButtonClick, sender }: { buttons: ButtonItem[], onButtonClick: (buttonIndex: number) => void, sender: 'bot' | 'user' }) => {
@@ -198,7 +198,7 @@ const renderPreviewMessage = (message: PreviewMessage) => {
             <AvatarFallback>B</AvatarFallback>
           </Avatar>
           <div className="bg-[#2D3748] rounded-lg rounded-tl-none p-3 max-w-[80%] text-white">
-            {message.content}
+            {message.isTyping ? <TypingIndicator /> : message.content}
           </div>
         </div>
       );
@@ -1167,24 +1167,30 @@ export function TypebotEditor({
 
   const processGroup = async (group: CanvasBlock, startIndex: number) => {
     const childrenToProcess = group.children?.slice(startIndex) || [];
+    let currentMessages = [...previewMessages];
   
     for (let i = 0; i < childrenToProcess.length; i++) {
       const child = childrenToProcess[i];
   
       if (child.type.startsWith('input-')) {
         setWaitingForInput(child);
-        return; // Stop processing this group and wait for input
+        return; 
       }
   
       if (child.type === 'logic-wait') {
+        const typingId = Date.now();
+        setPreviewMessages((prev) => [...prev, { id: typingId, sender: 'bot', isTyping: true, content: '' }]);
+        
         if (child.props?.duration) {
           await new Promise(resolve => setTimeout(resolve, child.props.duration * 1000));
         }
-        continue;
+        
+        setPreviewMessages((prev) => prev.filter(m => m.id !== typingId));
+        continue; 
       }
   
       const interpolatedContent = interpolateVariables(child.props?.content);
-      setPreviewMessages((prev) => [
+       setPreviewMessages((prev) => [
         ...prev,
         {
           id: Date.now() + Math.random(),
