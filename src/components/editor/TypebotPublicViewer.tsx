@@ -1,18 +1,17 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, limit } from 'firebase/firestore';
+import { initializeFirebase } from '@/firebase';
+import { getFirestore, collection, query, where, limit, getDocs } from 'firebase/firestore';
 import type { Funnel, CanvasBlock, ButtonItem, ImageChoice } from './types.tsx';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bot, ArrowRight, ArrowLeft, Video, Phone, MoreHorizontal } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Video, Phone, MoreHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
 
@@ -117,16 +116,9 @@ const TypebotPreviewHeader = ({ name, avatarUrl }: { name: string; avatarUrl: st
 
 export function TypebotPublicViewer() {
     const { funnelId } = useParams() as { funnelId: string };
-    const firestore = useFirestore();
-
-    const funnelQuery = useMemoFirebase(
-        () => (firestore && funnelId ? query(collection(firestore, 'funnels'), where('__name__', '==', funnelId), limit(1)) : null),
-        [firestore, funnelId]
-    );
-
-    const { data: funnelData, isLoading } = useCollection<Funnel>(funnelQuery);
     
     const [funnel, setFunnel] = useState<Funnel | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [previewMessages, setPreviewMessages] = useState<PreviewMessage[]>([]);
     const [waitingForInput, setWaitingForInput] = useState<CanvasBlock | null>(null);
@@ -138,10 +130,30 @@ export function TypebotPublicViewer() {
     const connections = (funnel as any)?.connections || [];
 
     useEffect(() => {
-        if(funnelData && funnelData.length > 0) {
-            setFunnel(funnelData[0]);
-        }
-    }, [funnelData])
+        const fetchFunnelData = async () => {
+            if (!funnelId) return;
+            setIsLoading(true);
+            try {
+                const { firestore } = initializeFirebase();
+                const funnelQuery = query(
+                    collection(firestore, 'funnels'),
+                    where('__name__', '==', funnelId),
+                    limit(1)
+                );
+                const querySnapshot = await getDocs(funnelQuery);
+                if (!querySnapshot.empty) {
+                    const funnelDoc = querySnapshot.docs[0];
+                    setFunnel({ id: funnelDoc.id, ...funnelDoc.data() } as Funnel);
+                }
+            } catch (error) {
+                console.error("Error fetching funnel:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchFunnelData();
+    }, [funnelId]);
     
     const interpolateVariables = useCallback((text: string = '') => {
         if (!text) return '';
@@ -259,7 +271,7 @@ export function TypebotPublicViewer() {
         if (!waitingForInput) return;
         const clickedButton = waitingForInput.props.buttons[buttonIndex];
         if (!clickedButton) return;
-        setPreviewMessages((prev) => [ ...prev, { id: Date.now() + Math.random(), sender: 'user', content: clickedButton.text }, ]);
+        setPreviewMessages((prev) => [ ...prev, { id: Date.now(), sender: 'user', content: clickedButton.text }, ]);
         const parentId = waitingForInput.id;
         setWaitingForInput(null);
         processFlow(parentId, buttonIndex);
@@ -274,7 +286,7 @@ export function TypebotPublicViewer() {
 
     const handleUserInput = () => {
         if (!userInput.trim() || !waitingForInput) return;
-        setPreviewMessages((prev) => [ ...prev, { id: Date.now() + Math.random(), sender: 'user', content: userInput }, ]);
+        setPreviewMessages((prev) => [ ...prev, { id: Date.now(), sender: 'user', content: userInput }, ]);
         if (waitingForInput.props.variable) {
             previewVariablesRef.current[waitingForInput.props.variable] = userInput;
         }

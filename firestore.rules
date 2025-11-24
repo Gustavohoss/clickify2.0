@@ -61,7 +61,7 @@ service cloud.firestore {
     }
 
     match /funnels/{funnelId} {
-      allow get: if (resource.data.isPublished == true) || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if resource.data.isPublished == true || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow list: if isSignedIn(); // client-side query must enforce userId == request.auth.uid
       allow create: if isSignedIn() && isOwner(request.resource.data.userId);
       allow update: if isSignedIn() && isOwner(resource.data.userId);
@@ -82,3 +82,4 @@ service cloud.firestore {
     }
   }
 }
+
