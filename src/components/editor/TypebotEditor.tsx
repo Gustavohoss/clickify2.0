@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -193,6 +194,7 @@ const WhatsAppCheck = ({ className }: { className?: string }) => (
         <path fill="currentColor" d="M15.263 3.316l-.478-.372a.365.365 0 0 0-.51.063l-6.272 8.048a.32.32 0 0 1-.484.033l-.78-.78a.365.365 0 0 0-.513.512l1.218 1.218a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
     </svg>
 );
+
 
 const TypebotPreviewHeader = () => (
     <div className="flex items-center p-2 bg-[#202c33] shrink-0">
@@ -1498,27 +1500,9 @@ export function TypebotEditor({
         )}
         {activeTab === 'Tema' && (
             <aside className="w-72 shrink-0 border-r border-[#262626] bg-[#181818] p-4">
-                <Accordion type="multiple" defaultValue={['global', 'chat']} className="w-full">
-                    <AccordionItem value="templates">
-                        <AccordionTrigger className="border-b border-[#262626] py-3 text-sm font-medium hover:no-underline"><Sparkles size={16} className="mr-2"/>Templates</AccordionTrigger>
-                        <AccordionContent className="pt-4 text-white/60">
-                           Em breve...
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="global">
-                        <AccordionTrigger className="border-b border-[#262626] py-3 text-sm font-medium hover:no-underline"><Globe size={16} className="mr-2"/>Global</AccordionTrigger>
-                        <AccordionContent className="pt-4 text-white/60">
-                           Configurações de aparência global.
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="chat">
-                        <AccordionTrigger className="border-b border-[#262626] py-3 text-sm font-medium hover:no-underline"><MessageSquare size={16} className="mr-2"/>Chat</AccordionTrigger>
-                         <AccordionContent className="pt-4 text-white/60">
-                           Configurações de aparência do chat.
-                        </AccordionContent>
-                    </AccordionItem>
+                <Accordion type="single" defaultValue="css" collapsible className="w-full">
                     <AccordionItem value="css">
-                        <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline"><Code size={16} className="mr-2"/>Custom CSS</AccordionTrigger>
+                        <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline"><Code size={16} className="mr-2"/>Customizar</AccordionTrigger>
                          <AccordionContent className="pt-4 text-white/60">
                            Adicione seu próprio CSS.
                         </AccordionContent>
