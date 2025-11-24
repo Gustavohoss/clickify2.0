@@ -74,8 +74,8 @@ const renderPreviewMessage = (message: PreviewMessage) => {
       return (
         <div key={message.id} className="flex items-start gap-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="https://s3.typebot.io/public/workspaces/clp160nbo0005l60g3e5x31y6/typebots/clp1615f70007l60gqovfh1m6/blocks/clp163q7o0009l60gnz4vbt41" alt="Bot" />
-            <AvatarFallback>B</AvatarFallback>
+            <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Bot" />
+            <AvatarFallback>C</AvatarFallback>
           </Avatar>
           <div className="bg-[#202c33] rounded-lg rounded-tl-none p-3 max-w-[80%] text-white">
             {message.isTyping ? <TypingIndicator /> : message.content}
@@ -283,12 +283,12 @@ export function TypebotPublicViewer() {
             <div className="flex items-center p-2 bg-[#202c33] shrink-0">
                 <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><ArrowLeft /></Button>
                 <Avatar className="h-10 w-10">
-                    <AvatarImage src="https://s3.typebot.io/public/workspaces/clp160nbo0005l60g3e5x31y6/typebots/clp1615f70007l60gqovfh1m6/blocks/clp163q7o0009l60gnz4vbt41" alt="Zé do Black"/>
-                    <AvatarFallback>ZB</AvatarFallback>
+                    <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Clickify"/>
+                    <AvatarFallback>C</AvatarFallback>
                 </Avatar>
                 <div className="ml-3">
                     <div className="flex items-center gap-1.5">
-                        <p className="font-medium text-white">Zé do Black</p>
+                        <p className="font-medium text-white">Clickify</p>
                         <WhatsAppCheck className="w-4 h-3.5" />
                     </div>
                     <p className="text-xs text-white/70">Online</p>
