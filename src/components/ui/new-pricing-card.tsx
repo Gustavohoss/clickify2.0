@@ -5,6 +5,7 @@ import { Check } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface NewPricingCardProps {
   title: string;
@@ -13,6 +14,7 @@ interface NewPricingCardProps {
   priceSuffix?: string;
   features: string[];
   isFeatured: boolean;
+  checkoutUrl: string;
 }
 
 export function NewPricingCard({
@@ -22,6 +24,7 @@ export function NewPricingCard({
   priceSuffix,
   features,
   isFeatured,
+  checkoutUrl,
 }: NewPricingCardProps) {
   return (
     <div
@@ -68,11 +71,12 @@ export function NewPricingCard({
       </div>
       
       <Button
+        asChild
         size="lg"
         variant="glow"
         className="mt-8 w-full font-bold"
       >
-        Escolher este plano
+        <Link href={checkoutUrl}>Escolher este plano</Link>
       </Button>
     </div>
   );
