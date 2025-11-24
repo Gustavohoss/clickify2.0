@@ -23,12 +23,17 @@ export async function POST(
 
     const body = await req.json();
     
-    // Assuming a simple payload like { "price": 97.50 }
-    // Production webhooks will have more complex structures.
-    const price = body.price;
+    // Example payload: { "transactionId": "xyz", "price": 97.50, "status": "paid" | "pending" }
+    const { transactionId, price, status } = body;
 
     if (typeof price !== 'number' || price <= 0) {
       return NextResponse.json({ error: 'Invalid or missing price in request body' }, { status: 400 });
+    }
+     if (!transactionId) {
+      return NextResponse.json({ error: 'Missing transactionId' }, { status: 400 });
+    }
+     if (!status || !['paid', 'pending'].includes(status)) {
+      return NextResponse.json({ error: 'Invalid or missing status' }, { status: 400 });
     }
 
     const userRef = db.collection('users').doc(userId);
@@ -40,12 +45,25 @@ export async function POST(
         return NextResponse.json({ error: 'Webhook not found' }, { status: 404 });
     }
 
-    // Atomically update the user's balance
-    await userRef.update({
-      balance: FieldValue.increment(price)
-    });
+    const saleRef = userRef.collection('sales').doc(transactionId);
+    
+    // Create or update sale record
+    await saleRef.set({
+        id: transactionId,
+        price: price,
+        status: status,
+        receivedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
 
-    return NextResponse.json({ success: true, message: `User ${userId} balance updated.` });
+
+    // If payment is successful, atomically update the user's balance
+    if (status === 'paid') {
+        await userRef.update({
+            balance: FieldValue.increment(price)
+        });
+    }
+
+    return NextResponse.json({ success: true, message: `Sale ${transactionId} processed for user ${userId}.` });
 
   } catch (error: any) {
     console.error('Webhook processing error:', error);

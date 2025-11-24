@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BarChart, BookUser, BrainCircuit, DollarSign, Milestone, Settings, ShoppingBag, Users, Zap } from 'lucide-react';
+import { BarChart, BookUser, BrainCircuit, DollarSign, Milestone, Settings, ShoppingBag, Users, Zap, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,6 +45,16 @@ export default function DashboardPage() {
     [firestore, user]
   );
   const { data: userData } = useDoc(userDocRef);
+
+  const salesQuery = useMemoFirebase(
+    () => (user && firestore ? query(collection(firestore, 'users', user.uid, 'sales')) : null),
+    [firestore, user]
+  );
+  const { data: sales } = useCollection(salesQuery);
+
+  const pendingSales = sales?.filter(s => s.status === 'pending') || [];
+  const pendingRevenue = pendingSales.reduce((sum, sale) => sum + sale.price, 0);
+
 
   useEffect(() => {
     if (userData && userData.simulateRevenue && userData.balance > 0) {
@@ -112,16 +122,28 @@ export default function DashboardPage() {
       </div>
 
       <div className="space-y-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Faturamento total - Hoje</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{userData ? formatBalance(userData.balance) : 'R$0,00'}</div>
-            <p className="text-xs text-muted-foreground">{userData ? 'Faturamento total da sua conta.' : 'Conecte sua plataforma para ver seus ganhos.'}</p>
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Faturamento total</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{userData ? formatBalance(userData.balance) : 'R$0,00'}</div>
+                <p className="text-xs text-muted-foreground">{userData ? 'Faturamento total da sua conta.' : 'Conecte sua plataforma para ver seus ganhos.'}</p>
+            </CardContent>
+            </Card>
+            <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Vendas Pendentes</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{formatBalance(pendingRevenue)}</div>
+                <p className="text-xs text-muted-foreground">{pendingSales.length} PIX gerados aguardando pagamento.</p>
+            </CardContent>
+            </Card>
+        </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

@@ -63,6 +63,32 @@
         "planId"
       ]
     },
+    "Sale": {
+      "title": "Sale",
+      "type": "object",
+      "description": "Represents a sale transaction from a payment gateway.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique transaction ID from the payment gateway."
+        },
+        "price": {
+          "type": "number",
+          "description": "The total value of the sale."
+        },
+        "status": {
+          "type": "string",
+          "description": "The payment status of the sale.",
+          "enum": ["paid", "pending", "refunded", "failed"]
+        },
+        "receivedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the webhook for this sale was received."
+        }
+      },
+      "required": ["id", "price", "status", "receivedAt"]
+    },
     "Plan": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Plan",
@@ -385,6 +411,26 @@
                 {
                     "name": "webhookId",
                     "description": "The unique identifier of the webhook."
+                }
+            ]
+        }
+      },
+      {
+        "path": "/users/{userId}/sales/{saleId}",
+        "definition": {
+            "entityName": "Sale",
+            "schema": {
+                "$ref": "#/backend/entities/Sale"
+            },
+            "description": "Stores user-specific sales transactions.",
+            "params": [
+                {
+                    "name": "userId",
+                    "description": "The unique identifier of the user."
+                },
+                {
+                    "name": "saleId",
+                    "description": "The unique identifier of the sale (transaction ID)."
                 }
             ]
         }
