@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -131,6 +132,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { useToast } from '@/hooks/use-toast.ts';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu.tsx';
 import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
+import { Textarea } from '../ui/textarea.tsx';
 
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
@@ -189,8 +191,8 @@ const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[]
 
 const WhatsAppCheck = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 16 15" width="16" height="15" className={cn("text-blue-400", className)}>
-        <path fill="currentColor" d="M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.516.002l-.41.383a.365.365 0 0 0 .003.512l3.238 3.238a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
-        <path fill="currentColor" d="M15.263 3.316l-.478-.372a.365.365 0 0 0-.51.063l-6.272 8.048a.32.32 0 0 1-.484.033l-.78-.78a.365.365 0 0 0-.513.512l1.218 1.218a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
+        <path fill="currentColor" d="M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.516.002l-.41.383a.365.365 0 0 0 .003.512l3.238 3.238a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" />
+        <path fill="currentColor" d="M15.263 3.316l-.478-.372a.365.365 0 0 0-.51.063l-6.272 8.048a.32.32 0 0 1-.484.033l-.78-.78a.365.365 0 0 0-.513.512l1.218 1.218a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" />
     </svg>
 );
 
@@ -221,7 +223,7 @@ type EditorTab = 'Fluxo' | 'Tema' | 'Compartilhar';
 const renderPreviewMessage = (message: PreviewMessage) => {
     if (message.sender === 'bot') {
       return (
-        <div key={message.id} className="flex items-start gap-3">
+        <div key={message.id + Math.random()} className="flex items-start gap-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src="https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/e8vsn1pelzr1o22gyvomkn6l?v=1763544631191" alt="Bot" />
             <AvatarFallback>C</AvatarFallback>
@@ -233,7 +235,7 @@ const renderPreviewMessage = (message: PreviewMessage) => {
       );
     }
     return (
-      <div key={message.id} className="flex justify-end">
+      <div key={message.id + Math.random()} className="flex justify-end">
         <div className="bg-[#005c4b] text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
           <p className="text-sm">{message.content as string}</p>
         </div>
@@ -418,8 +420,6 @@ export function TypebotEditor({
 
   const previewVariablesRef = useRef<{ [key: string]: any }>({});
   
-  const isPublished = funnel.isPublished || false;
-  
   useEffect(() => {
     debouncedUpdateFunnel(funnel);
   }, [funnel, debouncedUpdateFunnel]);
@@ -437,7 +437,9 @@ export function TypebotEditor({
     };
 
     updateFunnelState(prev => {
-        const newBlocks = [...(prev.steps as CanvasBlock[])];
+        let newBlocks = [...(prev.steps as CanvasBlock[])];
+        let newConnections = [...(prev.connections || [])];
+
         if (type === 'group') {
             const newBlock: CanvasBlock = {
                 id: Date.now(),
@@ -468,8 +470,25 @@ export function TypebotEditor({
             };
 
             newBlocks.push(groupBlock);
+
+            const lastGroup = newBlocks.filter(b => b.type === 'group' && b.id !== groupBlockId).pop();
+            if (lastGroup) {
+              const fromId = lastGroup.children && lastGroup.children.length > 0 && lastGroup.children.slice(-1)[0].type.startsWith('input-') 
+                ? lastGroup.id 
+                : lastGroup.id;
+                
+              const existingConnection = newConnections.find(c => c.from === fromId);
+              if (!existingConnection) {
+                 newConnections.push({ from: fromId, to: groupBlockId });
+              }
+            } else {
+                const startConnection = newConnections.find(c => c.from === 'start');
+                if(!startConnection) {
+                    newConnections.push({ from: 'start', to: groupBlockId });
+                }
+            }
         }
-        return {...prev, steps: newBlocks};
+        return {...prev, steps: newBlocks, connections: newConnections};
     });
   };
 
@@ -497,20 +516,37 @@ export function TypebotEditor({
 
   const deleteBlock = (blockId: number) => {
     updateFunnelState(prev => {
-        const newBlocks = (prev.steps as CanvasBlock[])
-            .map((parent) => {
-            if (!parent.children) return parent;
-            const newChildren = parent.children.filter(
-                (child) => child.id !== blockId
-            );
-            if (parent.children.length > 0 && newChildren.length === 0) {
-                return null;
-            }
-            return { ...parent, children: newChildren };
-            })
-            .filter((b) => b !== null) as CanvasBlock[];
+        let newBlocks = [...(prev.steps as CanvasBlock[])];
+        let newConnections = [...(prev.connections || [])];
 
-        return { ...prev, steps: newBlocks.filter((b) => b.id !== blockId) };
+        const blockToDelete = findBlock(blockId, newBlocks);
+        if (!blockToDelete) return prev;
+        
+        if (blockToDelete.type === 'group') {
+            newBlocks = newBlocks.filter(b => b.id !== blockId);
+            newConnections = newConnections.filter(c => c.from !== blockId && c.to !== blockId);
+            if(blockToDelete.children) {
+                blockToDelete.children.forEach(child => {
+                    newConnections = newConnections.filter(c => c.from !== child.id);
+                });
+            }
+        } else { // It's a child block
+            newBlocks = newBlocks.map(group => {
+                if (group.children) {
+                    const childExists = group.children.some(c => c.id === blockId);
+                    if (childExists) {
+                        return {
+                            ...group,
+                            children: group.children.filter(c => c.id !== blockId)
+                        };
+                    }
+                }
+                return group;
+            }).filter(group => !(group.type === 'group' && group.children && group.children.length === 0));
+             newConnections = newConnections.filter(c => c.from !== blockId);
+        }
+
+        return { ...prev, steps: newBlocks, connections: newConnections };
     });
 
     if (selectedBlockId === blockId) {
@@ -527,7 +563,7 @@ export function TypebotEditor({
              updateFunnelState(prev => ({
                  ...prev,
                  connections: [
-                     ...((prev as any).connections || []).filter((c: any) => c.from !== blockId),
+                     ...(prev.connections || []).filter((c: any) => c.from !== blockId),
                      { from: blockId, to: newProps.targetGroupId }
                  ]
              }));
@@ -587,11 +623,8 @@ export function TypebotEditor({
     });
   };
   
-  const handleCopyUrl = () => {
-    if (!funnel) return;
-    const funnelSlug = funnel.slug || funnel.name.toLowerCase().trim().replace(/[^a-z0-9\\s-]/g, '').replace(/[\\s-]+/g, '-');
-    const publicUrl = `${window.location.origin}/funil/${funnelSlug}/${funnel.id}`;
-    navigator.clipboard.writeText(publicUrl);
+  const handleCopyUrl = (url: string) => {
+    navigator.clipboard.writeText(url);
     toast({
       title: 'URL Copiada!',
       description: `O link do funil foi copiado para a área de transferência.`,
@@ -721,7 +754,7 @@ export function TypebotEditor({
           updateFunnelState(prev => ({
             ...prev,
             connections: [
-              ...((prev as any).connections || []).filter((c: any) => c.from !== fromBlockId || c.buttonIndex !== drawingConnection.buttonIndex),
+              ...(prev.connections || []).filter((c: any) => c.from !== fromBlockId || c.buttonIndex !== drawingConnection.buttonIndex),
               { from: fromBlockId, to: toBlockId, buttonIndex: drawingConnection.buttonIndex },
             ]
           }));
@@ -735,7 +768,7 @@ export function TypebotEditor({
       draggingState.blockId !== null &&
       draggingState.originalBlock
     ) {
-      const draggedBlock = findBlock(draggingState.blockId);
+      const draggedBlock = findBlock(draggingState.blockId, canvasBlocks);
       if (!draggedBlock) return;
 
       let isDroppedOnTarget = false;
@@ -815,6 +848,7 @@ export function TypebotEditor({
   };
 
   const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
     const currentState = draggingState;
     if (isPanning || currentState.isDragging) {
       setIsPanning(false);
@@ -824,7 +858,7 @@ export function TypebotEditor({
         currentState.originalBlock &&
         currentState.blockId
       ) {
-        const currentDraggedBlock = findBlock(currentState.blockId);
+        const currentDraggedBlock = findBlock(currentState.blockId, canvasBlocks);
 
         if (!currentDraggedBlock) {
           updateFunnelState((prev) => {
@@ -1065,7 +1099,7 @@ export function TypebotEditor({
   
     if (!canvasRef.current) return;
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    const blockToDrag = findBlock(block.id);
+    const blockToDrag = findBlock(block.id, (funnel.steps || []) as CanvasBlock[]);
     if (!blockToDrag) return;
   
     let dragStartOffset;
@@ -1169,10 +1203,9 @@ export function TypebotEditor({
     setPanOffset({x: newPanX, y: newPanY});
   }
 
-  const findBlock = (id: number | null): CanvasBlock | undefined => {
+  const findBlock = (id: number | null, blocks: CanvasBlock[]): CanvasBlock | undefined => {
     if (id === null) return undefined;
-    const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
-    for (const block of canvasBlocks) {
+    for (const block of blocks) {
       if (block.id === id) return block;
       if (block.children) {
         const child = block.children.find((c) => c.id === id);
@@ -1183,13 +1216,14 @@ export function TypebotEditor({
   };
 
   const getBlockPosition = (id: number | null): { x: number; y: number } => {
+    const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
     if (id === null || !canvasRef.current) return { x: 0, y: 0 };
 
-    const block = findBlock(id);
+    const block = findBlock(id, canvasBlocks);
     if (!block) return {x: 0, y: 0};
     
     if (block.parentId) {
-      const parent = findBlock(block.parentId);
+      const parent = findBlock(block.parentId, canvasBlocks);
       if (parent) {
         const blockElement = document.getElementById(`block-${id}`);
         const parentElement = document.getElementById(`block-${block.parentId}`);
@@ -1404,8 +1438,11 @@ export function TypebotEditor({
     }
   };
 
-  const selectedBlock = findBlock(selectedBlockId);
+  const selectedBlock = findBlock(selectedBlockId, (funnel.steps || []) as CanvasBlock[]);
   const selectedBlockPosition = getBlockPosition(selectedBlockId);
+  const publicUrl = typeof window !== 'undefined' ? `${window.location.origin}/funil/${funnel.slug}/${funnel.id}` : '';
+  const iframeCode = `<iframe src="${publicUrl}" width="100%" height="600" frameborder="0"></iframe>`;
+
 
   const SettingsPanel = () => {
     if (!selectedBlock) return null;
@@ -1507,30 +1544,30 @@ export function TypebotEditor({
           >
             <TestTube2 size={16} /> Testar
           </Button>
-          {isPublished ? (
+          {funnel.isPublished ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="secondary">
+                <Button size="sm" variant="secondary" className="bg-green-600/20 text-green-400 hover:bg-green-600/30">
                   <span className="relative mr-2 flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
                   </span>
                   Publicado
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleCopyUrl}>
+              <DropdownMenuContent align="end" className="bg-[#262626] border-[#3f3f46] text-white">
+                <DropdownMenuItem onClick={() => handleCopyUrl(publicUrl)} className="focus:bg-[#3f3f46]">
                   <ClipboardCopy className="mr-2 h-4 w-4" />
                   Copiar Link
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handlePublishToggle(false)}>
+                <DropdownMenuItem onClick={() => handlePublishToggle(false)} className="focus:bg-[#3f3f46]">
                   <EyeOff className="mr-2 h-4 w-4" />
                   Deixar Offline
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button size="sm" onClick={() => handlePublishToggle(true)}>
+            <Button size="sm" onClick={() => handlePublishToggle(true)} className="bg-orange-500 hover:bg-orange-600 text-white">
               <Rocket className="mr-2 h-4 w-4" />
               Publicar
             </Button>
@@ -1614,7 +1651,7 @@ export function TypebotEditor({
                   </marker>
                 </defs>
                 <g>
-                  {((funnel as any).connections || []).map((conn: CanvasConnection, index: number) => {
+                  {(funnel.connections || []).map((conn: CanvasConnection, index: number) => {
                     const fromHandleId =
                       conn.buttonIndex !== undefined
                         ? `output-${conn.from}-${conn.buttonIndex}`
@@ -1725,6 +1762,45 @@ export function TypebotEditor({
                     funnel={funnel}
                  />
               </div>
+            </div>
+          )}
+          {activeTab === 'Compartilhar' && (
+             <div className="flex-1 flex flex-col items-center justify-center bg-[#1d1d1d] p-8 text-white">
+                <div className="w-full max-w-2xl space-y-8">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold">Compartilhe seu Funil</h2>
+                        <p className="text-white/60">Qualquer pessoa com o link pode visualizar este funil.</p>
+                    </div>
+                    
+                    <div className="bg-[#262626] rounded-lg p-6 space-y-4">
+                        <Label className="text-xs text-white/50">Link público</Label>
+                        <div className="flex items-center gap-2">
+                            <Input 
+                                readOnly 
+                                value={publicUrl}
+                                className="bg-[#181818] border-[#3f3f46] text-white"
+                            />
+                            <Button onClick={() => handleCopyUrl(publicUrl)} className="bg-orange-500 hover:bg-orange-600 text-white">
+                                <Copy size={16} className="mr-2"/>
+                                Copiar
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="bg-[#262626] rounded-lg p-6 space-y-4">
+                        <Label className="text-xs text-white/50">Incorporar</Label>
+                        <Textarea 
+                            readOnly 
+                            value={iframeCode}
+                            className="bg-[#181818] border-[#3f3f46] text-white font-mono text-xs h-32"
+                        />
+                         <Button onClick={() => handleCopyUrl(iframeCode)} variant="outline" className="w-full border-[#3f3f46] hover:bg-[#3f3f46]">
+                            <ClipboardCopy size={16} className="mr-2"/>
+                            Copiar código
+                        </Button>
+                    </div>
+
+                </div>
             </div>
           )}
         </div>
