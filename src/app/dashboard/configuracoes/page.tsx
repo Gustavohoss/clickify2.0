@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Webhook, PlusCircle, Copy, Trash2 } from 'lucide-react';
+import { Webhook, PlusCircle, Copy, Trash2, Info } from 'lucide-react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type Gateway = {
   id: string;
@@ -150,41 +152,49 @@ export default function ConfiguracoesPage() {
             </Dialog>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-6 md:grid-cols-2">
-          {isLoading ? (
-             <p>Carregando webhooks...</p>
-          ) : gateways && gateways.length > 0 ? (
-            gateways.map((gateway) => (
-              <Card key={gateway.id} className="flex flex-col">
-                <CardHeader>
-                  <CardTitle>{gateway.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <div className="mt-4">
-                    <Label htmlFor={`${gateway.name}-webhook`} className="text-xs text-muted-foreground">URL do Webhook para colar no seu gateway</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Input id={`${gateway.name}-webhook`} value={gateway.webhookUrl} readOnly />
-                      <Button variant="ghost" size="icon" onClick={() => handleCopy(gateway.webhookUrl)}>
-                        <Copy className="h-4 w-4" />
-                      </Button>
+        <CardContent className="space-y-6">
+            <Alert className="bg-blue-900/50 border-blue-800 text-blue-300">
+                <Info className="h-4 w-4 text-blue-400" />
+                <AlertDescription>
+                    Sim, quando uma venda for feita no gateway de pagamento, nosso webhook receberá a informação e o saldo da sua conta será atualizado automaticamente.
+                </AlertDescription>
+            </Alert>
+          <div className="grid gap-6 md:grid-cols-2">
+            {isLoading ? (
+                <p>Carregando webhooks...</p>
+            ) : gateways && gateways.length > 0 ? (
+                gateways.map((gateway) => (
+                <Card key={gateway.id} className="flex flex-col">
+                    <CardHeader>
+                    <CardTitle>{gateway.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                    <div className="mt-4">
+                        <Label htmlFor={`${gateway.name}-webhook`} className="text-xs text-muted-foreground">URL do Webhook para colar no seu gateway</Label>
+                        <div className="flex items-center gap-2 mt-1">
+                        <Input id={`${gateway.name}-webhook`} value={gateway.webhookUrl} readOnly />
+                        <Button variant="ghost" size="icon" onClick={() => handleCopy(gateway.webhookUrl)}>
+                            <Copy className="h-4 w-4" />
+                        </Button>
+                        </div>
                     </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="destructive" size="sm" onClick={() => handleDeleteGateway(gateway.id)}>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Excluir
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))
-          ) : (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-700 rounded-lg">
-                <Webhook className="h-12 w-12 text-muted-foreground" />
-                <p className="mt-4 text-center text-muted-foreground">Nenhum webhook configurado ainda.</p>
-                <p className="text-sm text-center text-muted-foreground">Adicione um para começar a sincronizar suas vendas.</p>
-            </div>
-          )}
+                    </CardContent>
+                    <CardFooter>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeleteGateway(gateway.id)}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Excluir
+                    </Button>
+                    </CardFooter>
+                </Card>
+                ))
+            ) : (
+                <div className="col-span-full flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-700 rounded-lg">
+                    <Webhook className="h-12 w-12 text-muted-foreground" />
+                    <p className="mt-4 text-center text-muted-foreground">Nenhum webhook configurado ainda.</p>
+                    <p className="text-sm text-center text-muted-foreground">Adicione um para começar a sincronizar suas vendas.</p>
+                </div>
+            )}
+           </div>
         </CardContent>
       </Card>
     </div>
