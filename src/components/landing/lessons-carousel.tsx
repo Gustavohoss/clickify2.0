@@ -38,13 +38,13 @@ export const LessonsCarousel = () => {
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex -ml-4">
             {[...lessons, ...lessons, ...lessons, ...lessons].map((lesson, index) => (
-              <div key={`${lesson.id}-${index}`} className="relative flex-[0_0_280px] pl-4">
+              <div key={`${lesson.id}-${index}`} className="relative flex-[0_0_200px] pl-4">
                 <Image
                   src={lesson.imageUrl}
                   alt={lesson.description}
-                  width={280}
-                  height={415}
-                  className={cn("rounded-xl object-cover h-[400px] md:h-[415px]")}
+                  width={200}
+                  height={300}
+                  className={cn("rounded-xl object-cover h-[300px]")}
                 />
               </div>
             ))}
