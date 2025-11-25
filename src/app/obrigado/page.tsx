@@ -30,7 +30,7 @@ export default function ObrigadoPage() {
         <div className="aspect-video w-full overflow-hidden rounded-lg shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-black">
           {hasMounted && (
             <ReactPlayer
-              url="https://www.youtube.com/watch?v=HWjCStB6k4o"
+              url="https://youtu.be/NxK5sm4cROQ"
               width="100%"
               height="100%"
               controls={true}
