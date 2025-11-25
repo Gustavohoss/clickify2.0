@@ -40,9 +40,9 @@ export const LessonsCarousel = () => {
                 <Image
                   src={lesson.imageUrl}
                   alt={lesson.description}
-                  width={150}
-                  height={225}
-                  className={cn("rounded-xl object-cover h-[225px] w-[150px]")}
+                  width={200}
+                  height={300}
+                  className={cn("rounded-xl object-cover h-[300px] w-[200px]")}
                 />
               </li>
             ))}
@@ -53,9 +53,9 @@ export const LessonsCarousel = () => {
                 <Image
                   src={lesson.imageUrl}
                   alt={lesson.description}
-                  width={150}
-                  height={225}
-                  className={cn("rounded-xl object-cover h-[225px] w-[150px]")}
+                  width={200}
+                  height={300}
+                  className={cn("rounded-xl object-cover h-[300px] w-[200px]")}
                 />
               </li>
             ))}
