@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { initializeFirebase } from '@/firebase';
-import { getFirestore, collection, query, where, limit, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc } from 'firebase/firestore';
 import type { Funnel, CanvasBlock, ButtonItem, ImageChoice } from './types.tsx';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
@@ -13,6 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowRight, ArrowLeft, Video, Phone, MoreHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
+import { staticShowcaseFunnels } from '@/lib/showcase-funnels-data';
 
 type PreviewMessageType = {
   id: number;
@@ -124,8 +125,9 @@ type FlowState = {
   type: 'end';
 };
 
-export function TypebotPublicViewer() {
-    const { funnelId } = useParams() as { funnelId: string };
+export function TypebotPublicViewer({ funnelId }: { funnelId?: string }) {
+    const params = useParams() as { funnelId?: string };
+    const resolvedFunnelId = funnelId || params.funnelId;
     
     const [funnel, setFunnel] = useState<Funnel | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -138,18 +140,22 @@ export function TypebotPublicViewer() {
     
     useEffect(() => {
         const fetchFunnelData = async () => {
-            if (!funnelId) return;
+            if (!resolvedFunnelId) return;
             setIsLoading(true);
             try {
+                // Check static funnels first
+                const staticFunnel = staticShowcaseFunnels.find(f => f.id === resolvedFunnelId);
+                if (staticFunnel && staticFunnel.funnelData) {
+                    setFunnel(staticFunnel.funnelData);
+                    return;
+                }
+
+                // If not static, fetch from Firestore
                 const { firestore } = initializeFirebase();
-                const funnelQuery = query(
-                    collection(firestore, 'funnels'),
-                    where('__name__', '==', funnelId),
-                    limit(1)
-                );
-                const querySnapshot = await getDocs(funnelQuery);
-                if (!querySnapshot.empty) {
-                    const funnelDoc = querySnapshot.docs[0];
+                const funnelRef = doc(firestore, 'funnels', resolvedFunnelId);
+                const funnelDoc = await getDoc(funnelRef);
+                
+                if (funnelDoc.exists()) {
                     setFunnel({ id: funnelDoc.id, ...funnelDoc.data() } as Funnel);
                 }
             } catch (error) {
@@ -159,7 +165,7 @@ export function TypebotPublicViewer() {
             }
         };
         fetchFunnelData();
-    }, [funnelId]);
+    }, [resolvedFunnelId]);
     
     useEffect(() => {
       if (funnel) {
@@ -294,11 +300,11 @@ export function TypebotPublicViewer() {
     };
 
     if (isLoading) {
-        return <div className="flex h-screen w-screen items-center justify-center bg-[#111821] text-white">Carregando Funil...</div>;
+        return <div className="flex h-full w-full items-center justify-center bg-[#111821] text-white">Carregando Funil...</div>;
     }
 
-    if (!funnel || !funnel.isPublished) {
-         return <div className="flex h-screen w-screen items-center justify-center bg-[#111821] text-white">Este funil não está disponível no momento.</div>;
+    if (!funnel) {
+         return <div className="flex h-full w-full items-center justify-center bg-[#111821] text-white">Este funil não está disponível no momento.</div>;
     }
 
     const {
@@ -318,7 +324,7 @@ export function TypebotPublicViewer() {
     const waitingBlock = flowState?.type === 'wait_for_input' ? flowState.block : null;
 
     return (
-        <div className="flex h-screen w-screen flex-col" style={backgroundStyle}>
+        <div className="flex h-full w-full flex-col" style={backgroundStyle}>
             <TypebotPreviewHeader name={headerName} avatarUrl={headerAvatarUrl} />
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4 max-w-2xl mx-auto w-full">

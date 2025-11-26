@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,6 +12,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { staticShowcaseFunnels, type ShowcaseFunnelItem } from '@/lib/showcase-funnels-data';
 import Link from 'next/link';
+import { TypebotPublicViewer } from '@/components/editor/TypebotPublicViewer';
+import { QuizPublicViewer } from '@/components/editor/QuizPublicViewer';
 
 
 export default function VitrineFunisPage() {
@@ -24,6 +25,7 @@ export default function VitrineFunisPage() {
   const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false);
   const [funnelToClone, setFunnelToClone] = useState<ShowcaseFunnelItem | null>(null);
   const [isCloning, setIsCloning] = useState(false);
+  const [previewFunnel, setPreviewFunnel] = useState<ShowcaseFunnelItem | null>(null);
 
   // This still fetches dynamic funnels from your DB
   const showcaseFunnelsQuery = useMemoFirebase(
@@ -123,6 +125,14 @@ export default function VitrineFunisPage() {
     setIsCloneDialogOpen(true);
   }
 
+  const openPreviewDialog = (funnel: ShowcaseFunnelItem) => {
+    setPreviewFunnel(funnel);
+  };
+
+  const closePreviewDialog = () => {
+    setPreviewFunnel(null);
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -149,11 +159,9 @@ export default function VitrineFunisPage() {
                 <CardDescription>{funnel.description}</CardDescription>
               </CardHeader>
               <CardFooter className="mt-auto grid grid-cols-2 gap-2">
-                 <Button variant="outline" asChild>
-                    <Link href={`/funil/${generateSlug(funnel.name)}/${funnel.id}`} target="_blank">
-                        <Eye className="mr-2 h-4 w-4" />
-                        Ver Funil
-                    </Link>
+                 <Button variant="outline" onClick={() => openPreviewDialog(funnel)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Ver Funil
                 </Button>
                 <Button className="w-full" onClick={() => openCloneDialog(funnel)}>
                   <Copy className="mr-2 h-4 w-4" />
@@ -192,6 +200,18 @@ export default function VitrineFunisPage() {
                     </Button>
                 </DialogFooter>
             </DialogContent>
+        </Dialog>
+        
+         <Dialog open={!!previewFunnel} onOpenChange={(open) => !open && closePreviewDialog()}>
+          <DialogContent className="max-w-4xl w-full h-[90vh] p-0 bg-gray-900 border-gray-700">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Pré-visualização: {previewFunnel?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="w-full h-full">
+              {previewFunnel?.type === 'typebot' && <TypebotPublicViewer funnelId={previewFunnel.id} />}
+              {previewFunnel?.type === 'quiz' && <QuizPublicViewer funnel={previewFunnel.funnelData} />}
+            </div>
+          </DialogContent>
         </Dialog>
     </div>
   );
