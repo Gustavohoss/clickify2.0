@@ -64,7 +64,7 @@ export const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, valu
     <div className="flex flex-wrap items-center gap-1 rounded-t-md border-b border-white/10 bg-transparent p-1">
       <Select defaultValue="p" onValueChange={handleFormatBlockChange}>
         <SelectTrigger 
-          className="h-7 w-[80px] border-none bg-transparent text-xs text-gray-300 focus:ring-0"
+          className="h-7 w-[90px] border-none bg-transparent text-xs text-gray-300 focus:ring-0"
           onMouseDown={(e) => e.preventDefault()}
         >
           <SelectValue />
