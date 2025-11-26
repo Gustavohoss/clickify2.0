@@ -13,45 +13,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 's3.typebot.io',
-        port: '',
-        pathname: '/**',
+        hostname: '**',
       },
        {
-        protocol: 'https',
-        hostname: 'cdn.worldvectorlogo.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'perfectpay.com.br',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.xquiz.co',
-        port: '',
-        pathname: '/**',
+        protocol: 'http',
+        hostname: '**',
       }
     ],
   },
