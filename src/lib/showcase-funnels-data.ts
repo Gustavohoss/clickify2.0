@@ -1,4 +1,5 @@
 
+
 export type ShowcaseFunnelItem = {
   id: string;
   name: string;
@@ -306,6 +307,115 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           ]
         }
       ]
+    }
+  },
+  {
+    id: 'persuasao-typebot',
+    name: 'Manual da persuasão',
+    description: 'Técnicas reais de persuasão, influência e manipulação estratégica.',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cma6gh1r00000wo0nne89p289/typebots/w3uutbahqxqiryefgp29v7zw/blocks/wefmams0gbe7dw9o2w8g9usd?v=1746642298063',
+    type: 'typebot',
+    funnelData: {
+        name: "Manual da persuasão",
+        type: "typebot",
+        isPublished: true,
+        steps: [
+            {
+                id: 1764149231094,
+                type: "group",
+                position: { x: 393, y: -85 },
+                children: [
+                    { id: 1764149231093, type: "text", props: { content: "🧠 <strong>Olá! Se você está aqui, é porque quer aprender técnicas reais de persuasão, influência e manipulação estratégica.</strong> " } },
+                    { id: 1764149593239, type: "logic-wait", props: { duration: 3 } },
+                    { id: 1764149530677, type: "text", props: { content: "Não aquelas dicas genéricas que você encontra no YouTube. " } },
+                    { id: 1764149599448, type: "logic-wait", props: { duration: 3 } },
+                    { id: 1764149562861, type: "text", props: { content: "Estou falando de conteúdo profundo, oculto " } },
+                    { id: 1764149607741, type: "logic-wait", props: { duration: 2 } },
+                    { id: 1764149568896, type: "text", props: { content: "usado por pessoas que dominam a mente alheia como se fosse um jogo. " } },
+                    { id: 1764149616623, type: "logic-wait", props: { duration: 2 } },
+                    { id: 1764149577974, type: "text", props: { content: "Agora me diz: " } },
+                    { id: 1764149718239, type: "input-buttons", props: { buttons: [ { text: " Sim, é exatamente isso que eu quero" }, { text: "Não sei se é pra mim ainda." } ] } },
+                    { id: 1764150145033, type: "logic-wait", props: { duration: 1 } }
+                ],
+                props: {}
+            },
+            {
+                id: 1764149751414,
+                type: "group",
+                position: { x: 833.23, y: -94.09 },
+                children: [
+                    { id: 1764149750749, type: "text", props: { content: "Então deixa eu te dar uma ideia do que você vai encontrar. " } },
+                    { id: 1764149771890, type: "text", props: { content: "Dentro de um grupo extremamente seleto com vagas limitadas você vai ter acesso a: " } },
+                    { id: 1764149773744, type: "text", props: { content: "📖 Técnicas avançadas de persuasão e manipulação psicológica " } },
+                    { id: 1764149784752, type: "text", props: { content: "😈 Estratégias que fazem sua ex (ou seu ex) ficar louca pra voltar " } },
+                    { id: 1764149803567, type: "text", props: { content: "🧲 Métodos de influência que funcionam em vendas, conversas e até relacionamentos " } },
+                    { id: 1764149813645, type: "text", props: { content: "📚 Livros ocultos e raros, proibidos em vários meios, que não se acha no Google " } },
+                    { id: 1764149819749, type: "text", props: { content: "🔒 E o melhor: você estará com as mentes mais afiadas do Brasil nesse assunto " } },
+                    { id: 1764149849808, type: "input-buttons", props: { buttons: [ { text: "Quero saber mais!" } ] } },
+                    { id: 1764150149937, type: "logic-wait", props: { duration: 1 } }
+                ],
+                props: {}
+            },
+            {
+                id: 1764150166063,
+                type: "group",
+                position: { x: 1201.34, y: -78.91 },
+                children: [
+                    { id: 1764150166062, type: "text", props: { content: "Vou te explicar uma coisa!" } },
+                    { id: 1764150275625, type: "logic-wait", props: { duration: 2 } },
+                    { id: 1764150184124, type: "text", props: { content: "🚫 Não é pra qualquer um. " } },
+                    { id: 1764150672553, type: "logic-wait", props: { duration: 1 } },
+                    { id: 1764150213482, type: "text", props: { content: "🚫 Não é curso gravado nem “coach motivacional”. " } },
+                    { id: 1764150683930, type: "logic-wait", props: { duration: 2 } },
+                    { id: 1764150262581, type: "text", props: { content: "É conteúdo direto, sem firula, com aplicação real e imediata. " } },
+                    { id: 1764150699647, type: "logic-wait", props: { duration: 3 } },
+                    { id: 1764150711482, type: "image", props: { imageUrl: "https://s3.typebot.io/public/workspaces/cma6gh1r00000wo0nne89p289/typebots/w3uutbahqxqiryefgp29v7zw/blocks/wefmams0gbe7dw9o2w8g9usd?v=1746642298063" } },
+                    { id: 1764150722900, type: "logic-wait", props: { duration: 3 } },
+                    { id: 1764150750889, type: "input-buttons", props: { buttons: [ { text: "Quero entrar na comunidade!" } ] } },
+                    { id: 1764150776789, type: "logic-wait", props: { duration: 1 } }
+                ],
+                props: {}
+            },
+            {
+                id: 1764150814494,
+                type: "group",
+                position: { x: 1690.88, y: -34.93 },
+                children: [
+                    { id: 1764150814493, type: "text", props: { content: "🎯 Se você quer entrar, aproveite agora. As vagas são extremamente limitadas. " } },
+                    { id: 1764150831863, type: "logic-wait", props: { duration: 3 } },
+                    { id: 1764150824771, type: "text", props: { content: "A próxima vez que você voltar aqui… pode já não ter espaço. " } },
+                    { id: 1764150853407, type: "logic-wait", props: { duration: 3 } },
+                    { id: 1764150845017, type: "text", props: { content: "Te vejo do outro lado onde o controle da mente não é sorte, é método. 😈 " } },
+                    { id: 1764150864525, type: "input-buttons", props: { buttons: [ { text: "ENTRAR!" } ] } }
+                ],
+                props: {}
+            },
+            {
+                id: 1764150954608,
+                type: "group",
+                position: { x: 2090.56, y: 324.15 },
+                children: [
+                    { id: 1764150954607, type: "logic-redirect", props: {} }
+                ],
+                props: {}
+            },
+            {
+                id: 1764150966063,
+                type: "group",
+                position: { x: 2090.56, y: 168.95 },
+                children: [
+                    { id: 1764150966062, type: "text", props: { content: "SEU LINK AQUI EM BAIXO!" } }
+                ],
+                props: {}
+            }
+        ],
+        connections: [
+            { from: "start", to: 1764149231094 },
+            { from: 1764149231094, to: 1764149751414 },
+            { from: 1764149751414, to: 1764150166063 },
+            { from: 1764150166063, to: 1764150814494 },
+            { from: 1764150814494, to: 1764150954608 }
+        ]
     }
   }
 ];
