@@ -341,7 +341,6 @@ export const components: ComponentType[] = [
   { name: 'Nível', icon: <SlidersHorizontal />, isNew: true },
   { name: 'Opções', icon: <CheckSquare /> },
   { name: 'Preço', icon: <DollarSign />, isNew: true },
-  { name: 'Script', icon: <FileCode /> },
   { name: 'Termos', icon: <FileTextIcon />, isNew: true },
   { name: 'Texto', icon: <TextIcon /> },
   { name: 'Título', icon: <Heading1 /> },
