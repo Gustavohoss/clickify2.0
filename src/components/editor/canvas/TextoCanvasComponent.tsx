@@ -7,7 +7,7 @@ export const TextoCanvasComponent = ({ component }: { component: CanvasComponent
 
   return (
     <div
-      className="w-full max-w-none text-black"
+      className="w-full max-w-none text-foreground"
       dangerouslySetInnerHTML={{ __html: content }}
     />
   );
