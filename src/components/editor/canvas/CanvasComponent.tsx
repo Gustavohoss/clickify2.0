@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -98,6 +99,7 @@ export const CanvasComponent = ({
       case 'Termos':
         return <TermosCanvasComponent component={component} />;
       case 'Texto':
+      case 'Título':
         return <TextoCanvasComponent component={component} />;
       case 'Video':
         return <VideoCanvasComponent component={component} />;

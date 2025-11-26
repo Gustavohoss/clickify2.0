@@ -96,6 +96,7 @@ export const ComponentSettings = ({
       case 'Termos':
         return <TermosSettings component={component} onUpdate={handleUpdate} />;
       case 'Texto':
+      case 'Título':
         return <TextoSettings component={component} onUpdate={handleUpdate} />;
       case 'Video':
         return <VideoSettings component={component} onUpdate={handleUpdate} />;
