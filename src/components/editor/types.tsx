@@ -289,6 +289,7 @@ export type Funnel = {
   isPublished?: boolean;
   slug?: string;
   backgroundColor?: string;
+  primaryColor?: string;
   headerLogoType?: 'image' | 'emoji';
   headerLogoValue?: string;
   props?: { [key: string]: any };

@@ -115,7 +115,7 @@ export const PreviewCanvasComponent = ({
 };
 
 
-function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor, primaryColor }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void, backgroundColor: string, primaryColor: string }) {
+function QuizPreview({ funnel, activeStepId, onNextStep }: { funnel: Funnel, activeStepId: number | null, onNextStep: () => void }) {
     const steps = funnel.steps as Step[];
     const activeStep = steps.find(step => step.id === activeStepId);
 
@@ -129,6 +129,9 @@ function QuizPreview({ funnel, activeStepId, onNextStep, backgroundColor, primar
 
     const currentIndex = steps.findIndex(step => step.id === activeStepId);
     const progressValue = ((currentIndex + 1) / steps.length) * 100;
+    
+    const backgroundColor = funnel.backgroundColor || '#FFFFFF';
+    const primaryColor = funnel.primaryColor || '#000000';
 
     const renderLogo = () => {
       if (funnel.headerLogoType === 'emoji') {
@@ -190,7 +193,7 @@ export function StandardFunnelEditor({
   const startPanPosition = useRef({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
 
-  const [primaryColor, setPrimaryColor] = React.useState('#000000');
+  const [primaryColor, setPrimaryColor] = React.useState(funnel.primaryColor || '#000000');
   const [backgroundColor, setBackgroundColor] = React.useState('#FFFFFF');
   const [titleColor, setTitleColor] = React.useState('#000000');
   const [textColor, setTextColor] = React.useState('#000000');
@@ -203,7 +206,10 @@ export function StandardFunnelEditor({
     if (funnel.isPublished !== isPublished) {
       setIsPublished(funnel.isPublished || false);
     }
-  }, [funnel, activeStepId, isPublished]);
+     if (funnel.primaryColor && funnel.primaryColor !== primaryColor) {
+      setPrimaryColor(funnel.primaryColor);
+    }
+  }, [funnel, activeStepId, isPublished, primaryColor]);
 
   const updateFunnel = (updater: (prev: Funnel) => Funnel) => {
     setFunnel((prev) => (prev ? updater(prev) : null));
@@ -683,8 +689,6 @@ export function StandardFunnelEditor({
                           funnel={funnel} 
                           activeStepId={activeStepId} 
                           onNextStep={handleNextStepPreview}
-                          backgroundColor={backgroundColor}
-                          primaryColor={primaryColor}
                         />
                     </DialogContent>
                 </Dialog>
@@ -976,4 +980,3 @@ export function StandardFunnelEditor({
     </div>
   );
 }
-

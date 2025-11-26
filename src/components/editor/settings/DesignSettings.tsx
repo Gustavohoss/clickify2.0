@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -123,19 +122,21 @@ const ColorsContent = ({
   backgroundColor, setBackgroundColor,
   titleColor, setTitleColor,
   textColor, setTextColor,
-  interactiveTextColor, setInteractiveTextColor
+  interactiveTextColor, setInteractiveTextColor,
+  onUpdateFunnel
 }: {
   primaryColor: string, setPrimaryColor: (c: string) => void,
   backgroundColor: string, setBackgroundColor: (c: string) => void,
   titleColor: string, setTitleColor: (c: string) => void,
   textColor: string, setTextColor: (c: string) => void,
-  interactiveTextColor: string, setInteractiveTextColor: (c: string) => void
+  interactiveTextColor: string, setInteractiveTextColor: (c: string) => void,
+  onUpdateFunnel: (props: Partial<Funnel>) => void;
 }) => {
 
     return (
         <Card className="border-none bg-transparent p-4 shadow-none">
             <div className="space-y-4">
-            <ColorPicker label="Primária" color={primaryColor} onChange={setPrimaryColor} />
+            <ColorPicker label="Primária" color={primaryColor} onChange={(color) => { setPrimaryColor(color); onUpdateFunnel({ primaryColor: color })}} />
             <ColorPicker label="Fundo" color={backgroundColor} onChange={setBackgroundColor} />
             <ColorPicker label="Títulos" color={titleColor} onChange={setTitleColor} />
             <ColorPicker label="Textos" color={textColor} onChange={setTextColor} />
