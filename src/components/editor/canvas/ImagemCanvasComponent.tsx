@@ -31,11 +31,12 @@ export const ImagemCanvasComponent = ({ component }: { component: CanvasComponen
   return (
     <div
       className={cn(
-        'relative aspect-video w-full overflow-hidden',
+        'relative w-full overflow-hidden',
         borderRadiusClasses[borderRadius]
       )}
     >
-      <Image src={imageUrl} alt={altText} layout="fill" objectFit="cover" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imageUrl} alt={altText} className="w-full h-auto" />
     </div>
   );
 };
