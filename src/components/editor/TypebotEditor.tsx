@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -1247,22 +1245,28 @@ export function TypebotEditor({
     const block = findBlock(id, canvasBlocks);
     if (!block) return { x: 0, y: 0 };
   
+    // If it's a child block, calculate its absolute position on the canvas
     if (block.parentId) {
       const parent = findBlock(block.parentId, canvasBlocks);
       const blockElement = document.getElementById(`block-${id}`);
       if (parent && blockElement) {
-        const parentRect = document.getElementById(`block-${parent.id}`)!.getBoundingClientRect();
-        const blockRect = blockElement.getBoundingClientRect();
-        const canvasRect = canvasRef.current.getBoundingClientRect();
-  
-        const x = (blockRect.left - canvasRect.left - panOffset.x) / zoom;
-        const y = (blockRect.top - canvasRect.top - panOffset.y) / zoom;
-        
-        return { x: parent.position.x, y: parent.position.y + ((blockRect.top - parentRect.top) / zoom) };
+        const parentElement = document.getElementById(`block-${parent.id}`);
+        if(parentElement) {
+            const parentRect = parentElement.getBoundingClientRect();
+            const blockRect = blockElement.getBoundingClientRect();
+            const canvasRect = canvasRef.current.getBoundingClientRect();
+
+            // Calculate position relative to parent, then add parent's canvas position
+            const x = (blockRect.left - parentRect.left) / zoom + parent.position.x;
+            const y = (blockRect.top - parentRect.top) / zoom + parent.position.y;
+            return { x, y };
+        }
       }
+      // Fallback if elements not found, return parent's position
       return parent?.position || { x: 0, y: 0 };
     }
   
+    // If it's a top-level block, just return its stored position
     return block.position;
   };
 
@@ -1887,6 +1891,7 @@ export function TypebotEditor({
     </div>
   );
 }
+
 
 
 
