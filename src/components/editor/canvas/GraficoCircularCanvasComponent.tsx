@@ -48,14 +48,15 @@ export const GraficoCircularCanvasComponent = ({ component }: { component: Canva
             >
               <Cell fill={progressColor} />
               <Cell fill={trackColor} />
+               <Label
+                value={`${value}%`}
+                position="center"
+                fill={textColor}
+                fontSize="36px"
+                fontWeight="bold"
+                dy={10}
+              />
             </Pie>
-            <Label
-              value={`${value}%`}
-              position="center"
-              fill={textColor}
-              fontSize="36px"
-              fontWeight="bold"
-            />
           </PieChart>
         </ResponsiveContainer>
       </div>
