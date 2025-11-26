@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Copy, Gift, Milestone, Eye } from 'lucide-react';
+import { Copy, Gift, Milestone, Eye, ExternalLink } from 'lucide-react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -167,6 +168,14 @@ export default function VitrineFunisPage() {
                   <Copy className="mr-2 h-4 w-4" />
                   Clonar
                 </Button>
+                 {funnel.exampleUrl && (
+                  <Button asChild variant="secondary" className="col-span-2">
+                    <Link href={funnel.exampleUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Ver exemplo de conteúdo
+                    </Link>
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           ))}

@@ -6,6 +6,7 @@ export type ShowcaseFunnelItem = {
   description: string;
   imageUrl: string;
   type: 'typebot' | 'quiz';
+  exampleUrl?: string;
   // This will hold the actual data for static funnels
   funnelData?: any; 
 };
@@ -18,6 +19,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
     description: 'Funil de Quiz para produto de emagrecimento.',
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/vq3dlad75ysvpgjpvjtqwuxl?v=1764147033314',
     type: 'quiz',
+    exampleUrl: 'https://www.tiktok.com/@juuh_santana0',
     // The actual funnel data is now stored here, making it independent
     funnelData: {
       name: "Treino PMT",
@@ -74,7 +76,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764133043285,
           name: "Etapa 6",
           components: [
-            { id: 1764130626940, name: "Texto", props: { content: `<h3 style="text-align: center;">Qual área mais lhe incomoda? </h3><div style="text-align: center;">Marque uma das opções abaixo</div><div> </div><div> </div><div> </div>` } },
+            { id: 1764130626940, name: "Texto", props: { content: `<h3 style="text-align: center;">Qual área mais lhe incomoda? </h3><div style="text-align: center;">Marque uma das opções abaixo</div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764132302121, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764132302122, icon: "💁‍♀️", iconType: "image", imageUrl: "https://cdn.xquiz.co/images/ebdb9b66-d726-438f-a07d-839e023ea232", text: "Abdômen" }, { id: 1764132302123, icon: "🙆‍♀️", iconType: "image", imageUrl: "https://cdn.xquiz.co/images/acac4e7f-5130-44e7-962b-143ba50cf42f", text: "Bumbum" }, { id: 1764132344258, icon: "🙅‍", iconType: "image", imageUrl: "https://cdn.xquiz.co/images/bfbc5a6d-d7e1-4ba2-a428-45ba73333ca3", text: "Seios" }, { id: 1764133078244, icon: "💬", iconType: "image", imageUrl: "https://cdn.xquiz.co/images/a731f5e2-8941-413e-9f7d-20406be329a7", text: "Pernas" } ] } }
           ]
         },
@@ -82,7 +84,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764133244127,
           name: "Etapa 7",
           components: [
-            { id: 1764130626940, name: "Texto", props: { content: `<h3 style="text-align: center;">O que lhe motiva a fazer exercício? </h3><div style="text-align: center;">Toque na opção abaixo</div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764130626940, name: "Texto", props: { content: `<h3 style="text-align: center;">O que lhe motiva a fazer exercício? </h3><div style="text-align: center;">Toque na opção abaixo</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764132302121, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764132302122, icon: "🩺", iconType: "emoji", imageUrl: "https://cdn.xquiz.co/images/ebdb9b66-d726-438f-a07d-839e023ea232", text: "Melhor Saúde " }, { id: 1764132302123, icon: "🛡️", iconType: "emoji", imageUrl: "https://cdn.xquiz.co/images/acac4e7f-5130-44e7-962b-143ba50cf42f", text: "Fortalecimento do Sistema Imunológico " }, { id: 1764132344258, icon: "💁‍", iconType: "emoji", imageUrl: "https://cdn.xquiz.co/images/bfbc5a6d-d7e1-4ba2-a428-45ba73333ca3", text: "Melhorar a Aparência " }, { id: 1764133078244, icon: "💪", iconType: "emoji", imageUrl: "https://cdn.xquiz.co/images/a731f5e2-8941-413e-9f7d-20406be329a7", text: "Aumentar sua Força e Resistência " }, { id: 1764133286612, icon: "🔥", iconType: "emoji", text: "Aumentar sua Libido" } ] } }
           ]
         },
@@ -268,7 +270,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764139901943,
           name: "Etapa 29",
           components: [
-            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Seu Protocolo de Treinos Personalizados está quase pronto... </h3><div style="text-align: center;">Mas antes, me diga qual é a sua altura?</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Seu Protocolo de Treinos Personalizados está quase pronto... </h3><div style="text-align: center;">Mas antes, me diga qual é a sua altura?</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764139558313, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764139948318, icon: "", iconType: "emoji", text: "Menos de 1 metro" }, { id: 1764139948796, icon: "", iconType: "emoji", text: "Entre 1 metro e 1 metro e meio" }, { id: 1764139949274, icon: "", iconType: "emoji", text: "Entre 1 metro e meio e 2 metros" }, { id: 1764139949773, icon: "", iconType: "emoji", text: " Mais de 2 metros" } ] } }
           ]
         },
@@ -276,7 +278,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764140017686,
           name: "Etapa 30",
           components: [
-            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Estamos quase lá... </h3><div style="text-align: center;">Porém eu gostaria de saber, você Realmente está disposta a aplicar os Treinos PMT e daqui a 30 dias ver seu corpo mudar completamente? </div><div><br></div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Estamos quase lá... </h3><div style="text-align: center;">Porém eu gostaria de saber, você Realmente está disposta a aplicar os Treinos PMT e daqui a 30 dias ver seu corpo mudar completamente? </div><div><br></div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764139558313, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764139949773, icon: " 🔥", iconType: "emoji", text: "Sim, estou pronta" }, { id: 1764140065655, icon: "😍", iconType: "emoji", text: "Com certeza" } ] } }
           ]
         },
@@ -284,7 +286,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           id: 1764140120024,
           name: "Etapa 31",
           components: [
-            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Você está pronta para seguir nosso Protocolo de Treinos Personalizado? </h3><div style="text-align: center;">Toque na opção abaixo.</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
+            { id: 1764139520183, name: "Texto", props: { content: `<h3 style="text-align: center;">Você está pronta para seguir nosso Protocolo de Treinos Personalizado? </h3><div style="text-align: center;">Toque na opção abaixo.</div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div><div> </div>` } },
             { id: 1764139558313, name: "Opções", props: { shadowStyle: "grande", opcoesItems: [ { id: 1764139949773, icon: " 🔥", iconType: "emoji", text: "Sim, estou pronta" }, { id: 1764140065655, icon: "😍", iconType: "emoji", text: "Quero, Saber mais" } ] } }
           ]
         },
@@ -315,6 +317,7 @@ export const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
     description: 'Técnicas reais de persuasão, influência e manipulação estratégica.',
     imageUrl: 'https://s3.typebot.io/public/workspaces/cma6gh1r00000wo0nne89p289/typebots/w3uutbahqxqiryefgp29v7zw/blocks/uqhagxtkix836yabhfratrvv?v=1764151628641',
     type: 'typebot',
+    exampleUrl: 'https://www.tiktok.com/@mindsetastuto',
     funnelData: {
         name: "Manual da persuasão",
         type: "typebot",
