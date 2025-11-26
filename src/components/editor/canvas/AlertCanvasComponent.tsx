@@ -3,17 +3,23 @@
 import React from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { CanvasComponentData } from '../types';
-import { CheckCircle } from 'lucide-react';
+import { modelIcons } from '../types';
 
 export const AlertCanvasComponent = ({ component }: { component: CanvasComponentData }) => {
-  const { title, description, backgroundColor, textColor, borderColor, icon } =
-    component.props;
-  const IconComponent = icon || <CheckCircle />;
+  const {
+    title,
+    description,
+    backgroundColor,
+    textColor,
+    borderColor,
+    model = 'success',
+  } = component.props;
+  const IconComponent = modelIcons[model];
 
   const style = {
-      '--alert-bg': backgroundColor,
-      '--alert-border': borderColor,
-      '--alert-text': textColor,
+    '--alert-bg': backgroundColor,
+    '--alert-border': borderColor,
+    '--alert-text': textColor,
   } as React.CSSProperties;
 
   return (
