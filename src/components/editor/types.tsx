@@ -31,6 +31,7 @@ import {
   ImageIcon,
   List as ListIcon,
   Video,
+  Target,
 } from 'lucide-react';
 import { Text as TextIcon } from 'lucide-react';
 
@@ -343,6 +344,7 @@ export const components: ComponentType[] = [
   { name: 'Espaçador', icon: <Rows /> },
   { name: 'FAQ', icon: <HelpCircle />, isNew: true },
   { name: 'Gráficos', icon: <BarChart2 /> },
+  { name: 'Gráfico Circular', icon: <Target />, isNew: true },
   { name: 'Imagem', icon: <ImageIcon /> },
   { name: 'Lista', icon: <ListIcon />, isNew: true },
   { name: 'Lista 2.0', icon: <ListIcon />, isNew: true },

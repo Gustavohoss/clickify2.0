@@ -25,6 +25,7 @@ import { PrecoSettings } from './PrecoSettings';
 import { TermosSettings } from './TermosSettings';
 import { TextoSettings } from './TextoSettings';
 import { VideoSettings } from './VideoSettings';
+import { GraficoCircularSettings } from './GraficoCircularSettings';
 
 
 export const ComponentSettings = ({
@@ -81,6 +82,8 @@ export const ComponentSettings = ({
         return <FaqSettings component={component} onUpdate={handleUpdate} />;
       case 'Gráficos':
         return <GraficosSettings component={component} onUpdate={handleUpdate} />;
+      case 'Gráfico Circular':
+        return <GraficoCircularSettings component={component} onUpdate={handleUpdate} />;
       case 'Imagem':
         return <ImagemSettings component={component} onUpdate={handleUpdate} />;
       case 'Lista':

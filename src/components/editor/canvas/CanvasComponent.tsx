@@ -30,6 +30,7 @@ import { PrecoCanvasComponent } from './PrecoCanvasComponent';
 import { TermosCanvasComponent } from './TermosCanvasComponent';
 import { TextoCanvasComponent } from './TextoCanvasComponent';
 import { VideoCanvasComponent } from './VideoCanvasComponent';
+import { GraficoCircularCanvasComponent } from './GraficoCircularCanvasComponent';
 
 export const CanvasComponent = ({
   component,
@@ -84,6 +85,8 @@ export const CanvasComponent = ({
         return <FaqCanvasComponent component={component} />;
       case 'Gráficos':
         return <GraficosCanvasComponent component={component} />;
+      case 'Gráfico Circular':
+        return <GraficoCircularCanvasComponent component={component} />;
       case 'Imagem':
         return <ImagemCanvasComponent component={component} />;
       case 'Lista':
