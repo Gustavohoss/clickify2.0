@@ -6,7 +6,14 @@ import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 import { ImageIcon } from 'lucide-react';
 import { PreviewCanvasComponent } from '@/components/editor/StandardFunnelEditor';
-import type { Funnel, Step } from '@/components/editor/types';
+import type { Funnel, Step, CanvasComponentData } from '@/components/editor/types';
+import { EspacadorCanvasComponent } from '@/components/editor/canvas/EspacadorCanvasComponent';
+
+const PublicEspacadorComponent = ({ component }: { component: CanvasComponentData }) => {
+  const { height = 50 } = component.props;
+  return <div style={{ height: `${height}px`, width: '100%' }} />;
+};
+
 
 export function QuizPublicViewer({ funnel }: { funnel: Funnel }) {
   const [activeStepId, setActiveStepId] = useState<number | null>(() => (funnel.steps as Step[])[0]?.id || null);
@@ -56,14 +63,20 @@ export function QuizPublicViewer({ funnel }: { funnel: Funnel }) {
           />
         </header>
         <div className="flex flex-col gap-4 p-4">
-          {activeStep?.components.map(comp => (
-            <PreviewCanvasComponent
-              key={comp.id}
-              component={comp}
-              onNextStep={handleNextStep}
-              onGoToStep={handleGoToStep}
-            />
-          ))}
+          {activeStep?.components.map(comp => {
+              if (comp.name === 'Espaçador') {
+                return <PublicEspacadorComponent key={comp.id} component={comp} />;
+              }
+              return (
+                <PreviewCanvasComponent
+                  key={comp.id}
+                  component={comp}
+                  onNextStep={handleNextStep}
+                  onGoToStep={handleGoToStep}
+                />
+              )
+            }
+          )}
         </div>
       </div>
     </div>
