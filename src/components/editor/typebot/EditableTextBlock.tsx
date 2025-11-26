@@ -48,6 +48,23 @@ export const EditableTextBlock = React.memo(
       setIsPopoverOpen(false);
     };
 
+    const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const text = e.clipboardData.getData('text/plain');
+      const selection = window.getSelection();
+      if (!selection) return;
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const textNode = document.createTextNode(text);
+      range.insertNode(textNode);
+      range.selectNodeContents(textNode);
+      range.collapse(false);
+      
+      if (editorRef.current) {
+        onSave(editorRef.current.innerHTML);
+      }
+    };
+
     return (
       <div className="relative w-full">
         <div
@@ -55,6 +72,7 @@ export const EditableTextBlock = React.memo(
           contentEditable
           suppressContentEditableWarning
           onBlur={handleBlur}
+          onPaste={handlePaste}
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
           data-placeholder="Digite sua mensagem..."
