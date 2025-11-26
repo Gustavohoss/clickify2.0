@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { RichTextToolbar } from './RichTextToolbar';
 import type { CanvasComponentData, ComponentProps } from '../types';
@@ -13,6 +13,13 @@ export const TextoSettings = ({
   onUpdate: (props: ComponentProps) => void;
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (editorRef.current) {
+      // Set initial content
+      editorRef.current.innerHTML = component.props.content || '';
+    }
+  }, [component.id]); // Only reset when the selected component changes
 
   const handleFormat = (command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -39,7 +46,7 @@ export const TextoSettings = ({
             suppressContentEditableWarning
             className="prose prose-sm w-full max-w-none overflow-auto rounded-b-md p-4 h-64 outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 lg:prose-base dark:prose-invert"
             dangerouslySetInnerHTML={{ __html: component.props.content || '' }}
-            onInput={handleContentChange}
+            onBlur={handleContentChange} // Change from onInput to onBlur
           />
         </div>
       </Card>
