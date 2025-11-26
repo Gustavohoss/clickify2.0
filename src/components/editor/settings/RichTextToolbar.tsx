@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { ReactNode } from 'react';
@@ -61,16 +62,16 @@ export const RichTextToolbar = ({ onFormat }: { onFormat: (command: string, valu
     <div className="flex flex-wrap items-center gap-1 rounded-t-md border-b border-white/10 bg-transparent p-1">
       <Select defaultValue="p" onValueChange={handleFormatBlockChange}>
         <SelectTrigger 
-          className="h-7 w-[90px] border-none bg-transparent text-xs text-gray-300 focus:ring-0"
+          className="h-7 w-[120px] border-none bg-transparent text-xs text-gray-300 focus:ring-0"
           onMouseDown={(e) => e.preventDefault()}
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent className='bg-gray-800 text-white border-gray-700'>
+          <SelectItem value="h1">Heading 1</SelectItem>
+          <SelectItem value="h2">Heading 2</SelectItem>
+          <SelectItem value="h3">Heading 3</SelectItem>
           <SelectItem value="p">Normal</SelectItem>
-          <SelectItem value="h1">Título 1</SelectItem>
-          <SelectItem value="h2">Título 2</SelectItem>
-          <SelectItem value="h3">Título 3</SelectItem>
         </SelectContent>
       </Select>
       <ToolbarButton icon={<Bold size={16} />} command="bold" />
