@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Trash2 } from 'lucide-react';
 import React from 'react';
-import type { CanvasBlock } from '../../types';
+import type { CanvasBlock, ButtonItem } from '../../types';
 
 export const ButtonsBlockSettings = ({
   block,
@@ -16,7 +16,7 @@ export const ButtonsBlockSettings = ({
   onUpdate: (id: number, props: any) => void;
 }) => {
   const props = block.props || {};
-  const buttons = props.buttons || [];
+  const buttons: ButtonItem[] = props.buttons || [];
 
   const handleChange = (key: string, value: any) => {
     onUpdate(block.id, { ...props, [key]: value });
@@ -24,7 +24,7 @@ export const ButtonsBlockSettings = ({
 
   const handleButtonChange = (index: number, newText: string) => {
     const newButtons = [...buttons];
-    newButtons[index].text = newText;
+    newButtons[index] = { ...newButtons[index], text: newText };
     handleChange('buttons', newButtons);
   };
 
@@ -46,7 +46,7 @@ export const ButtonsBlockSettings = ({
       <div>
         <Label className="text-xs text-white/50">Botões</Label>
         <div className="space-y-2 mt-1">
-          {buttons.map((button: any, index: number) => (
+          {buttons.map((button, index) => (
             <div key={index} className="flex items-center gap-2">
               <Input
                 value={button.text}
