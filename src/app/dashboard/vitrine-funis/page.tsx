@@ -28,7 +28,7 @@ const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
     id: 'hvnSJgleQly13ArWja6f',
     name: 'TREINO PMT',
     description: 'Funil de Quiz para produto de emagrecimento.',
-    imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ujd4w49j8fky7x5q2kdx2y3a?v=1764124317079',
+    imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/vq3dlad75ysvpgjpvjtqwuxl?v=1764147033314',
     type: 'quiz',
     // The actual funnel data is now stored here, making it independent
     funnelData: {
@@ -313,7 +313,7 @@ const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
           name: "Etapa 33",
           components: [
             { id: 1764140202030, name: "Texto", props: { content: `<h3 style="text-align: center;">Seu plano de Treinos Exclusivo e Personalizados está pronto. </h3><div style="text-align: center;">Baseado nas suas respostas, criamos um plano personalizado para você.</div><div> </div>` } },
-            { id: 1764140219309, name: "Gráficos", props: { barColor: "#991eeb", graficosLayout: "3-cols", graficosItems: [ { id: 1764140219309, label: "7 DIAS", subtitle: "Vai se sentir mais disposta", title: "Início", value: 20 }, { id: 1764140219310, label: "15 DIAS", subtitle: "Seu corpo já se acostumou", title: "Durante", value: 45 }, { id: 1764140220850, label: "21 DIAS", subtitle: "Seu corpo mudou completamente", title: "Durante", value: 80 } ] } },
+            { id: 1764140219309, name: "Gráficos", props: { barColor: "#991eeb", graficosItems: [ { id: 1764140219309, label: "7 DIAS", subtitle: "Vai se sentir mais disposta", title: "Início", value: 20 }, { id: 1764140219310, label: "15 DIAS", subtitle: "Seu corpo já se acostumou", title: "Durante", value: 45 }, { id: 1764140220850, label: "21 DIAS", subtitle: "Seu corpo mudou completamente", title: "Durante", value: 80 } ], graficosLayout: "3-cols" } },
             { id: 1764140599725, name: "Alerta", props: { backgroundColor: "#FEF3C7", borderColor: "#F59E0B", description: " Seu plano exclusivo está preparado, bora começar agora mesmo!", model: "warning", textColor: "#92400E", title: "Tudo pronto!" } },
             { id: 1764140612629, name: "Botão", props: { backgroundColor: "#c30de7" } }
           ]
@@ -500,4 +500,5 @@ export default function VitrineFunisPage() {
   );
 }
 
+    
     
