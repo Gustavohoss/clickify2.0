@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -68,6 +69,7 @@ import { PrecoCanvasComponent } from './canvas/PrecoCanvasComponent';
 import { TermosCanvasComponent } from './canvas/TermosCanvasComponent';
 import { TextoCanvasComponent } from './canvas/TextoCanvasComponent';
 import { VideoCanvasComponent } from './canvas/VideoCanvasComponent';
+import { GraficoCircularCanvasComponent } from './canvas/GraficoCircularCanvasComponent';
 import Image from 'next/image';
 import { Progress } from '../ui/progress.tsx';
 import { useToast } from '@/hooks/use-toast';
@@ -99,6 +101,7 @@ export const PreviewCanvasComponent = ({
       case 'Espaçador': return <EspacadorCanvasComponent component={component} />;
       case 'FAQ': return <FaqCanvasComponent component={component} />;
       case 'Gráficos': return <GraficosCanvasComponent component={component} />;
+      case 'Gráfico Circular': return <GraficoCircularCanvasComponent component={component} />;
       case 'Imagem': return <ImagemCanvasComponent component={component} />;
       case 'Lista': return <ListaCanvasComponent component={component} />;
       case 'Lista 2.0': return <Lista2CanvasComponent component={component} />;
@@ -398,6 +401,14 @@ export function StandardFunnelEditor({
       };
     }
 
+    if (component.name === 'Gráfico Circular') {
+      defaultProps = {
+        title: 'SUA CHANCE DE TER O CORPO QUE TANTO DESEJA COM O TREINOS PMT',
+        value: 100,
+        progressColor: '#EC4899',
+      };
+    }
+
     if (component.name === 'Lista') {
       defaultProps = {
         listItems: [
@@ -444,8 +455,8 @@ export function StandardFunnelEditor({
     if (component.name === 'Opções') {
       defaultProps = {
         opcoesItems: [
-          { id: Date.now() + 1, icon: '💬', text: 'Opção 1' },
-          { id: Date.now() + 2, icon: '✅', text: 'Opção 2' },
+          { id: Date.now() + 1, iconType: 'emoji', icon: '💬', text: 'Opção 1' },
+          { id: Date.now() + 2, iconType: 'emoji', icon: '✅', text: 'Opção 2' },
         ],
       };
     }
