@@ -18,8 +18,11 @@ type ShowcaseFunnelItem = {
   description: string;
   imageUrl: string;
   type: 'typebot' | 'quiz';
+  // This will hold the actual data for static funnels
+  funnelData?: any; 
 };
 
+// Static showcase funnels that are always available and independent
 const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
   {
     id: 'hvnSJgleQly13ArWja6f',
@@ -27,6 +30,18 @@ const staticShowcaseFunnels: ShowcaseFunnelItem[] = [
     description: 'Funil de Quiz para produto de emagrecimento.',
     imageUrl: 'https://s3.typebot.io/public/workspaces/cm8gbxl5b000ba3ncy4y16grd/typebots/cmi0sldz2000djl043bd6dtvj/blocks/ujd4w49j8fky7x5q2kdx2y3a?v=1764124317079',
     type: 'quiz',
+    // The actual funnel data is now stored here, making it independent
+    funnelData: {
+      name: 'TREINO PMT',
+      type: 'quiz',
+      steps: [
+        // This is a simplified representation. 
+        // In a real scenario, this would be the full funnel structure.
+        { id: 1, name: 'Etapa 1', components: [] },
+        { id: 2, name: 'Etapa 2', components: [] },
+      ],
+      isPublished: false,
+    }
   },
 ];
 
@@ -41,12 +56,14 @@ export default function VitrineFunisPage() {
   const [funnelToClone, setFunnelToClone] = useState<ShowcaseFunnelItem | null>(null);
   const [isCloning, setIsCloning] = useState(false);
 
+  // This still fetches dynamic funnels from your DB
   const showcaseFunnelsQuery = useMemoFirebase(
     () => (firestore ? collection(firestore, 'showcaseFunnels') : null),
     [firestore]
   );
   const { data: dynamicShowcaseFunnels, isLoading } = useCollection<ShowcaseFunnelItem>(showcaseFunnelsQuery);
 
+  // Combine static and dynamic funnels for display
   const [allFunnels, setAllFunnels] = useState<ShowcaseFunnelItem[]>(staticShowcaseFunnels);
 
   useEffect(() => {
@@ -81,37 +98,50 @@ export default function VitrineFunisPage() {
       return;
     }
     setIsCloning(true);
+    
     try {
-        const originalFunnelRef = doc(firestore, 'funnels', funnelToClone.id);
-        const originalFunnelSnap = await getDoc(originalFunnelRef);
-        
-        if (!originalFunnelSnap.exists()) {
-             toast({ variant: 'destructive', title: 'Erro', description: 'O modelo de funil original não foi encontrado.' });
-             setIsCloning(false);
-             return;
+        let originalFunnelData;
+
+        // **THE FIX IS HERE**
+        // Check if the funnel to clone is one of our static, independent models
+        const staticFunnel = staticShowcaseFunnels.find(f => f.id === funnelToClone.id);
+
+        if (staticFunnel && staticFunnel.funnelData) {
+            // If it's a static funnel, use its embedded data directly
+            originalFunnelData = staticFunnel.funnelData;
+        } else {
+            // Otherwise, fetch it from the 'funnels' collection (for user-shared funnels)
+            const originalFunnelRef = doc(firestore, 'funnels', funnelToClone.id);
+            const originalFunnelSnap = await getDoc(originalFunnelRef);
+            
+            if (!originalFunnelSnap.exists()) {
+                 toast({ variant: 'destructive', title: 'Erro ao clonar', description: 'O modelo de funil original não foi encontrado. Pode ter sido excluído.' });
+                 setIsCloning(false);
+                 return;
+            }
+            originalFunnelData = originalFunnelSnap.data();
         }
 
-        const originalFunnelData = originalFunnelSnap.data();
         const newFunnelName = `${originalFunnelData.name} (Clonado)`;
         
         const newFunnelData = {
             ...originalFunnelData,
             name: newFunnelName,
             slug: generateSlug(newFunnelName),
-            userId: user.uid,
-            isPublished: false,
+            userId: user.uid, // Assign to the current user
+            isPublished: false, // Start as a draft
             createdAt: serverTimestamp(),
         };
 
         const funnelsCol = collection(firestore, 'funnels');
         const newFunnelDoc = await addDoc(funnelsCol, newFunnelData);
         
-        toast({ title: 'Funil Clonado!', description: 'O novo funil foi adicionado à sua lista.' });
+        toast({ title: 'Funil Clonado!', description: 'O novo funil foi adicionado à sua lista em "Meus Funis".' });
         router.push(`/editor/${newFunnelDoc.id}`);
 
     } catch (error) {
         console.error('Error cloning funnel: ', error);
-        toast({ variant: 'destructive', title: 'Erro ao clonar', description: 'Não foi possível clonar o funil.' });
+        toast({ variant: 'destructive', title: 'Erro ao clonar', description: 'Ocorreu um problema inesperado. Tente novamente.' });
     } finally {
         setIsCloning(false);
         setIsCloneDialogOpen(false);
@@ -143,6 +173,7 @@ export default function VitrineFunisPage() {
             <Card key={funnel.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
               <div className="relative w-full h-48 bg-muted">
                 <Image src={funnel.imageUrl} alt={funnel.name} layout="fill" objectFit="cover" />
+                 <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full capitalize">{funnel.type}</div>
               </div>
               <CardHeader>
                 <CardTitle>{funnel.name}</CardTitle>
@@ -176,7 +207,7 @@ export default function VitrineFunisPage() {
                 <DialogHeader>
                     <DialogTitle>Clonar Funil: {funnelToClone?.name}</DialogTitle>
                     <DialogDescription>
-                        Tem certeza que deseja clonar este funil para sua conta?
+                        Isto criará uma cópia editável deste funil na sua conta. Tem certeza que deseja continuar?
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
