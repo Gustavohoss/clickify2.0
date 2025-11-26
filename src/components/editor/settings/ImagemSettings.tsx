@@ -47,27 +47,50 @@ export const ImagemSettings = ({
 
       <Card className="border-border/50 bg-card p-4">
         <h3 className="mb-4 text-sm font-medium text-muted-foreground">Estilo</h3>
-        <div>
-          <UILabel htmlFor="borderRadius" className="text-xs">
-            Arredondamento da Borda
-          </UILabel>
-          <Select
-            value={component.props.borderRadius || 'md'}
-            onValueChange={(value: 'none' | 'sm' | 'md' | 'lg' | 'full') =>
-              onUpdate({ ...component.props, borderRadius: value })
-            }
-          >
-            <SelectTrigger id="borderRadius" className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Nenhum</SelectItem>
-              <SelectItem value="sm">Pequeno</SelectItem>
-              <SelectItem value="md">Médio</SelectItem>
-              <SelectItem value="lg">Grande</SelectItem>
-              <SelectItem value="full">Total (Círculo)</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="space-y-4">
+          <div>
+            <UILabel htmlFor="borderRadius" className="text-xs">
+              Arredondamento da Borda
+            </UILabel>
+            <Select
+              value={component.props.borderRadius || 'md'}
+              onValueChange={(value: 'none' | 'sm' | 'md' | 'lg' | 'full') =>
+                onUpdate({ ...component.props, borderRadius: value })
+              }
+            >
+              <SelectTrigger id="borderRadius" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Nenhum</SelectItem>
+                <SelectItem value="sm">Pequeno</SelectItem>
+                <SelectItem value="md">Médio</SelectItem>
+                <SelectItem value="lg">Grande</SelectItem>
+                <SelectItem value="full">Total (Círculo)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <UILabel htmlFor="imageSize" className="text-xs">
+              Tamanho da Imagem
+            </UILabel>
+            <Select
+              value={component.props.imageSize || 'full'}
+              onValueChange={(value: 'small' | 'medium' | 'large' | 'full') =>
+                onUpdate({ ...component.props, imageSize: value })
+              }
+            >
+              <SelectTrigger id="imageSize" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="small">Pequeno</SelectItem>
+                <SelectItem value="medium">Médio</SelectItem>
+                <SelectItem value="large">Grande</SelectItem>
+                <SelectItem value="full">Largura Total</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </Card>
     </div>
