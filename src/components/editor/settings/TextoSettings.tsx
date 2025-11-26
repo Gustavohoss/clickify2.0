@@ -45,6 +45,12 @@ export const TextoSettings = ({
     setCurrentBlockType(blockType);
   }
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text/plain');
+    document.execCommand('insertText', false, text);
+  }
+
   return (
     <div className="space-y-6">
       <Card className="border-border/50 bg-card p-4">
@@ -59,6 +65,7 @@ export const TextoSettings = ({
             onBlur={handleContentChange}
             onKeyUp={updateCurrentBlockType}
             onMouseUp={updateCurrentBlockType}
+            onPaste={handlePaste}
           />
         </div>
       </Card>
