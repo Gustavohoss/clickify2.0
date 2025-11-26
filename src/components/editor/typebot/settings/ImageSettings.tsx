@@ -10,11 +10,9 @@ import type { CanvasBlock } from '../../types';
 export const ImageBlockSettings = ({
   block,
   onUpdate,
-  position,
 }: {
   block: CanvasBlock;
   onUpdate: (id: number, props: any) => void;
-  position: { x: number; y: number };
 }) => {
   const [imageUrl, setImageUrl] = useState(block.props?.imageUrl || '');
   const [onClickLink, setOnClickLink] = useState(
@@ -33,11 +31,7 @@ export const ImageBlockSettings = ({
 
   return (
     <div
-      className="absolute w-72 rounded-lg bg-[#262626] p-3 shadow-lg"
-      style={{
-        left: `${position.x + 300}px`,
-        top: `${position.y}px`,
-      }}
+      className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 rounded-lg bg-[#262626] p-3 shadow-lg z-20"
       onMouseDown={(e) => e.stopPropagation()}
     >
       <Tabs defaultValue="link" className="w-full">

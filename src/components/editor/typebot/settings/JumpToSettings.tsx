@@ -8,12 +8,10 @@ import { Label } from '@/components/ui/label';
 export const JumpToBlockSettings = ({
   block,
   onUpdate,
-  position,
   groups,
 }: {
   block: CanvasBlock;
   onUpdate: (id: number, props: any) => void;
-  position: { x: number; y: number };
   groups: CanvasBlock[];
 }) => {
   const props = block.props || {};
@@ -25,11 +23,7 @@ export const JumpToBlockSettings = ({
 
   return (
     <div
-      className="absolute w-72 rounded-lg bg-[#262626] p-4 shadow-lg space-y-4 text-white"
-      style={{
-        left: `${position.x + 300}px`,
-        top: `${position.y}px`,
-      }}
+      className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 rounded-lg bg-[#262626] p-4 shadow-lg space-y-4 text-white z-20"
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div>

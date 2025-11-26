@@ -1238,38 +1238,6 @@ export function TypebotEditor({
     return undefined;
   };
 
-  const getBlockPosition = (id: number | null): { x: number; y: number } => {
-    const canvasBlocks = (funnel.steps || []) as CanvasBlock[];
-    if (id === null || !canvasRef.current) return { x: 0, y: 0 };
-  
-    const block = findBlock(id, canvasBlocks);
-    if (!block) return { x: 0, y: 0 };
-  
-    // If it's a child block, calculate its absolute position on the canvas
-    if (block.parentId) {
-      const parent = findBlock(block.parentId, canvasBlocks);
-      const blockElement = document.getElementById(`block-${id}`);
-      if (parent && blockElement) {
-        const parentElement = document.getElementById(`block-${parent.id}`);
-        if(parentElement) {
-            const parentRect = parentElement.getBoundingClientRect();
-            const blockRect = blockElement.getBoundingClientRect();
-            const canvasRect = canvasRef.current.getBoundingClientRect();
-
-            // Calculate position relative to parent, then add parent's canvas position
-            const x = (blockRect.left - parentRect.left) / zoom + parent.position.x;
-            const y = (blockRect.top - parentRect.top) / zoom + parent.position.y;
-            return { x, y };
-        }
-      }
-      // Fallback if elements not found, return parent's position
-      return parent?.position || { x: 0, y: 0 };
-    }
-  
-    // If it's a top-level block, just return its stored position
-    return block.position;
-  };
-
   const canvasBlocksRef = useRef((funnel.steps || []) as CanvasBlock[]);
   canvasBlocksRef.current = (funnel.steps || []) as CanvasBlock[];
   const connectionsRef = useRef((funnel as any).connections || []);
@@ -1467,7 +1435,6 @@ export function TypebotEditor({
   };
 
   const selectedBlock = findBlock(selectedBlockId, (funnel.steps || []) as CanvasBlock[]);
-  const selectedBlockPosition = getBlockPosition(selectedBlockId);
   const publicUrl = typeof window !== 'undefined' ? `${window.location.origin}/funil/${funnel.slug}/${funnel.id}` : '';
   const iframeCode = `<iframe src="${publicUrl}" width="100%" height="600" frameborder="0"></iframe>`;
 
@@ -1478,7 +1445,8 @@ export function TypebotEditor({
     const props = {
       block: selectedBlock,
       onUpdate: updateBlockProps,
-      position: selectedBlockPosition,
+      variables: funnel.variables || [],
+      onAddVariable: (v: string) => updateFunnelState(p => ({...p, variables: [...(p.variables || []), v]})),
     };
 
     switch(selectedBlock.type) {
@@ -1502,11 +1470,11 @@ export function TypebotEditor({
       case 'input-buttons':
         return <ButtonsBlockSettings {...props} />;
       case 'input-text':
-        return <TextBlockSettings {...props} variables={funnel.variables || []} onAddVariable={(v) => updateFunnelState(p => ({...p, variables: [...(p.variables || []), v]}))}/>;
+        return <TextBlockSettings {...props} />;
       case 'input-email':
-        return <EmailBlockSettings {...props} variables={funnel.variables || []} onAddVariable={(v) => updateFunnelState(p => ({...p, variables: [...(p.variables || []), v]}))}/>;
+        return <EmailBlockSettings {...props} />;
       case 'input-website':
-        return <WebsiteBlockSettings {...props} variables={funnel.variables || []} onAddVariable={(v) => updateFunnelState(p => ({...p, variables: [...(p.variables || []), v]}))}/>;
+        return <WebsiteBlockSettings {...props} />;
       case 'input-pic':
         return <ImageChoiceSettings {...props} />;
       default:
@@ -1891,10 +1859,3 @@ export function TypebotEditor({
     </div>
   );
 }
-
-
-
-
-
-
-
