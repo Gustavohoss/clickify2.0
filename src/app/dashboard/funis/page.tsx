@@ -15,10 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, Milestone, MoreVertical, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { PlusCircle, Milestone, MoreVertical, Trash2, Copy } from 'lucide-react';
 import Link from 'next/link';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, doc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +35,10 @@ export default function FunisPage() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [funnelToDelete, setFunnelToDelete] = useState<string | null>(null);
+  
+  const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false);
+  const [funnelToCloneId, setFunnelToCloneId] = useState('');
+  const [isCloning, setIsCloning] = useState(false);
 
   const funnelsQuery = useMemoFirebase(
     () =>
@@ -71,6 +78,62 @@ export default function FunisPage() {
     }
   };
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[\s-]+/g, '-');
+  };
+
+  const handleCloneFunnel = async () => {
+    if (!funnelToCloneId.trim() || !user || !firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Código Inválido',
+        description: 'Por favor, insira um código de funil válido.',
+      });
+      return;
+    }
+    setIsCloning(true);
+    try {
+        const originalFunnelRef = doc(firestore, 'funnels', funnelToCloneId.trim());
+        const originalFunnelSnap = await getDoc(originalFunnelRef);
+
+        if (!originalFunnelSnap.exists()) {
+            toast({ variant: 'destructive', title: 'Funil não encontrado', description: 'O código informado não corresponde a nenhum funil.' });
+            setIsCloning(false);
+            return;
+        }
+
+        const originalFunnelData = originalFunnelSnap.data();
+        const newFunnelName = `${originalFunnelData.name} (Cópia)`;
+        
+        const newFunnelData = {
+            ...originalFunnelData,
+            name: newFunnelName,
+            slug: generateSlug(newFunnelName),
+            userId: user.uid,
+            isPublished: false,
+            createdAt: serverTimestamp(),
+        };
+
+        const funnelsCol = collection(firestore, 'funnels');
+        const newFunnelDoc = await addDoc(funnelsCol, newFunnelData);
+        
+        toast({ title: 'Funil Clonado!', description: 'Uma cópia do funil foi criada na sua conta.' });
+        router.push(`/editor/${newFunnelDoc.id}`);
+
+    } catch (error) {
+        console.error('Error cloning funnel: ', error);
+        toast({ variant: 'destructive', title: 'Erro ao clonar', description: 'Não foi possível clonar o funil. Verifique o código e tente novamente.' });
+    } finally {
+        setIsCloning(false);
+        setIsCloneDialogOpen(false);
+        setFunnelToCloneId('');
+    }
+  }
+
 
   return (
     <div className="space-y-8">
@@ -83,12 +146,47 @@ export default function FunisPage() {
             Crie, personalize e publique seus funis para converter visitantes em clientes.
           </p>
         </div>
-        <Button size="lg" asChild>
-          <Link href="/dashboard/funis/novo">
-            <PlusCircle className="mr-2 h-5 w-5" />
-            Criar Novo Funil
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+            <Dialog open={isCloneDialogOpen} onOpenChange={setIsCloneDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button variant="outline">
+                        <Copy className="mr-2 h-4 w-4" />
+                        Clonar Funil
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Clonar Funil Existente</DialogTitle>
+                        <DialogDescription>
+                            Insira o código do funil que você deseja clonar para sua conta.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="funnel-id">Código do Funil</Label>
+                            <Input
+                            id="funnel-id"
+                            placeholder="Cole o código do funil aqui"
+                            value={funnelToCloneId}
+                            onChange={(e) => setFunnelToCloneId(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsCloneDialogOpen(false)}>Cancelar</Button>
+                        <Button onClick={handleCloneFunnel} disabled={isCloning}>
+                            {isCloning ? 'Clonando...' : 'Clonar'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <Button size="lg" asChild>
+            <Link href="/dashboard/funis/novo">
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Criar Novo Funil
+            </Link>
+            </Button>
+        </div>
       </div>
 
       {isLoading && <p>Carregando funis...</p>}
