@@ -71,10 +71,6 @@ export default function VitrineFunisPage() {
       });
       return;
     }
-     if (!checkoutUrl) {
-      toast({ variant: "destructive", title: "Erro", description: "Por favor, insira um link de checkout." });
-      return;
-    }
 
     setIsCloning(true);
     
@@ -97,27 +93,29 @@ export default function VitrineFunisPage() {
             originalFunnelData = JSON.parse(JSON.stringify(originalFunnelSnap.data()));
         }
 
-        // ---- INSERT CHECKOUT URL LOGIC ----
-        if (originalFunnelData.type === 'quiz') {
-            const lastStep = originalFunnelData.steps[originalFunnelData.steps.length - 1];
-            if (lastStep && lastStep.components) {
-                lastStep.components.forEach((component: any) => {
-                    if (component.name === 'Botão') {
-                        component.props.action = 'open_url';
-                        component.props.url = checkoutUrl;
+        // ---- INSERT CHECKOUT URL LOGIC (Optional) ----
+        if (checkoutUrl) {
+            if (originalFunnelData.type === 'quiz') {
+                const lastStep = originalFunnelData.steps[originalFunnelData.steps.length - 1];
+                if (lastStep && lastStep.components) {
+                    lastStep.components.forEach((component: any) => {
+                        if (component.name === 'Botão') {
+                            component.props.action = 'open_url';
+                            component.props.url = checkoutUrl;
+                        }
+                    });
+                }
+            } else if (originalFunnelData.type === 'typebot') {
+                const redirectBlock = originalFunnelData.steps.find((step: any) => step.type === 'logic-redirect' || (step.children && step.children.some((child:any) => child.type === 'logic-redirect')));
+                if(redirectBlock) {
+                     if (redirectBlock.children) {
+                        const childRedirect = redirectBlock.children.find((child: any) => child.type === 'logic-redirect');
+                        if (childRedirect) {
+                            childRedirect.props = { ...childRedirect.props, url: checkoutUrl, openInNewTab: true };
+                        }
+                    } else {
+                        redirectBlock.props = { ...redirectBlock.props, url: checkoutUrl, openInNewTab: true };
                     }
-                });
-            }
-        } else if (originalFunnelData.type === 'typebot') {
-            const redirectBlock = originalFunnelData.steps.find((step: any) => step.type === 'logic-redirect' || (step.children && step.children.some((child:any) => child.type === 'logic-redirect')));
-            if(redirectBlock) {
-                 if (redirectBlock.children) {
-                    const childRedirect = redirectBlock.children.find((child: any) => child.type === 'logic-redirect');
-                    if (childRedirect) {
-                        childRedirect.props = { ...childRedirect.props, url: checkoutUrl, openInNewTab: true };
-                    }
-                } else {
-                    redirectBlock.props = { ...redirectBlock.props, url: checkoutUrl, openInNewTab: true };
                 }
             }
         }
@@ -232,7 +230,7 @@ export default function VitrineFunisPage() {
                 <DialogHeader>
                     <DialogTitle>Clonar Funil: {funnelToClone?.name}</DialogTitle>
                     <DialogDescription>
-                        Para finalizar, insira seu link de checkout. Ele será adicionado automaticamente ao final do funil.
+                        Para finalizar, insira seu link de checkout (opcional). Ele será adicionado automaticamente ao final do funil.
                     </DialogDescription>
                 </DialogHeader>
                  <div className="space-y-2 py-4">
