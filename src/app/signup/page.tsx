@@ -82,7 +82,6 @@ export default function SignupPage() {
         planId: isAdmin ? 'vitalicio' : '',
         isAdmin: isAdmin,
         balance: 0,
-        simulateRevenue: true, 
       });
 
 

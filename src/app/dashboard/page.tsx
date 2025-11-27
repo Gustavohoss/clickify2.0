@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const [chartData, setChartData] = useState<{ date: string; revenue: number }[]>([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
 
-  const thirtyDaysAgo = useMemo(() => subDays(new Date(), 30), []);
+  const sevenDaysAgo = useMemo(() => subDays(new Date(), 7), []);
 
   const earningsQuery = useMemoFirebase(
     () =>
@@ -43,10 +43,10 @@ export default function DashboardPage() {
         ? query(
             collection(firestore, 'users', user.uid, 'earnings'),
             orderBy('date', 'desc'),
-            where('date', '>=', format(thirtyDaysAgo, 'yyyy-MM-dd'))
+            where('date', '>=', format(sevenDaysAgo, 'yyyy-MM-dd'))
           )
         : null,
-    [firestore, user, thirtyDaysAgo]
+    [firestore, user, sevenDaysAgo]
   );
   const { data: earningsData } = useCollection<Earning>(earningsQuery);
 
@@ -58,7 +58,7 @@ export default function DashboardPage() {
   const pendingRevenue = pendingSales?.reduce((sum, sale) => sum + sale.price, 0) || 0;
 
   useEffect(() => {
-    const last30Days = Array.from({ length: 30 }, (_, i) => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = subDays(new Date(), i);
       return {
         fullDate: format(date, 'yyyy-MM-dd'),
@@ -66,7 +66,7 @@ export default function DashboardPage() {
       };
     }).reverse();
 
-    const newChartData = last30Days.map(day => {
+    const newChartData = last7Days.map(day => {
         const earningForDay = earningsData?.find(e => e.date === day.fullDate);
         return {
             date: day.displayDate,
@@ -185,7 +185,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Ganhos</CardTitle>
             <CardDescription>
-              Faturamento dos últimos 30 dias.
+              Faturamento dos últimos 7 dias.
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -47,10 +47,6 @@
         "balance": {
           "type": "number",
           "description": "The user's current account balance."
-        },
-        "simulateRevenue": {
-          "type": "boolean",
-          "description": "If true, dashboard revenue chart will simulate data based on balance."
         }
       },
       "required": [
