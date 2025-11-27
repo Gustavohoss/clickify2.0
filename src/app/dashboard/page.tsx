@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { BookUser, BrainCircuit, DollarSign, Milestone, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { AreaChart as RechartsAreaChart, XAxis, CartesianGrid } from 'recharts';
+import { AreaChart as RechartsAreaChart, XAxis, CartesianGrid, Area as RechartsPrimitive } from 'recharts';
 import { useCollection, useFirestore, useUser, useMemoFirebase, doc, useDoc } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { subDays, format } from 'date-fns';
@@ -83,11 +83,10 @@ export default function DashboardPage() {
     let newChartData;
 
     if (userData?.simulateRevenue) {
-      newChartData = last7Days.map((day, index) => {
-        // Map day1-day7 relative to today (day7=today, day6=yesterday, etc.)
+       newChartData = last7Days.map((dayInfo, index) => {
         const dayKey = `day${index + 1}` as keyof NonNullable<UserData['simulateRevenue']>;
         return {
-          date: day.displayDate,
+          date: dayInfo.displayDate,
           revenue: userData.simulateRevenue?.[dayKey] || 0,
         };
       });
@@ -243,7 +242,7 @@ export default function DashboardPage() {
                     />
                   }
                 />
-                <RechartsPrimitive.Area
+                <RechartsPrimitive
                   dataKey="revenue"
                   type="natural"
                   fill="var(--color-revenue)"
