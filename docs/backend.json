@@ -49,17 +49,8 @@
           "description": "The user's current account balance."
         },
         "simulateRevenue": {
-          "type": "object",
-          "description": "Data for simulating revenue in the dashboard chart.",
-          "properties": {
-            "day1": { "type": "number" },
-            "day2": { "type": "number" },
-            "day3": { "type": "number" },
-            "day4": { "type": "number" },
-            "day5": { "type": "number" },
-            "day6": { "type": "number" },
-            "day7": { "type": "number" }
-          }
+          "type": "boolean",
+          "description": "If true, the dashboard chart will show a simulated revenue distribution based on the total balance."
         }
       },
       "required": [

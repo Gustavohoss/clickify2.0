@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -21,15 +22,7 @@ type Earning = {
 
 type UserData = {
   balance: number;
-  simulateRevenue?: {
-    day1?: number;
-    day2?: number;
-    day3?: number;
-    day4?: number;
-    day5?: number;
-    day6?: number;
-    day7?: number;
-  };
+  simulateRevenue?: boolean; // Changed to a boolean toggle
 };
 
 const chartConfig = {
@@ -82,15 +75,33 @@ export default function DashboardPage() {
 
     let newChartData;
 
-    if (userData?.simulateRevenue) {
-       newChartData = last7Days.map((dayInfo, index) => {
-        const dayKey = `day${index + 1}` as keyof NonNullable<UserData['simulateRevenue']>;
+    if (userData?.simulateRevenue && totalRevenue > 0) {
+      // Distribute the total balance randomly across 7 days
+      let remainingBalance = totalRevenue;
+      const simulatedValues = Array(7).fill(0).map(() => {
+        const value = Math.random() * remainingBalance;
+        remainingBalance -= value;
+        return value;
+      });
+
+      // A simple shuffle to make it less predictable
+      for (let i = simulatedValues.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [simulatedValues[i], simulatedValues[j]] = [simulatedValues[j], simulatedValues[i]];
+      }
+      
+      // Ensure the last day gets the remainder to sum up correctly
+      simulatedValues[6] += remainingBalance;
+      
+      newChartData = last7Days.map((dayInfo, index) => {
         return {
           date: dayInfo.displayDate,
-          revenue: userData.simulateRevenue?.[dayKey] || 0,
+          revenue: simulatedValues[index] || 0,
         };
       });
+
     } else {
+      // Use real earnings data
       newChartData = last7Days.map((day) => {
         const earningForDay = earningsData?.find(e => e.date === day.fullDate);
         return {
@@ -102,7 +113,7 @@ export default function DashboardPage() {
     
     setChartData(newChartData);
     
-  }, [earningsData, userData]);
+  }, [earningsData, userData, totalRevenue]);
 
 
   const funnelsQuery = useMemoFirebase(
