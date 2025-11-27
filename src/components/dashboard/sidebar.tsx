@@ -12,6 +12,7 @@ import {
   LogOut,
   Package,
   BookUser,
+  FileX,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/landing/logo';
@@ -25,6 +26,7 @@ const navLinks = [
   { href: '/dashboard/area-de-membros', label: 'Área de Membros', icon: BookUser },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
   { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
+  { href: '/dashboard/remover-meta-dados', label: 'Remover metadados', icon: FileX },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
