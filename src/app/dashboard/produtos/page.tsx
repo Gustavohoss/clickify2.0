@@ -179,7 +179,11 @@ export default function ProdutosPage() {
                 <CardTitle className="text-lg">{product.name}</CardTitle>
                 <div className="flex flex-col items-start gap-2 mt-2">
                    <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 w-fit">
-                    Ganhos de até {product.name === 'Dieta das Celebridades' ? 'R$ 41,93' : product.name === 'Elixir Anti-Barriga' ? 'R$ 27,00' : 'R$ 69,93'}
+                    Ganhos de até {
+                      product.name === 'Dieta das Celebridades' ? 'R$ 41,93' :
+                      product.name === 'Elixir Anti-Barriga' ? 'R$ 27,00' :
+                      product.name === 'Psicologia sombria' ? 'R$ 33,53' : 'R$ 69,93'
+                    }
                   </Badge>
                   <div className="flex flex-wrap gap-2">
                     <Badge className="bg-green-500/10 text-green-500 border-green-500/20 w-fit">
@@ -260,3 +264,5 @@ export default function ProdutosPage() {
     </div>
   );
 }
+
+    
