@@ -75,31 +75,15 @@ export default function DashboardPage() {
 
     let newChartData;
 
-    if (userData?.simulateRevenue && totalRevenue > 0) {
-      // Distribute the total balance randomly across 7 days
-      let remainingBalance = totalRevenue;
-      const simulatedValues = Array(7).fill(0).map(() => {
-        const value = Math.random() * remainingBalance;
-        remainingBalance -= value;
-        return value;
-      });
-
-      // A simple shuffle to make it less predictable
-      for (let i = simulatedValues.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [simulatedValues[i], simulatedValues[j]] = [simulatedValues[j], simulatedValues[i]];
-      }
-      
-      // Ensure the last day gets the remainder to sum up correctly
-      simulatedValues[6] += remainingBalance;
-      
-      newChartData = last7Days.map((dayInfo, index) => {
+    if (userData?.simulateRevenue) {
+      // Generate random revenue for each of the last 7 days between 800 and 1500
+      newChartData = last7Days.map((dayInfo) => {
+        const randomRevenue = Math.random() * (1500 - 800) + 800;
         return {
           date: dayInfo.displayDate,
-          revenue: simulatedValues[index] || 0,
+          revenue: randomRevenue,
         };
       });
-
     } else {
       // Use real earnings data
       newChartData = last7Days.map((day) => {
@@ -113,7 +97,7 @@ export default function DashboardPage() {
     
     setChartData(newChartData);
     
-  }, [earningsData, userData, totalRevenue]);
+  }, [earningsData, userData]);
 
 
   const funnelsQuery = useMemoFirebase(
