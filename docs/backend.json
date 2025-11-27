@@ -585,7 +585,7 @@
           "schema": {
             "$ref": "#/backend/entities/ShowcaseFunnel"
           },
-          "description": "Stores funnel templates for the showcase. Publicly readable.",
+          "description": "Stores funnel templates for the public showcase. Publicly readable.",
           "params": [
             {
               "name": "funnelId",
