@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -25,8 +26,8 @@ const navLinks = [
   { href: '/dashboard/vitrine-funis', label: 'Vitrine de Funis', icon: Package },
   { href: '/dashboard/area-de-membros', label: 'Área de Membros', icon: BookUser },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
-  { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
   { href: '/dashboard/remover-meta-dados', label: 'Remover metadados', icon: FileX },
+  { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
