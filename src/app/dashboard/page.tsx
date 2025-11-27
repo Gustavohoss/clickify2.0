@@ -122,6 +122,57 @@ export default function DashboardPage() {
       </div>
 
       <div className="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Ganhos</CardTitle>
+            <CardDescription>
+              Faturamento dos últimos 30 dias.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+              <RechartsAreaChart
+                accessibilityLayer
+                data={chartData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                }}
+              >
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={(value) => value.slice(0, 5)}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      indicator="dot"
+                      formatter={(value) =>
+                        new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        }).format(value as number)
+                      }
+                    />
+                  }
+                />
+                <Area
+                  dataKey="revenue"
+                  type="natural"
+                  fill="var(--color-revenue)"
+                  fillOpacity={0.4}
+                  stroke="var(--color-revenue)"
+                  stackId="a"
+                />
+              </RechartsAreaChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
         <div className="grid gap-4 md:grid-cols-2">
             <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
