@@ -2,18 +2,17 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { BarChart, BookUser, BrainCircuit, DollarSign, Milestone, Settings, ShoppingBag, Users, Zap, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { BookUser, BrainCircuit, DollarSign, Milestone, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { Area, AreaChart as RechartsAreaChart, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { Area, AreaChart as RechartsAreaChart, XAxis } from 'recharts';
 import { useCollection, useFirestore, useUser, useMemoFirebase, useDoc, doc } from '@/firebase';
-import { collection, query, where, orderBy, startAt } from 'firebase/firestore';
-import { subDays, format, parseISO } from 'date-fns';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import { subDays, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 type Earning = {
@@ -82,26 +81,27 @@ export default function DashboardPage() {
       };
     }).reverse();
 
-    const newChartData = last7Days.map((day, index) => {
-      const dayKey = `day${index + 1}` as keyof NonNullable<UserData['simulateRevenue']>;
-      
-      const simulatedValue = userData?.simulateRevenue?.[dayKey];
-      
-      if (simulatedValue !== undefined && simulatedValue !== null) {
-        // Use o valor simulado se ele existir
+    let newChartData;
+
+    if (userData?.simulateRevenue) {
+      // Se simulateRevenue existe, usa os dados dele exclusivamente.
+      newChartData = last7Days.map((day, index) => {
+        const dayKey = `day${index + 1}` as keyof NonNullable<UserData['simulateRevenue']>;
         return {
           date: day.displayDate,
-          revenue: simulatedValue,
+          revenue: userData.simulateRevenue?.[dayKey] || 0, // Usa 0 se o dia específico não estiver definido
         };
-      } else {
-        // Caso contrário, use os dados de ganhos reais
+      });
+    } else {
+      // Caso contrário, usa os dados reais de ganhos.
+      newChartData = last7Days.map((day) => {
         const earningForDay = earningsData?.find(e => e.date === day.fullDate);
         return {
           date: day.displayDate,
           revenue: earningForDay?.amount || 0,
         };
-      }
-    });
+      });
+    }
     
     setChartData(newChartData);
     
