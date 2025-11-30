@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -64,7 +63,7 @@ export default function Home() {
 
   return (
     <main className="dark">
-       <Header />
+       <Header isLinkDisabled={true} />
        <style jsx global>{`
         @keyframes slide {
           from { transform: translateX(0); }

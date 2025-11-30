@@ -5,7 +5,11 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/landing/logo";
 
-export function Header() {
+interface HeaderProps {
+  isLinkDisabled?: boolean;
+}
+
+export function Header({ isLinkDisabled = false }: HeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false);
 
   React.useEffect(() => {
@@ -15,6 +19,12 @@ export function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const LogoComponent = isLinkDisabled ? (
+    <div><Logo /></div>
+  ) : (
+    <Link href="/"><Logo /></Link>
+  );
 
   return (
     <header
@@ -26,9 +36,7 @@ export function Header() {
       )}
     >
       <div className="container mx-auto flex h-20 items-center justify-center px-4">
-        <Link href="/">
-          <Logo />
-        </Link>
+        {LogoComponent}
       </div>
     </header>
   );
