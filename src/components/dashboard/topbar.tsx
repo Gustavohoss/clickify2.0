@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -57,13 +56,23 @@ export function Topbar() {
   const { data: userData, mutate } = useDoc<UserData>(userDocRef);
 
   const notificationsQuery = useMemoFirebase(() => (firestore ? query(collection(firestore, 'notifications'), orderBy('createdAt', 'desc')) : null), [firestore]);
-  const { data: notifications } = useCollection<Notification>(notificationsQuery);
+  const { data: serverNotifications } = useCollection<Notification>(notificationsQuery);
 
   const [hasUnread, setHasUnread] = useState(false);
   const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const welcomeNotification: Notification = {
+    id: 'welcome-notification',
+    title: 'Bem-vindo ao Clickify!',
+    description: 'Explore a plataforma e comece a construir seu sucesso online.',
+    createdAt: Timestamp.now(),
+  };
+
+  const notifications = serverNotifications && serverNotifications.length > 0 ? serverNotifications : [welcomeNotification];
+
 
   useEffect(() => {
     if (userData) {
@@ -73,14 +82,14 @@ export function Topbar() {
   }, [userData]);
 
   useEffect(() => {
-    if (notifications && notifications.length > 0 && userData) {
+    if (serverNotifications && serverNotifications.length > 0 && userData) {
       const lastCheck = userData.lastNotificationCheck?.toDate();
-      const latestNotification = notifications[0].createdAt.toDate();
+      const latestNotification = serverNotifications[0].createdAt.toDate();
       if (!lastCheck || latestNotification > lastCheck) {
         setHasUnread(true);
       }
     }
-  }, [notifications, userData]);
+  }, [serverNotifications, userData]);
 
   const handleNotificationsOpen = async () => {
     if (hasUnread && userDocRef) {
