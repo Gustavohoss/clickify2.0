@@ -1,17 +1,19 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Gift, Tag } from 'lucide-react';
+import { Copy, Gift, Tag, Search } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Product = {
   id: string;
@@ -85,9 +87,62 @@ const staticProducts: Product[] = [
   }
 ];
 
+const productCategories = [
+  "Todos",
+  "Administração e Negócios",
+  "Animais de Estimação",
+  "Arquitetura e Engenharia",
+  "Artes e Música",
+  "Auto-ajuda e Desenvolvimento Pessoal",
+  "Automóveis",
+  "Blogs e Redes Sociais",
+  "Casa e Jardinagem",
+  "Culinária, Gastronomia, Receitas",
+  "Design e Templates PSD, PPT ou HTML",
+  "Edição de Áudio, Vídeo ou Imagens",
+  "Educacional, Cursos Técnicos e Profissionalizantes",
+  "Entretenimento, Lazer e Diversão",
+  "Esportes e Fitness",
+  "Filmes e Cinema",
+  "Geral",
+  "Histórias em Quadrinhos",
+  "HOT",
+  "Idiomas",
+  "Informática",
+  "Internet Marketing",
+  "Investimentos e Finanças",
+  "Jogos de Cartas, Poker, Loterias",
+  "Jogos de Computador, Jogos Online",
+  "Jurídico",
+  "Literatura e Poesia",
+  "Marketing de Rede",
+  "Marketing e Comunicação",
+  "Meio Ambiente",
+  "Moda e vestuário",
+  "Música, Bandas e Shows",
+  "Paquera, Sedução e Relacionamentos",
+  "Pessoas com deficiência",
+  "Plugins, Widgets e Extensões",
+  "Produtividade e Organização Pessoal",
+  "Produtos infantis",
+  "Relatórios, Artigos e Pesquisas",
+  "Religião e Crenças",
+  "Romances, Dramas, Estórias e Contos",
+  "RPG e Jogos de Mesa",
+  "Saúde, Bem-estar e Beleza",
+  "Scripts",
+  "Segurança do Trabalho",
+  "Sexologia e Sexualidade",
+  "Snippets (Trechos de Vídeo)",
+  "Turismo",
+];
+
 export default function ProdutosPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
 
   const productsQuery = useMemoFirebase(
     () => (firestore ? query(collection(firestore, 'affiliateProducts'), where('status', '==', 'approved')) : null),
@@ -96,9 +151,7 @@ export default function ProdutosPage() {
 
   const { data: dynamicProducts, isLoading } = useCollection<Product>(productsQuery);
 
-  const [allProducts, setAllProducts] = useState<Product[]>(staticProducts);
-
-  useEffect(() => {
+  const allProducts = useMemo(() => {
     if (dynamicProducts) {
       const combined = [...staticProducts];
       const staticIds = new Set(staticProducts.map(p => p.id));
@@ -107,9 +160,18 @@ export default function ProdutosPage() {
           combined.push(dp);
         }
       });
-      setAllProducts(combined);
+      return combined;
     }
+    return staticProducts;
   }, [dynamicProducts]);
+  
+  const filteredProducts = useMemo(() => {
+    return allProducts.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === 'Todos' || product.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [allProducts, searchTerm, selectedCategory]);
 
   const handleCopyLink = (link: string) => {
     if (link === '#') {
@@ -165,6 +227,30 @@ export default function ProdutosPage() {
           </p>
         </div>
       </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="relative md:col-span-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input 
+                placeholder="Pesquisar por nome..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+            />
+        </div>
+        <div>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                    <SelectValue placeholder="Selecionar categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                    {productCategories.map(cat => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+      </div>
 
       {isLoading && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -186,9 +272,9 @@ export default function ProdutosPage() {
         </div>
       )}
 
-      {!isLoading && allProducts && allProducts.length > 0 ? (
+      {!isLoading && filteredProducts && filteredProducts.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {allProducts.map((product) => (
+          {filteredProducts.map((product) => (
             <Card key={product.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
               <div className="relative w-full h-48">
                 <Image
@@ -284,9 +370,9 @@ export default function ProdutosPage() {
                     <div className="flex justify-center mb-4">
                         <Gift className="h-16 w-16 text-muted-foreground" />
                     </div>
-                    <h3 className="text-xl font-semibold">Nenhum produto na vitrine</h3>
+                    <h3 className="text-xl font-semibold">Nenhum produto encontrado</h3>
                     <p className="text-muted-foreground mt-2 mb-6 max-w-sm">
-                        Volte em breve! Novos produtos para afiliação são adicionados regularmente.
+                       {searchTerm || selectedCategory !== 'Todos' ? 'Tente ajustar seus filtros de busca.' : 'Volte em breve! Novos produtos para afiliação são adicionados regularmente.'}
                     </p>
                 </div>
             </Card>
