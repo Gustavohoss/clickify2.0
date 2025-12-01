@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { BookUser, BrainCircuit, DollarSign, Milestone, Clock } from 'lucide-react';
+import { BookUser, BrainCircuit, DollarSign, Milestone, Clock, UploadCloud } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   ChartContainer,
@@ -110,6 +110,16 @@ export default function DashboardPage() {
 
   const { data: funnels } = useCollection(funnelsQuery);
   const funnelCount = funnels?.length || 0;
+  
+  const productsQuery = useMemoFirebase(
+    () =>
+      user && firestore
+        ? query(collection(firestore, 'affiliateProducts'), where('userId', '==', user.uid))
+        : null,
+    [firestore, user]
+  );
+  const { data: products } = useCollection(productsQuery);
+  const productCount = products?.length || 0;
 
   const memberAreasQuery = useMemoFirebase(
     () =>
@@ -167,11 +177,13 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Produtos Criados</CardTitle>
-              <BrainCircuit className="h-4 w-4 text-muted-foreground" />
+              <UploadCloud className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">Nenhum produto criado ainda.</p>
+              <div className="text-2xl font-bold">{productCount}</div>
+              <p className="text-xs text-muted-foreground">
+                {productCount === 0 ? 'Nenhum produto criado ainda.' : `${productCount} produtos criados.`}
+              </p>
             </CardContent>
           </Card>
           <Card>
