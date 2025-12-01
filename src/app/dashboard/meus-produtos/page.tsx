@@ -47,7 +47,7 @@ export default function MeusProdutosPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<Product>>({});
+  const [formData, setFormData] = useState<Partial<Product>>({ price: 0 });
   const [isSaving, setIsSaving] = useState(false);
 
   const productsQuery = useMemoFirebase(
@@ -57,8 +57,13 @@ export default function MeusProdutosPage() {
   const { data: products, isLoading } = useCollection<Product>(productsQuery);
 
   const openFormDialog = (product: Product | null = null) => {
-    setProductToEdit(product);
-    setFormData(product ? { ...product } : { price: 0 });
+    if (product) {
+      setProductToEdit(product);
+      setFormData({ ...product });
+    } else {
+      setProductToEdit(null);
+      setFormData({ price: 0, commission: '', name: '', description: '', imageUrl: '', affiliateLink: '', quizId: '' });
+    }
     setIsFormOpen(true);
   };
 
@@ -143,52 +148,55 @@ export default function MeusProdutosPage() {
         </Button>
       </div>
 
-      {isLoading && <p>Carregando seus produtos...</p>}
-
-      {!isLoading && products && products.length > 0 ? (
+      {isLoading ? (
+        <p>Carregando seus produtos...</p>
+      ) : products && products.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <Card key={product.id} className="group relative flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
-              <CardHeader>
-                <div className="relative w-full h-40 mb-4 rounded-md overflow-hidden bg-muted">
-                  <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="contain" className="p-2"/>
-                </div>
-                <CardTitle className="flex justify-between items-start">
-                  <span>{product.name}</span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 -mt-1 -mr-2">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => openFormDialog(product)}>
-                        <Edit className="mr-2 h-4 w-4" /> Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => openDeleteDialog(product.id)}>
-                        <Trash2 className="mr-2 h-4 w-4" /> Excluir
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardTitle>
-                <CardDescription>
-                  <Badge className={statusInfo[product.status].color}>
-                    <statusInfo[product.status].icon className="mr-1 h-3 w-3" />
-                    {statusInfo[product.status].text}
-                  </Badge>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-              </CardContent>
-              <CardFooter className="flex justify-between text-sm">
-                <span>Comissão: <span className="font-bold">{product.commission}</span></span>
-                <span>Preço: <span className="font-bold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}</span></span>
-              </CardFooter>
-            </Card>
-          ))}
+          {products.map((product) => {
+            const StatusIcon = statusInfo[product.status].icon;
+            return (
+              <Card key={product.id} className="group relative flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
+                <CardHeader>
+                  <div className="relative w-full h-40 mb-4 rounded-md overflow-hidden bg-muted">
+                    <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="contain" className="p-2"/>
+                  </div>
+                  <CardTitle className="flex justify-between items-start">
+                    <span>{product.name}</span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 -mt-1 -mr-2">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openFormDialog(product)}>
+                          <Edit className="mr-2 h-4 w-4" /> Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => openDeleteDialog(product.id)}>
+                          <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </CardTitle>
+                  <CardDescription>
+                    <Badge className={statusInfo[product.status].color}>
+                      <StatusIcon className="mr-1 h-3 w-3" />
+                      {statusInfo[product.status].text}
+                    </Badge>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+                </CardContent>
+                <CardFooter className="flex justify-between text-sm">
+                  <span>Comissão: <span className="font-bold">{product.commission}</span></span>
+                  <span>Preço: <span className="font-bold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}</span></span>
+                </CardFooter>
+              </Card>
+            );
+          })}
         </div>
-      ) : !isLoading && (
+      ) : (
         <Card className="flex flex-col items-center justify-center py-20 border-dashed">
           <div className="text-center">
             <UploadCloud className="mx-auto h-16 w-16 text-muted-foreground" />
