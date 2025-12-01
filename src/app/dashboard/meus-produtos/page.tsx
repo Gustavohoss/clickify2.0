@@ -28,6 +28,7 @@ type Product = {
   commission: string;
   affiliateLink: string;
   quizId?: string;
+  userId: string;
   status: 'pending' | 'approved' | 'rejected';
 };
 
@@ -201,7 +202,7 @@ export default function MeusProdutosPage() {
       )}
 
       {/* Form Dialog */}
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+      <Dialog open={isFormOpen} onOpenChange={closeFormDialog}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{productToEdit ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
@@ -263,7 +264,6 @@ export default function MeusProdutosPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   );
 }
