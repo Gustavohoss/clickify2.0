@@ -165,7 +165,7 @@ export default function PromptBuilderPage() {
 
     const renderModule1 = () => (
         <div className="space-y-4">
-            <UILabel>Nicho/Ramo de Atuação</UILabel>
+            <Label>Nicho/Ramo de Atuação</Label>
             <Select value={formData.niche} onValueChange={(v) => setFormData({...formData, niche: v})}>
                 <SelectTrigger><SelectValue placeholder="Selecione o nicho" /></SelectTrigger>
                 <SelectContent>
@@ -181,7 +181,7 @@ export default function PromptBuilderPage() {
             </Select>
             {formData.niche === 'outro' && <Input placeholder="Especifique o nicho" value={formData.otherNiche} onChange={(e) => setFormData({...formData, otherNiche: e.target.value})} />}
             
-            <UILabel>Modelo de Negócio (Monetização)</UILabel>
+            <Label>Modelo de Negócio (Monetização)</Label>
             <Select value={formData.businessModel} onValueChange={(v) => setFormData({...formData, businessModel: v})}>
                 <SelectTrigger><SelectValue placeholder="Selecione o modelo" /></SelectTrigger>
                 <SelectContent>
@@ -193,7 +193,7 @@ export default function PromptBuilderPage() {
                 </SelectContent>
             </Select>
 
-            <UILabel>Público-Alvo (Persona)</UILabel>
+            <Label>Público-Alvo (Persona)</Label>
             <div className="grid grid-cols-2 gap-4">
                 <Select value={formData.targetAudienceAge} onValueChange={(v) => setFormData({...formData, targetAudienceAge: v})}>
                     <SelectTrigger><SelectValue placeholder="Faixa Etária" /></SelectTrigger>
@@ -212,14 +212,14 @@ export default function PromptBuilderPage() {
                 </Select>
             </div>
 
-            <UILabel>Objetivo Principal da Tela</UILabel>
+            <Label>Objetivo Principal da Tela</Label>
             <Input placeholder="Ex: Converter o usuário em cliente" value={formData.mainGoal} onChange={(e) => setFormData({...formData, mainGoal: e.target.value})} />
         </div>
     );
     
     const renderModule2 = () => (
          <div className="space-y-4">
-            <UILabel>Autenticação (Login)</UILabel>
+            <Label>Autenticação (Login)</Label>
             <Select value={formData.authType} onValueChange={(v) => setFormData({...formData, authType: v})}>
                 <SelectTrigger><SelectValue placeholder="Tipo de autenticação" /></SelectTrigger>
                 <SelectContent>
@@ -231,7 +231,7 @@ export default function PromptBuilderPage() {
             </Select>
             {formData.authType !== 'none' && (
                 <div className="space-y-4 pl-4 border-l-2 border-muted">
-                    <UILabel>Opções de Autenticação</UILabel>
+                    <Label>Opções de Autenticação</Label>
                     <div className="space-y-2">
                         <h4 className="font-semibold text-sm">Login Social</h4>
                         {['Google', 'GitHub', 'Apple'].map(p => <div key={p} className="flex items-center space-x-2"><Checkbox id={`social-${p}`} checked={formData.socialLogins.includes(p)} onCheckedChange={() => handleMultiSelectChange('socialLogins', p)} /><Label htmlFor={`social-${p}`}>{p}</Label></div>)}
@@ -242,7 +242,7 @@ export default function PromptBuilderPage() {
                     </div>
                 </div>
             )}
-             <UILabel>Integrações Externas (APIs)</UILabel>
+             <Label>Integrações Externas (APIs)</Label>
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm">Pagamentos</h4>
                 {['Stripe', 'PayPal', 'Mercado Pago'].map(p => <div key={p} className="flex items-center space-x-2"><Checkbox id={`payment-${p}`} checked={formData.paymentIntegrations.includes(p)} onCheckedChange={() => handleMultiSelectChange('paymentIntegrations', p)} /><Label htmlFor={`payment-${p}`}>{p}</Label></div>)}
@@ -256,7 +256,7 @@ export default function PromptBuilderPage() {
 
     const renderModule3 = () => (
         <div className="space-y-4">
-             <UILabel>Biblioteca de Componentes</UILabel>
+             <Label>Biblioteca de Componentes</Label>
              <Select value={formData.uiLibrary} onValueChange={(v) => setFormData({...formData, uiLibrary: v})}>
                  <SelectTrigger><SelectValue /></SelectTrigger>
                  <SelectContent>
@@ -266,7 +266,7 @@ export default function PromptBuilderPage() {
                      <SelectItem value="radix">Radix Primitives</SelectItem>
                  </SelectContent>
              </Select>
-            <UILabel>Raio de Borda (Border Radius)</UILabel>
+            <Label>Raio de Borda (Border Radius)</Label>
             <Select value={formData.borderRadius} onValueChange={(v) => setFormData({...formData, borderRadius: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -275,7 +275,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="full">Fully Rounded (Pill)</SelectItem>
                 </SelectContent>
             </Select>
-            <UILabel>Sombreamento e Profundidade</UILabel>
+            <Label>Sombreamento e Profundidade</Label>
             <Select value={formData.shadowStyle} onValueChange={(v) => setFormData({...formData, shadowStyle: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -285,7 +285,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="colored-shadows">Sombras Coloridas</SelectItem>
                 </SelectContent>
             </Select>
-            <UILabel>Iconografia</UILabel>
+            <Label>Iconografia</Label>
              <Select value={formData.iconography} onValueChange={(v) => setFormData({...formData, iconography: v})}>
                  <SelectTrigger><SelectValue /></SelectTrigger>
                  <SelectContent>
@@ -299,7 +299,7 @@ export default function PromptBuilderPage() {
 
     const renderModule4 = () => (
         <div className="space-y-4">
-            <UILabel>Micro-interações</UILabel>
+            <Label>Micro-interações</Label>
             <div className="space-y-2">
                 {["Feedback tátil/visual em botões", "Validação de inputs em tempo real", "Confetti ao completar tarefa"].map(item => (
                     <div key={item} className="flex items-center space-x-2">
@@ -308,7 +308,7 @@ export default function PromptBuilderPage() {
                     </div>
                 ))}
             </div>
-            <UILabel>Transições de Página</UILabel>
+            <Label>Transições de Página</Label>
             <Select value={formData.pageTransitions} onValueChange={(v) => setFormData({...formData, pageTransitions: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -317,7 +317,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="slide">Slide lateral</SelectItem>
                 </SelectContent>
             </Select>
-            <UILabel>Carregamento (Loading States)</UILabel>
+            <Label>Carregamento (Loading States)</Label>
             <Select value={formData.loadingStates} onValueChange={(v) => setFormData({...formData, loadingStates: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -326,7 +326,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="progress-bar">Barra de progresso</SelectItem>
                 </SelectContent>
             </Select>
-            <UILabel>Comportamento de Scroll</UILabel>
+            <Label>Comportamento de Scroll</Label>
             <Select value={formData.scrollBehavior} onValueChange={(v) => setFormData({...formData, scrollBehavior: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -341,7 +341,7 @@ export default function PromptBuilderPage() {
 
     const renderModule5 = () => (
         <div className="space-y-4">
-             <UILabel>Tom de Voz</UILabel>
+             <Label>Tom de Voz</Label>
             <Select value={formData.toneOfVoice} onValueChange={(v) => setFormData({...formData, toneOfVoice: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -351,7 +351,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="Minimalista e Direto">Minimalista e Direto</SelectItem>
                 </SelectContent>
             </Select>
-            <UILabel>Idioma e Localização</UILabel>
+            <Label>Idioma e Localização</Label>
             <Select value={formData.language} onValueChange={(v) => setFormData({...formData, language: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -360,7 +360,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="multi-language">Multi-idioma (i18n)</SelectItem>
                 </SelectContent>
             </Select>
-             <UILabel>Recursos de SEO</UILabel>
+             <Label>Recursos de SEO</Label>
             <div className="space-y-2">
                 {["Gerar meta-tags automaticamente", "Usar tags semânticas (H1, H2) para acessibilidade"].map(item => (
                     <div key={item} className="flex items-center space-x-2">
@@ -374,7 +374,7 @@ export default function PromptBuilderPage() {
 
     const renderModule6 = () => (
          <div className="space-y-4">
-             <UILabel>Framework Principal</UILabel>
+             <Label>Framework Principal</Label>
             <Select value={formData.techStack} onValueChange={(v) => setFormData({...formData, techStack: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -382,7 +382,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="vite">React + Vite</SelectItem>
                 </SelectContent>
             </Select>
-             <UILabel>Gerenciamento de Estado</UILabel>
+             <Label>Gerenciamento de Estado</Label>
             <Select value={formData.stateManagement} onValueChange={(v) => setFormData({...formData, stateManagement: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -392,7 +392,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="tanstack-query">TanStack Query</SelectItem>
                 </SelectContent>
             </Select>
-            <UILabel>Formulários</UILabel>
+            <Label>Formulários</Label>
             <Select value={formData.formHandling} onValueChange={(v) => setFormData({...formData, formHandling: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -406,7 +406,7 @@ export default function PromptBuilderPage() {
 
     const renderModule7 = () => (
         <div className="space-y-4">
-             <UILabel>Abordagem de Responsividade</UILabel>
+             <Label>Abordagem de Responsividade</Label>
             <Select value={formData.responsiveApproach} onValueChange={(v) => setFormData({...formData, responsiveApproach: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -415,7 +415,7 @@ export default function PromptBuilderPage() {
                     <SelectItem value="fully-responsive">Totalmente Responsivo</SelectItem>
                 </SelectContent>
             </Select>
-            <UILabel>Estrutura de Layout</UILabel>
+            <Label>Estrutura de Layout</Label>
             <Select value={formData.layoutStructure} onValueChange={(v) => setFormData({...formData, layoutStructure: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
