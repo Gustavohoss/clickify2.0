@@ -115,7 +115,7 @@ export default function Home() {
       <SocialProof />
       <LessonsCarousel />
 
-      <section className="relative py-20 text-center overflow-hidden">
+      <section className="relative py-20 pb-32 text-center overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold text-white font-body">
             Mais de <span className="text-primary">1000 membros</span> ativos!
