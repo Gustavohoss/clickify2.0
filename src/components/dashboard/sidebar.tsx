@@ -17,6 +17,7 @@ import {
   Download,
   UploadCloud,
   Wand2,
+  Trophy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/landing/logo';
@@ -32,6 +33,7 @@ const navLinks = [
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
   { href: '/dashboard/prompt-builder', label: 'Criador de Prompts', icon: Wand2 },
   { href: '/dashboard/remover-meta-dados', label: 'Remover metadados', icon: FileX },
+  { href: '/dashboard/premiacao', label: 'Premiação', icon: Trophy },
   { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
