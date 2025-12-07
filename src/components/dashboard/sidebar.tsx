@@ -31,7 +31,6 @@ const navLinks = [
   { href: '/dashboard/vitrine-funis', label: 'Vitrine de Funis', icon: Package },
   { href: '/dashboard/area-de-membros', label: 'Área de Membros', icon: BookUser },
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
-  { href: '/dashboard/prompt-builder', label: 'Criador de Prompts', icon: Wand2 },
   { href: '/dashboard/remover-meta-dados', label: 'Remover metadados', icon: FileX },
   { href: '/dashboard/premiacao', label: 'Premiação', icon: Trophy },
   { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
