@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -106,32 +107,33 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import type { Funnel, CanvasBlock, CanvasConnection, DropIndicator, ButtonItem, ImageChoice } from './types.tsx';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.tsx';
-import { CanvasGroupBlock } from './typebot/blocks/CanvasGroupBlock.tsx';
-import { CanvasTextBlock } from './typebot/blocks/CanvasTextBlock.tsx';
-import { ContextMenu } from './typebot/ui/ContextMenu.tsx';
-import { ImageBlockSettings } from './typebot/settings/ImageSettings.tsx';
-import { VideoBlockSettings } from './typebot/settings/VideoSettings.tsx';
-import { AudioBlockSettings } from './typebot/settings/AudioSettings.tsx';
-import { WaitBlockSettings } from './typebot/settings/WaitSettings.tsx';
-import { ButtonsBlockSettings } from './typebot/settings/ButtonsSettings.tsx';
-import { TextBlockSettings } from './typebot/settings/TextSettings.tsx';
-import { EmailBlockSettings } from './typebot/settings/EmailSettings.tsx';
-import { WebsiteBlockSettings } from './typebot/settings/WebsiteSettings.tsx';
-import { EmbedBlockSettings } from './typebot/settings/EmbedSettings.tsx';
-import { ImageChoiceSettings } from './typebot/settings/ImageChoiceSettings.tsx';
-import { RedirectBlockSettings } from './typebot/settings/RedirectSettings.tsx';
-import { TimeBlockSettings } from './typebot/settings/TimeSettings.tsx';
-import { ABTestSettings } from './typebot/settings/ABTestSettings.tsx';
-import { JumpToBlockSettings } from './typebot/settings/JumpToSettings.tsx';
-import { ConnectionHandle } from './typebot/ui/ConnectionHandle.tsx';
+import type { Funnel, CanvasBlock, CanvasConnection, DropIndicator, ButtonItem, ImageChoice } from './types';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { CanvasGroupBlock } from './typebot/blocks/CanvasGroupBlock';
+import { CanvasTextBlock } from './typebot/blocks/CanvasTextBlock';
+import { ContextMenu } from './typebot/ui/ContextMenu';
+import { ImageBlockSettings } from './typebot/settings/ImageSettings';
+import { VideoBlockSettings } from './typebot/settings/VideoSettings';
+import { AudioBlockSettings } from './typebot/settings/AudioSettings';
+import { WaitBlockSettings } from './typebot/settings/WaitSettings';
+import { ButtonsBlockSettings } from './typebot/settings/ButtonsSettings';
+import { TextBlockSettings } from './typebot/settings/TextSettings';
+import { EmailBlockSettings } from './typebot/settings/EmailSettings';
+import { WebsiteBlockSettings } from './typebot/settings/WebsiteSettings';
+import { EmbedBlockSettings } from './typebot/settings/EmbedSettings';
+import { ImageChoiceSettings } from './typebot/settings/ImageChoiceSettings';
+import { RedirectBlockSettings } from './typebot/settings/RedirectSettings';
+import { TimeBlockSettings } from './typebot/settings/TimeSettings';
+import { ABTestSettings } from './typebot/settings/ABTestSettings';
+import { JumpToBlockSettings } from './typebot/settings/JumpToSettings';
+import { ConnectionHandle } from './typebot/ui/ConnectionHandle';
 import Image from 'next/image';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion.tsx';
-import { useToast } from '@/hooks/use-toast.ts';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu.tsx';
-import { TypingIndicator } from './typebot/ui/TypingIndicator.tsx';
-import { Textarea } from '../ui/textarea.tsx';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { useToast } from '@/hooks/use-toast';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { TypingIndicator } from './typebot/ui/TypingIndicator';
+import { Textarea } from '../ui/textarea';
+import { WhatsAppCheck } from './typebot/ui/WhatsAppCheck';
 
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
@@ -188,14 +190,6 @@ const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[]
     );
 };
 
-const WhatsAppCheck = ({ className }: { className?: string }) => (
-    <svg viewBox="0 0 16 15" width="16" height="15" className={cn("text-blue-400", className)}>
-        <path fill="currentColor" d="M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.516.002l-.41.383a.365.365 0 0 0 .003.512l3.238 3.238a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" />
-        <path fill="currentColor" d="M15.263 3.316l-.478-.372a.365.365 0 0 0-.51.063l-6.272 8.048a.32.32 0 0 1-.484.033l-.78-.78a.365.365 0 0 0-.513.512l1.218 1.218a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" />
-    </svg>
-);
-
-
 const TypebotPreviewHeader = ({ name, avatarUrl }: { name: string; avatarUrl: string }) => (
     <div className="flex items-center p-2 bg-[#202c33] shrink-0">
         <Button variant="ghost" size="icon" className="h-10 w-10 text-white"><ArrowLeft /></Button>
@@ -236,7 +230,11 @@ const renderPreviewMessage = (message: PreviewMessage) => {
     return (
       <div key={message.id} className="flex justify-end">
         <div className="bg-[#005c4b] text-white rounded-lg rounded-br-none p-3 max-w-[80%]">
-          <p className="text-sm">{message.content as string}</p>
+          {typeof message.content === 'string' ? (
+              <p className="text-sm">{message.content}</p>
+          ) : (
+             message.content
+          )}
         </div>
       </div>
     );

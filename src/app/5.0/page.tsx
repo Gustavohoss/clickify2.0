@@ -1,4 +1,4 @@
-
+//FELIPE
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -136,7 +136,7 @@ export default function Home() {
                         "Suporte básico"
                     ]}
                     isFeatured={false}
-                    checkoutUrl="https://pay.cakto.com.br/xy27qg8?affiliate=D4S5F6G7"
+                    checkoutUrl="https://pay.cakto.com.br/xy27qg8?affiliate=VBDvV5uG"
                 />
                 <NewPricingCard
                     title="Plano Ilimitado"
@@ -151,7 +151,7 @@ export default function Home() {
                         "Todas as atualizações incluídas"
                     ]}
                     isFeatured={true}
-                    checkoutUrl="https://pay.cakto.com.br/37k4xrc_658280?affiliate=D4S5F6G7"
+                    checkoutUrl="https://pay.cakto.com.br/37k4xrc_658280?affiliate=VBDvV5uG"
                 />
             </div>
         </div>
