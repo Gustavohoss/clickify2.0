@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
@@ -132,6 +133,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { TypingIndicator } from './typebot/ui/TypingIndicator';
 import { Textarea } from '../ui/textarea';
+import { WhatsAppCheck } from './typebot/ui/WhatsAppCheck';
 
 const getSmoothStepPath = (x1: number, y1: number, x2: number, y2: number) => {
   const dx = x2 - x1;
@@ -186,13 +188,6 @@ const PreviewImageChoices = ({ choices, onImageClick }: { choices: ImageChoice[]
         </div>
     );
 };
-
-const WhatsAppCheck = ({ className }: { className?: string }) => (
-    <svg viewBox="0 0 16 15" width="16" height="15" className={cn("text-blue-400", className)}>
-        <path fill="currentColor" d="M10.91 3.316l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.516.002l-.41.383a.365.365 0 0 0 .003.512l3.238 3.238a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" />
-        <path fill="currentColor" d="M15.263 3.316l-.478-.372a.365.365 0 0 0-.51.063l-6.272 8.048a.32.32 0 0 1-.484.033l-.78-.78a.365.365 0 0 0-.513.512l1.218 1.218a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" />
-    </svg>
-);
 
 const TypebotPreviewHeader = ({ name, avatarUrl }: { name: string; avatarUrl: string }) => (
     <div className="flex items-center p-2 bg-[#202c33] shrink-0">
@@ -1328,14 +1323,21 @@ export function TypebotEditor({
         setPreviewMessages((prev) => prev.filter(m => m.id !== typingId));
         continue; 
       }
+      
+      let messageContent: React.ReactNode;
+      if (child.type === 'image' && child.props?.imageUrl) {
+        messageContent = <Image src={child.props.imageUrl} alt="Bot message" width={200} height={150} className="rounded-md" />;
+      } else {
+        const interpolatedContent = interpolateVariables(child.props?.content);
+        messageContent = <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />;
+      }
   
-      const interpolatedContent = interpolateVariables(child.props?.content);
        setPreviewMessages((prev) => [
         ...prev,
         {
           id: Date.now() + Math.random(),
           sender: 'bot',
-          content: <div dangerouslySetInnerHTML={{ __html: interpolatedContent }} />,
+          content: messageContent,
         },
       ]);
     }
