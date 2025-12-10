@@ -89,6 +89,11 @@ service cloud.firestore {
       allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
+    match /affiliatePages/{pageId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // Only manageable from Console
+    }
+
     match /showcaseFunnels/{funnelId} {
       allow get, list: if isSignedIn();
       allow create, update, delete: if false; // Managed via Firebase Console

@@ -440,6 +440,28 @@
         }
       },
       "required": ["id", "title", "description", "createdAt"]
+    },
+    "AffiliatePage": {
+      "title": "AffiliatePage",
+      "type": "object",
+      "description": "Represents a dynamically generated affiliate landing page.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "The unique URL slug for the page (e.g., '1.0', 'john-doe')."
+        },
+        "checkoutUrl149": {
+          "type": "string",
+          "format": "uri",
+          "description": "The checkout URL for the R$149,90 plan."
+        },
+        "checkoutUrl249": {
+          "type": "string",
+          "format": "uri",
+          "description": "The checkout URL for the R$249,90 plan."
+        }
+      },
+      "required": ["slug", "checkoutUrl149", "checkoutUrl249"]
     }
   },
   "auth": {
@@ -651,6 +673,22 @@
             {
               "name": "notificationId",
               "description": "The unique identifier of the notification."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/affiliatePages/{pageId}",
+        "definition": {
+          "entityName": "AffiliatePage",
+          "schema": {
+            "$ref": "#/backend/entities/AffiliatePage"
+          },
+          "description": "Stores data for dynamically generated affiliate pages. Publicly readable.",
+          "params": [
+            {
+              "name": "pageId",
+              "description": "The unique identifier of the affiliate page document."
             }
           ]
         }

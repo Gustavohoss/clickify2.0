@@ -49,7 +49,8 @@ export default function ConfiguracoesPage() {
         const newWebhookRef = doc(webhooksCol);
         const newId = newWebhookRef.id;
 
-        const newWebhookUrl = `${window.location.origin}/api/webhook/${user.uid}/${newId}`;
+        // Simplified webhook URL
+        const newWebhookUrl = `${window.location.origin}/api/webhook/${user.uid}`;
         
         await setDoc(newWebhookRef, {
           id: newId,
