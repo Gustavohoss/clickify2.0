@@ -169,7 +169,7 @@ export default function Home() {
                         "Suporte básico"
                     ]}
                     isFeatured={false}
-                    checkoutUrl="hhttps://pay.cakto.com.br/xy27qg8?affiliate=kW9Gvqth"
+                    checkoutUrl="https://pay.cakto.com.br/xy27qg8?affiliate=kW9Gvqth"
                 />
                 <NewPricingCard
                     title="Plano Ilimitado"

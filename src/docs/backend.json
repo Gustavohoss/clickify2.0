@@ -1,0 +1,679 @@
+
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Clickify AI application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The user's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The user's last name."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the user logged in.",
+          "format": "date-time"
+        },
+        "profilePicture": {
+          "type": "string",
+          "description": "URL of the user's profile picture.",
+          "format": "uri"
+        },
+        "planId": {
+          "type": "string",
+          "description": "The user's subscription plan. Can be 'mensal', 'vitalicio', or empty.",
+          "enum": ["mensal", "vitalicio", ""]
+        },
+        "balance": {
+          "type": "number",
+          "description": "The user's current account balance."
+        },
+        "simulateRevenue": {
+          "type": "boolean",
+          "description": "If true, the dashboard chart will show a simulated revenue distribution based on the total balance."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "createdAt",
+        "balance",
+        "planId"
+      ]
+    },
+    "Sale": {
+      "title": "Sale",
+      "type": "object",
+      "description": "Represents a sale transaction from a payment gateway.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique transaction ID from the payment gateway."
+        },
+        "price": {
+          "type": "number",
+          "description": "The total value of the sale."
+        },
+        "status": {
+          "type": "string",
+          "description": "The payment status of the sale.",
+          "enum": ["paid", "pending", "refunded", "failed"]
+        },
+        "receivedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the webhook for this sale was received."
+        }
+      },
+      "required": ["id", "price", "status", "receivedAt"]
+    },
+    "Earning": {
+        "title": "Earning",
+        "type": "object",
+        "description": "Represents the total earnings for a specific day.",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "The date for which the earnings are recorded (YYYY-MM-DD)."
+          },
+          "amount": {
+            "type": "number",
+            "description": "The total amount earned on this day."
+          }
+        },
+        "required": ["date", "amount"]
+    },
+    "Plan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Plan",
+      "type": "object",
+      "description": "Represents a pricing plan offered by Clickify AI.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the plan entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the plan (e.g., Free, Pro, Premium)."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the plan's features and benefits."
+        },
+        "priceMonthly": {
+          "type": "number",
+          "description": "The monthly price of the plan."
+        },
+        "priceYearly": {
+          "type": "number",
+          "description": "The yearly price of the plan."
+        },
+        "features": {
+          "type": "array",
+          "description": "A list of features included in the plan.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "priceMonthly",
+        "priceYearly",
+        "features"
+      ]
+    },
+    "AiModel": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AiModel",
+      "type": "object",
+      "description": "Represents an AI model used in Clickify AI, stored in Lovable Cloud.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AI Model."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the AI Model (e.g., 'Funnel Generator', 'TikTok Script Writer')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the AI model's purpose and capabilities."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version number of the AI model for tracking updates."
+        },
+        "modelUri": {
+          "type": "string",
+          "description": "URI pointing to the AI model file in Lovable Cloud storage.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "version",
+        "modelUri"
+      ]
+    },
+    "AiTemplate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AiTemplate",
+      "type": "object",
+      "description": "Represents a template used by AI tools, stored in Lovable Cloud.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AI Template."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the AI template (e.g., 'Landing Page Template', 'TikTok Bio Template')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the AI template's usage."
+        },
+        "templateUri": {
+          "type": "string",
+          "description": "URI pointing to the template file in Lovable Cloud storage.",
+          "format": "uri"
+        },
+        "aiModelId": {
+          "type": "string",
+          "description": "Reference to the AI Model that uses this template. (Relationship: AiModel 1:N AiTemplate)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "templateUri",
+        "aiModelId"
+      ]
+    },
+    "Funnel": {
+      "title": "Funnel",
+      "type": "object",
+      "description": "Represents a user-created sales or marketing funnel.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the funnel."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the funnel."
+        },
+        "slug": {
+          "type": "string",
+          "description": "The URL-friendly slug for the funnel."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the funnel (e.g., 'sales-page', 'quiz')."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who owns this funnel."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the funnel was created."
+        },
+        "isPublished": {
+          "type": "boolean",
+          "description": "Indicates if the funnel is published and publicly accessible."
+        },
+        "steps": {
+          "type": "array",
+          "description": "The steps within the funnel.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "number" },
+              "name": { "type": "string" },
+              "components": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "number" },
+                    "name": { "type": "string" },
+                    "props": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["id", "name", "slug", "type", "userId", "createdAt", "steps"]
+    },
+    "ShowcaseFunnel": {
+      "title": "ShowcaseFunnel",
+      "type": "object",
+      "description": "Represents a funnel template available in the showcase.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The ID of the original funnel to be cloned."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the showcase funnel."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of what the funnel does."
+        },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL for the showcase image."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the funnel (e.g., 'typebot', 'quiz')."
+        }
+      },
+      "required": ["id", "name", "description", "imageUrl", "type"]
+    },
+     "MemberArea": {
+      "title": "MemberArea",
+      "type": "object",
+      "description": "Represents a user-created members area.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["netflix", "common"] },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "modules": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "upsellsTitle": {
+          "type": "string",
+          "description": "Custom title for the upsells section."
+        },
+        "upsells": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "price": { "type": "string" },
+              "compareAtPrice": { "type": "string" },
+              "imageUrl": { "type": "string", "format": "uri" },
+              "url": { "type": "string", "format": "uri" },
+              "showPrice": { "type": "boolean" }
+            },
+            "required": ["id", "name", "price", "url"]
+          }
+        },
+        "backgroundColor": {
+          "type": "string",
+          "description": "The background color for the member area."
+        }
+      },
+      "required": ["id", "name", "slug", "type", "userId", "createdAt"]
+    },
+    "ProductAffiliate": {
+      "title": "ProductAffiliate",
+      "type": "object",
+      "description": "Represents a product available for affiliation.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "priceFrom": { "type": "number" },
+        "priceTo": { "type": "number" },
+        "commission": { "type": "string" },
+        "affiliateLink": { "type": "string", "format": "uri" },
+        "quizId": { "type": "string", "description": "Optional ID of a quiz funnel associated with the product." },
+        "userId": { "type": "string", "description": "The ID of the user who submitted this product." },
+        "status": {
+          "type": "string",
+          "description": "Approval status of the product.",
+          "enum": ["pending", "approved", "rejected"]
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the product."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "imageUrl",
+        "commission",
+        "affiliateLink",
+        "userId",
+        "status",
+        "category"
+      ]
+    },
+    "Webhook": {
+      "title": "Webhook",
+      "type": "object",
+      "description": "Represents a payment gateway webhook configuration.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "webhookUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "webhookUrl",
+        "userId"
+      ]
+    },
+    "Notification": {
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a global notification for all users.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "object",
+          "description": "Timestamp of when the notification was created."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional URL for more details."
+        }
+      },
+      "required": ["id", "title", "description", "createdAt"]
+    },
+    "AffiliatePage": {
+      "title": "AffiliatePage",
+      "type": "object",
+      "description": "Represents a dynamically generated affiliate landing page.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "The unique URL slug for the page (e.g., '1.0', 'john-doe')."
+        },
+        "checkoutUrl149": {
+          "type": "string",
+          "format": "uri",
+          "description": "The checkout URL for the R$149,90 plan."
+        },
+        "checkoutUrl249": {
+          "type": "string",
+          "format": "uri",
+          "description": "The checkout URL for the R$249,90 plan."
+        }
+      },
+      "required": ["slug", "checkoutUrl149", "checkoutUrl249"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Path-based ownership ensures that only the authenticated user can access their own profile data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/sales/{saleId}",
+        "definition": {
+            "entityName": "Sale",
+            "schema": {
+                "$ref": "#/backend/entities/Sale"
+            },
+            "description": "Stores user-specific sales transactions.",
+            "params": [
+                {
+                    "name": "userId",
+                    "description": "The unique identifier of the user."
+                },
+                {
+                    "name": "saleId",
+                    "description": "The unique identifier of the sale (transaction ID)."
+                }
+            ]
+        }
+      },
+      {
+        "path": "/users/{userId}/earnings/{earningId}",
+        "definition": {
+          "entityName": "Earning",
+          "schema": {
+            "$ref": "#/backend/entities/Earning"
+          },
+          "description": "Stores a user's daily earnings.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "earningId",
+              "description": "The date of the earning (YYYY-MM-DD)."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/plans/{planId}",
+        "definition": {
+          "entityName": "Plan",
+          "schema": {
+            "$ref": "#/backend/entities/Plan"
+          },
+          "description": "Stores pricing plans. All documents in this collection have the same security posture (public read).",
+          "params": [
+            {
+              "name": "planId",
+              "description": "The unique identifier of the pricing plan."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/ai_models/{aiModelId}",
+        "definition": {
+          "entityName": "AiModel",
+          "schema": {
+            "$ref": "#/backend/entities/AiModel"
+          },
+          "description": "Stores AI models. All documents in this collection have the same security posture (public read).",
+          "params": [
+            {
+              "name": "aiModelId",
+              "description": "The unique identifier of the AI Model."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/ai_models/{aiModelId}/ai_templates/{aiTemplateId}",
+        "definition": {
+          "entityName": "AiTemplate",
+          "schema": {
+            "$ref": "#/backend/entities/AiTemplate"
+          },
+          "description": "Stores AI templates associated with AI models.  All documents in this collection have the same security posture (public read).",
+          "params": [
+            {
+              "name": "aiModelId",
+              "description": "The unique identifier of the AI Model."
+            },
+            {
+              "name": "aiTemplateId",
+              "description": "The unique identifier of the AI Template."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/funnels/{funnelId}",
+        "definition": {
+          "entityName": "Funnel",
+          "schema": {
+            "$ref": "#/backend/entities/Funnel"
+          },
+          "description": "Stores user-created funnels. Only the authenticated user can access their own funnels.",
+          "params": [
+            {
+              "name": "funnelId",
+              "description": "The unique identifier of the funnel."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/showcaseFunnels/{funnelId}",
+        "definition": {
+          "entityName": "ShowcaseFunnel",
+          "schema": {
+            "$ref": "#/backend/entities/ShowcaseFunnel"
+          },
+          "description": "Stores funnel templates for the public showcase. Publicly readable.",
+          "params": [
+            {
+              "name": "funnelId",
+              "description": "The unique identifier of the showcase funnel."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/memberAreas/{memberAreaId}",
+        "definition": {
+          "entityName": "MemberArea",
+          "schema": { "$ref": "#/backend/entities/MemberArea" },
+          "description": "Stores user-created member areas.",
+           "params": [
+            {
+              "name": "memberAreaId",
+              "description": "The unique identifier of the member area."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/affiliateProducts/{productId}",
+        "definition": {
+          "entityName": "ProductAffiliate",
+          "schema": {
+            "$ref": "#/backend/entities/ProductAffiliate"
+          },
+          "description": "Stores products available for affiliation, submitted by users.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier of the affiliate product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/notifications/{notificationId}",
+        "definition": {
+          "entityName": "Notification",
+          "schema": {
+            "$ref": "#/backend/entities/Notification"
+          },
+          "description": "Stores global notifications for all users.",
+          "params": [
+            {
+              "name": "notificationId",
+              "description": "The unique identifier of the notification."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/affiliatePages/{pageId}",
+        "definition": {
+          "entityName": "AffiliatePage",
+          "schema": {
+            "$ref": "#/backend/entities/AffiliatePage"
+          },
+          "description": "Stores data for dynamically generated affiliate pages. Publicly readable.",
+          "params": [
+            {
+              "name": "pageId",
+              "description": "The unique identifier of the affiliate page document."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the Clickify AI application, focusing on user management, AI model and template storage, and plan management. The structure emphasizes authorization independence and data clarity for scalable and secure operations.\\n\\n*   **Authorization Independence**: Authorization is achieved through path-based ownership (`/users/{userId}`). This eliminates the need for `get()` calls in security rules, thus enabling atomic operations (transactions/batches). \\n*   **Structural Segregation**: Each collection is designed to hold documents with similar security requirements.\\n*   **Access Modeling**: Path-based ownership is used for user-related data (`/users/{userId}`). This is the simplest and most secure ownership model. This implicitly grants the user full ownership of the data stored under their path. There are no collaborative features that require membership maps.\\n*   **QAPs**: Secure `list` operations are supported through structural segregation and path-based ownership. Since all documents under `/users/{userId}` are owned by the user, listing them only requires checking the `request.auth.uid` against the `userId` path parameter.\\n*   **Invariants**: The structure facilitates enforcing ownership and data integrity. Timestamps can be enforced in security rules using `request.time`.\\n\\n**Details:**\\n*   `/users/{userId}`: Stores user profiles.  The path itself ensures ownership and simplifies security rules.\\n*   `/plans/{planId}`: Stores pricing plans. This is a global collection and readable by everyone.\\n*   `/ai_models/{aiModelId}`: Stores AI models. This is a global collection and readable by everyone.\\n*   `/ai_models/{aiModelId}/ai_templates/{aiTemplateId}`: Stores AI templates related to AI models. By nesting templates under models, we can define templates to specific models.\\n*   `/funnels/{funnelId}`: Stores user-created funnels. Each funnel is associated with a `userId` to enforce ownership.\\n*   `/showcaseFunnels/{funnelId}`: Stores funnel templates for the public showcase.\\n*   `/notifications/{notificationId}`: Stores global notifications. This is a global collection and readable by everyone."
+  }
+}

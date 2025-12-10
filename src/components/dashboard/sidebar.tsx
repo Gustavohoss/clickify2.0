@@ -33,7 +33,6 @@ const navLinks = [
   { href: '/dashboard/funis', label: 'Funis', icon: Milestone },
   { href: '/dashboard/remover-meta-dados', label: 'Remover metadados', icon: FileX },
   { href: '/dashboard/premiacao', label: 'Premiação', icon: Trophy },
-  { href: '/dashboard/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
