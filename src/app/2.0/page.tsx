@@ -1,4 +1,3 @@
-//ALEXANDRE
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import { Header } from "@/components/landing/header";
 import SocialProof from "@/components/landing/social-proof";
 import { LessonsCarousel } from "@/components/landing/lessons-carousel";
 import { NewPricingCard } from "@/components/ui/new-pricing-card";
+import { motion } from 'framer-motion';
 
 const partners = [
   PlaceHolderImages.find(p => p.id === 'kiwify-logo'),
@@ -64,7 +64,7 @@ export default function Home() {
 
   return (
     <main className="dark">
-       <Header isLinkDisabled={true} />
+       <Header />
        <style jsx global>{`
         @keyframes slide {
           from { transform: translateX(0); }
@@ -114,6 +114,38 @@ export default function Home() {
       <SocialProof />
       <LessonsCarousel />
 
+      <section className="relative py-20 pb-32 text-center overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <h2 className="text-4xl md:text-5xl font-bold text-white font-body">
+            Mais de <span className="text-primary">1000 membros</span> ativos!
+          </h2>
+          <p className="mt-4 text-lg text-neutral-300 max-w-3xl mx-auto">
+            Entre para a Clickify e faça parte da elite dos que vendem. Aprenda, fature e seja reconhecido com uma premiação especial após 7 Dias na Clickify!
+          </p>
+          <div className="mt-12 flex justify-center">
+            <motion.div
+              animate={{ y: [-10, 10, -10] }}
+              transition={{
+                duration: 5,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "loop",
+              }}
+              className="relative"
+            >
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-blue-500/50 rounded-full blur-3xl" />
+              <Image
+                src="https://s3.typebot.io/public/workspaces/cmin0v9k5001cl404bcq7x2qj/typebots/cmin0visp0001l704z3ncv1yg/blocks/wy7wp7ti2bxdxwqhuu1vch8p?v=1764956144895"
+                alt="Pulseira de premiação Clickify"
+                width={400}
+                height={400}
+                className="relative z-10"
+              />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       <section id="pricing" className="relative overflow-hidden bg-background text-foreground pt-10 pb-20 text-center scroll-mt-20">
         <div className="relative z-10 mx-auto max-w-5xl px-4 md:px-8">
             <h1 className="md:text-5xl text-3xl lg:text-6xl text-white font-body">
@@ -136,7 +168,7 @@ export default function Home() {
                         "Suporte básico"
                     ]}
                     isFeatured={false}
-                    checkoutUrl="https://pay.cakto.com.br/xy27qg8?affiliate=kW9Gvqth"
+                    checkoutUrl="https://pay.cakto.com.br/xy27qg8"
                 />
                 <NewPricingCard
                     title="Plano Ilimitado"
@@ -151,7 +183,7 @@ export default function Home() {
                         "Todas as atualizações incluídas"
                     ]}
                     isFeatured={true}
-                    checkoutUrl="https://pay.cakto.com.br/37k4xrc_658280?affiliate=kW9Gvqth"
+                    checkoutUrl="https://pay.cakto.com.br/37k4xrc_658280"
                 />
             </div>
         </div>
