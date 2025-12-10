@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -168,7 +169,7 @@ export default function Home() {
                         "Suporte básico"
                     ]}
                     isFeatured={false}
-                    checkoutUrl="https://pay.cakto.com.br/xy27qg8?affiliate=6LYXbkZ2"
+                    checkoutUrl="https://pay.cakto.com.br/xy27qg8?affiliate=G32E4g4j"
                 />
                 <NewPricingCard
                     title="Plano Ilimitado"
@@ -183,7 +184,7 @@ export default function Home() {
                         "Todas as atualizações incluídas"
                     ]}
                     isFeatured={true}
-                    checkoutUrl="https://pay.cakto.com.br/37k4xrc_658280?affiliate=6LYXbkZ2"
+                    checkoutUrl="https://pay.cakto.com.br/37k4xrc_658280?affiliate=G32E4g4j"
                 />
             </div>
         </div>
